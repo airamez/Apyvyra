@@ -38,8 +38,6 @@
 * Throughout this project, we will focus on building the simplest architecture possible while still following best practices.
 * The goal is not to address the complex scaling challenges faced by big data companies, but to provide a solid foundation for practical, maintainable applications.
 
-[![ApyVyra Logo](images/apyvyra-meaning.png)](images/apyvyra-meaning.png)
-
 ## What is an ERP?
 
 * An ERP (Enterprise Resource Planning) system is software that helps organizations manage and integrate their core business processes.
