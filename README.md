@@ -10,12 +10,13 @@
     * Programming Logic
     * C# and .NET API
     * Object-Oriented Programming
-    * Backend with ASP.NET C# Web API
+    * Data Structures
+    * Backend with ASP.NET Core C# Web API
     * SQL
     * Frontend Development
       * Angular
       * React
-  * This project continues by applying everything covered in the codando.live course to build a real, fully functional full-stack application.
+  * This project continues by applying everything covered in the [codando.live](https://www.codando.live) course to build a real, fully functional full-stack application.
   * Unlike the codando.live project, I decided to speak in English to encourage participants to learn and practice English.
 
 * Apy Yvyra: means "Given freely" in tupi-guarani, a native language from Brazil
@@ -61,3 +62,30 @@
 * Procurement
 * Manufacturing and Production
 * Project Management
+
+## Tech Stack
+
+* IDE
+  * VSCODE
+* Pragramming Languages
+  * TypeScript
+  * C#
+* Back-end
+  * ASPX.NET Core Web API
+* Front-end
+  * React
+* Database
+  * Postgres
+* Container
+  * Docker
+
+## Requirements
+
+* The application will be single-tenant, ensuring that each customer’s data is isolated and secure.
+* It should be easy to deploy and operate as an Application as a Service (AaaS), allowing organizations to quickly set up and use the system with minimal effort.
+* The goal is to make the application easily deployable on any major cloud platform, such as:
+  * [Azure](https://azure.microsoft.com/)
+  * [AWS](https://aws.amazon.com/)
+  * [Google Cloud](https://cloud.google.com/)
+  * [Oracle Cloud](https://www.oracle.com/cloud/)
+* As an open and free project, contributors and participants are encouraged to use the application to offer services, support, and customization—empowering them to build businesses and create value for their clients.
