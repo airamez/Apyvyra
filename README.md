@@ -55,30 +55,40 @@
 
 ### **Typical components of an ERP system include:**
 
-* Finance and Accounting
-* Human Resources (HR)
 * Inventory and Supply Chain Management
+  * Manages the flow of goods and information, optimizing inventory and coordinating procurement for efficient operations.
 * Sales and Customer Relationship Management (CRM)
+  * Supports sales processes and customer engagement, helping track opportunities and improve satisfaction.
+* Finance and Accounting
+  * Handles financial transactions, budgeting, and reporting to ensure accurate bookkeeping and financial insights.
 * Procurement
+  * Automates purchasing, enabling efficient sourcing and cost control through streamlined vendor management.
 * Manufacturing and Production
+  * Manages planning, scheduling, and execution of manufacturing to ensure timely and quality product delivery.
+* Human Resources (HR)
+  * Streamlines employee management, payroll, and performance tracking to support workforce development and compliance.
 * Project Management
+  * Facilitates project planning, execution, and tracking to help teams achieve goals on schedule.
 
 ## Tech Stack
 
-* IDE
+* IDE/Code Editor
   * Visual Studio CODE
 * Pragramming Languages
   * TypeScript
   * C#
+  * SQL
 * Back-end
   * ASPX.NET Core Web API
+* Data Layer
+  * Entity Framework
 * Front-end
   * React
 * Database
-  * Postgres
+  * Postgres/SQL Server
 * Container
   * Docker
-* AI Tool
+* AI Assistant Tool
   * GitHub Copilot
 
 ## Requirements
