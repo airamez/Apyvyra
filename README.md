@@ -89,3 +89,6 @@
   * [Google Cloud](https://cloud.google.com/)
   * [Oracle Cloud](https://www.oracle.com/cloud/)
 * As an open and free project, contributors and participants are encouraged to use the application to offer services, support, and customization—empowering them to build businesses and create value for their clients.
+* The project will serve as an opportunity for beginners to collaborate and showcase their skills by contributing to an open source project
+
+Welcome and enjoy!!!
