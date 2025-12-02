@@ -66,7 +66,7 @@
 ## Tech Stack
 
 * IDE
-  * VSCODE
+  * Visual Studio CODE
 * Pragramming Languages
   * TypeScript
   * C#
@@ -78,6 +78,8 @@
   * Postgres
 * Container
   * Docker
+* AI Tool
+  * GitHub Copilot
 
 ## Requirements
 
