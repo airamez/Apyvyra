@@ -104,3 +104,7 @@
 * The project will serve as an opportunity for beginners to collaborate and showcase their skills by contributing to an open source project
 
 Welcome and enjoy!!!
+
+## Classes
+
+* [Class #1: Project Intro](https://www.youtube.com/live/frmYWxotqzc)
