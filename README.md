@@ -59,7 +59,6 @@
 * Human Resources (HR)
 * Inventory and Supply Chain Management
 * Sales and Customer Relationship Management (CRM)
-* Accounting
 * Procurement
 * Manufacturing and Production
 * Project Management
