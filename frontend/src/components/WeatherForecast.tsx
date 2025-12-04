@@ -13,14 +13,16 @@ function WeatherForecast() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    fetch('http://localhost:5289/weatherforecast')
+    fetch('http://localhost:5000/weatherforecast')
       .then(response => {
+        debugger;
         if (!response.ok) {
           throw new Error('Failed to fetch weather data');
         }
         return response.json();
       })
       .then(data => {
+        debugger;
         setForecasts(data);
         setLoading(false);
       })
