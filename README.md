@@ -108,3 +108,4 @@ Welcome and enjoy!!!
 ## Classes
 
 * [Class #1: Project Intro](https://www.youtube.com/live/frmYWxotqzc)
+* [Class #2: Project Initialization - Frontend and Backend](https://www.youtube.com/live/Gfb2D8uVr08)
