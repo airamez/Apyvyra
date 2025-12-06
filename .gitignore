@@ -439,3 +439,77 @@ frontend/lerna-debug.log*
 frontend/.vscode/*
 !frontend/.vscode/extensions.json
 frontend/.idea/
+
+##########################
+# Docker
+##########################
+
+# Docker volumes and data
+docker-compose.override.yml
+.docker/
+
+##########################
+# Database
+##########################
+
+# PostgreSQL data
+postgres-data/
+pgdata/
+
+##########################
+# Environment & Secrets
+##########################
+
+# Backend environment files
+backend/.env
+backend/.env.local
+backend/.env.development
+backend/.env.production
+backend/appsettings.*.json
+!backend/appsettings.json
+!backend/appsettings.Development.json
+
+# Connection strings and secrets (if separate files)
+backend/secrets.json
+backend/user-secrets.json
+
+##########################
+# OS Specific
+##########################
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Linux
+*~
+.directory
+.Trash-*
+
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+Desktop.ini
+$RECYCLE.BIN/
+
+##########################
+# IDE
+##########################
+
+# JetBrains IDEs
+.idea/
+*.iml
+*.iws
+*.ipr
+.idea_modules/
+
+# VS Code
+.vscode/
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+*.code-workspace
