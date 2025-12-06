@@ -111,3 +111,4 @@ Welcome and enjoy!!!
 * [Class #2: Project Initialization - Frontend and Backend](https://www.youtube.com/live/Gfb2D8uVr08)
 * [Class #3: Docker configuration](https://www.youtube.com/live/akO3wHmpjes)
 * [Class #4: Database creation and User Controller](https://youtube.com/live/WJH4EvnNUfU)
+* [Class #5: Third-party components React components](https://youtube.com/live/raYyNkPZ2w8)
