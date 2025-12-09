@@ -18,10 +18,12 @@ import PeopleIcon from '@mui/icons-material/People';
 import InventoryIcon from '@mui/icons-material/Inventory';
 import Brightness4Icon from '@mui/icons-material/Brightness4';
 import Brightness7Icon from '@mui/icons-material/Brightness7';
+import Register from './components/Register';
 import './App.css'
 
 function App() {
   const [mode, setMode] = useState<'light' | 'dark'>('light');
+  const [showRegister, setShowRegister] = useState(false);
 
   const theme = useMemo(
     () =>
@@ -43,6 +45,11 @@ function App() {
     setMode((prevMode) => (prevMode === 'light' ? 'dark' : 'light'));
   };
 
+  const handleNavigateToLogin = () => {
+    setShowRegister(false);
+    // TODO: Navigate to login page when implemented
+  };
+
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
@@ -50,7 +57,12 @@ function App() {
         <AppBar position="static">
           <Toolbar>
             <DashboardIcon sx={{ mr: 2 }} />
-            <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+            <Typography 
+              variant="h6" 
+              component="div" 
+              sx={{ flexGrow: 1, cursor: 'pointer' }}
+              onClick={() => setShowRegister(false)}
+            >
               Apyvyra ERP
             </Typography>
             <Tooltip title={`Switch to ${mode === 'light' ? 'dark' : 'light'} mode`}>
@@ -58,11 +70,19 @@ function App() {
                 {mode === 'dark' ? <Brightness7Icon /> : <Brightness4Icon />}
               </IconButton>
             </Tooltip>
+            {!showRegister && (
+              <Button color="inherit" onClick={() => setShowRegister(true)} sx={{ mr: 1 }}>
+                Sign Up
+              </Button>
+            )}
             <Button color="inherit">Login</Button>
           </Toolbar>
         </AppBar>
         
-        <Container maxWidth="lg" sx={{ mt: 4 }}>
+        {showRegister ? (
+          <Register onNavigateToLogin={handleNavigateToLogin} />
+        ) : (
+          <Container maxWidth="lg" sx={{ mt: 4 }}>
           <Typography variant="h4" gutterBottom>
             Welcome to Apyvyra ERP
           </Typography>
@@ -123,6 +143,7 @@ function App() {
             </Box>
           </Box>
         </Container>
+        )}
       </Box>
     </ThemeProvider>
   )
