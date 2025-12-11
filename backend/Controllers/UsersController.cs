@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using backend.Data;
 using backend.Models;
+using BCrypt.Net;
 
 namespace backend.Controllers;
 
@@ -33,7 +34,7 @@ public class UsersController : ControllerBase
             var user = new User
             {
                 Email = request.Email,
-                Password = request.Password // TODO: Hash the password before storing
+                Password = BCrypt.Net.BCrypt.HashPassword(request.Password)
             };
 
             _context.Users.Add(user);
