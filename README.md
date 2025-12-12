@@ -105,6 +105,10 @@
 
 Welcome and enjoy!!!
 
+## Getting Started
+
+For detailed setup and installation instructions, see [Getting Started Guide](getting-started.md).
+
 ## Classes
 
 * [Class #1: Project Intro](https://www.youtube.com/live/frmYWxotqzc)
