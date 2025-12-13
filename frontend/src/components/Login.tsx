@@ -25,10 +25,6 @@ interface LoginFormData {
   password: string;
 }
 
-interface ApiError {
-  message: string;
-}
-
 export default function Login({ onNavigateToRegister, onLoginSuccess }: LoginProps) {
   const [formData, setFormData] = useState<LoginFormData>({
     email: '',
