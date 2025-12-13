@@ -87,6 +87,9 @@ This starts only the PostgreSQL database container in detached mode.
   ```bash
   cd backend
   dotnet run
+  
+  # Using the `watch` argument allow the changes to be applied instantly, ideal for development
+  dotnet watch run
   ```
 
 * The backend API will be available at `http://localhost:5000` (or the port specified in [launchSettings.json](backend/Properties/launchSettings.json)).

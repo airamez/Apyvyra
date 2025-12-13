@@ -121,3 +121,4 @@ Welcome and enjoy!!!
 * [Class #7: Customer Regitration - Encrypting the password](https://www.youtube.com/live/kkm1WHAEl2E)
 * [Class #8: Login with JWT](https://www.youtube.com/live/noAAIkmSbHA)
 * [Class #9: Code Review and Refactoring](https://youtube.com/live/jJbiBe6XsOU)
+* [Class #10: Prodcuts](https://youtube.com/live/KOWKq2kz4k8)

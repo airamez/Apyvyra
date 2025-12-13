@@ -4,16 +4,57 @@ import { authService } from './authService';
 
 export interface Product {
   id: number;
+  sku: string;
   name: string;
   description?: string;
+  shortDescription?: string;
+  categoryId?: number;
+  categoryName?: string;
   price: number;
-  // Add more product fields as needed
+  costPrice?: number;
+  compareAtPrice?: number;
+  stockQuantity: number;
+  lowStockThreshold: number;
+  skuBarcode?: string;
+  brand?: string;
+  manufacturer?: string;
+  weight?: number;
+  weightUnit?: string;
+  dimensions?: string;
+  isActive: boolean;
+  images?: ProductImage[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ProductImage {
+  id: number;
+  productId: number;
+  imageUrl: string;
+  altText?: string;
+  displayOrder: number;
+  isPrimary: boolean;
 }
 
 export interface CreateProductData {
+  sku: string;
   name: string;
   description?: string;
+  shortDescription?: string;
+  categoryId?: number;
   price: number;
+  costPrice?: number;
+  compareAtPrice?: number;
+  stockQuantity: number;
+  lowStockThreshold: number;
+  skuBarcode?: string;
+  brand?: string;
+  manufacturer?: string;
+  weight?: number;
+  weightUnit?: string;
+  dimensions?: string;
+  isActive: boolean;
+  userId?: number;
 }
 
 export const productService = {
@@ -102,5 +143,29 @@ export const productService = {
     if (!response.ok) {
       throw new Error('Failed to delete product');
     }
+  },
+
+  // Add image to product
+  async addImage(productId: number, imageData: {
+    imageUrl: string;
+    altText?: string;
+    displayOrder: number;
+    isPrimary: boolean;
+    userId?: number;
+  }): Promise<ProductImage> {
+    const response = await fetch(`${API_ENDPOINTS.BASE_URL}/api/products/${productId}/images`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...authService.getAuthHeader(),
+      },
+      body: JSON.stringify(imageData),
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to add product image');
+    }
+
+    return await response.json();
   },
 };
