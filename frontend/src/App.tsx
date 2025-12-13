@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import { 
@@ -16,14 +16,28 @@ import {
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import PeopleIcon from '@mui/icons-material/People';
 import InventoryIcon from '@mui/icons-material/Inventory';
+import LogoutIcon from '@mui/icons-material/Logout';
 import Brightness4Icon from '@mui/icons-material/Brightness4';
 import Brightness7Icon from '@mui/icons-material/Brightness7';
 import Register from './components/Register';
+import Login from './components/Login';
+import Dashboard from './components/Dashboard';
+import Products from './components/Products';
+import Customers from './components/Customers';
+import { authService } from './services/authService';
 import './App.css'
 
 function App() {
   const [mode, setMode] = useState<'light' | 'dark'>('light');
   const [showRegister, setShowRegister] = useState(false);
+  const [showLogin, setShowLogin] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [activeView, setActiveView] = useState<'home' | 'dashboard' | 'products' | 'customers'>('home');
+
+  useEffect(() => {
+    // Check authentication on component mount
+    setIsAuthenticated(authService.isAuthenticated());
+  }, []);
 
   const theme = useMemo(
     () =>
@@ -47,7 +61,43 @@ function App() {
 
   const handleNavigateToLogin = () => {
     setShowRegister(false);
-    // TODO: Navigate to login page when implemented
+    setShowLogin(true);
+    setActiveView('home');
+  };
+
+  const handleNavigateToRegister = () => {
+    setShowLogin(false);
+    setShowRegister(true);
+    setActiveView('home');
+  };
+
+  const handleLogout = () => {
+    authService.logout();
+    setIsAuthenticated(false);
+    setShowLogin(false);
+    setShowRegister(false);
+    setActiveView('home');
+  };
+
+  const handleLoginSuccess = () => {
+    setIsAuthenticated(true);
+    setShowLogin(false);
+    setActiveView('dashboard');
+  };
+
+  const handleNavigateToView = (view: 'home' | 'dashboard' | 'products' | 'customers') => {
+    if (view === 'home') {
+      setActiveView('home');
+      setShowLogin(false);
+      setShowRegister(false);
+    } else if (isAuthenticated) {
+      setActiveView(view);
+      setShowLogin(false);
+      setShowRegister(false);
+    } else {
+      // Redirect to login if not authenticated
+      setShowLogin(true);
+    }
   };
 
   return (
@@ -60,88 +110,82 @@ function App() {
             <Typography 
               variant="h6" 
               component="div" 
-              sx={{ flexGrow: 1, cursor: 'pointer' }}
-              onClick={() => setShowRegister(false)}
+              sx={{ cursor: 'pointer' }}
+              onClick={() => handleNavigateToView('home')}
             >
               Apyvyra ERP
             </Typography>
+            
+            {isAuthenticated && (
+              <Box sx={{ ml: 4, display: 'flex', gap: 2 }}>
+                <Button 
+                  color="inherit" 
+                  onClick={() => handleNavigateToView('dashboard')}
+                >
+                  Dashboard
+                </Button>
+                <Button 
+                  color="inherit" 
+                  onClick={() => handleNavigateToView('products')}
+                >
+                  Products
+                </Button>
+                <Button 
+                  color="inherit" 
+                  onClick={() => handleNavigateToView('customers')}
+                >
+                  Customers
+                </Button>
+              </Box>
+            )}
+            
+            <Box sx={{ flexGrow: 1 }} />
+            
             <Tooltip title={`Switch to ${mode === 'light' ? 'dark' : 'light'} mode`}>
               <IconButton onClick={toggleTheme} color="inherit" sx={{ mr: 2 }}>
                 {mode === 'dark' ? <Brightness7Icon /> : <Brightness4Icon />}
               </IconButton>
             </Tooltip>
-            {!showRegister && (
-              <Button color="inherit" onClick={() => setShowRegister(true)} sx={{ mr: 1 }}>
-                Sign Up
+            
+            {!isAuthenticated ? (
+              <>
+                {!showRegister && !showLogin && (
+                  <Button color="inherit" onClick={() => setShowRegister(true)} sx={{ mr: 1 }}>
+                    Sign Up
+                  </Button>
+                )}
+                {!showLogin && !showRegister && (
+                  <Button color="inherit" onClick={() => setShowLogin(true)}>Login</Button>
+                )}
+              </>
+            ) : (
+              <Button color="inherit" onClick={handleLogout} startIcon={<LogoutIcon />}>
+                Logout
               </Button>
             )}
-            <Button color="inherit">Login</Button>
           </Toolbar>
         </AppBar>
         
         {showRegister ? (
           <Register onNavigateToLogin={handleNavigateToLogin} />
+        ) : showLogin ? (
+          <Login onNavigateToRegister={handleNavigateToRegister} onLoginSuccess={handleLoginSuccess} />
+        ) : activeView === 'dashboard' && isAuthenticated ? (
+          <Dashboard />
+        ) : activeView === 'products' && isAuthenticated ? (
+          <Products />
+        ) : activeView === 'customers' && isAuthenticated ? (
+          <Customers />
         ) : (
           <Container maxWidth="lg" sx={{ mt: 4 }}>
           <Typography variant="h4" gutterBottom>
             Welcome to Apyvyra ERP
           </Typography>
           <Typography variant="body1" color="text.secondary" paragraph>
-            Material-UI successfully integrated. Ready to build your enterprise application.
+            {isAuthenticated 
+              ? 'Use the menu above to navigate to different sections of the application.'
+              : 'Please log in to access the ERP system.'}
           </Typography>
-          
-          <Box sx={{ mt: 2, display: 'flex', gap: 3, flexWrap: 'wrap' }}>
-            <Box sx={{ flex: '1 1 300px', minWidth: 300 }}>
-              <Card>
-                <CardContent>
-                  <PeopleIcon color="primary" sx={{ fontSize: 40, mb: 2 }} />
-                  <Typography variant="h5" component="div" gutterBottom>
-                    Users
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    Manage user accounts and permissions
-                  </Typography>
-                  <Button variant="outlined" sx={{ mt: 2 }}>
-                    View Users
-                  </Button>
-                </CardContent>
-              </Card>
-            </Box>
-            
-            <Box sx={{ flex: '1 1 300px', minWidth: 300 }}>
-              <Card>
-                <CardContent>
-                  <InventoryIcon color="primary" sx={{ fontSize: 40, mb: 2 }} />
-                  <Typography variant="h5" component="div" gutterBottom>
-                    Inventory
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    Track and manage inventory items
-                  </Typography>
-                  <Button variant="outlined" sx={{ mt: 2 }}>
-                    View Inventory
-                  </Button>
-                </CardContent>
-              </Card>
-            </Box>
-            
-            <Box sx={{ flex: '1 1 300px', minWidth: 300 }}>
-              <Card>
-                <CardContent>
-                  <DashboardIcon color="primary" sx={{ fontSize: 40, mb: 2 }} />
-                  <Typography variant="h5" component="div" gutterBottom>
-                    Dashboard
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    View analytics and reports
-                  </Typography>
-                  <Button variant="outlined" sx={{ mt: 2 }}>
-                    View Dashboard
-                  </Button>
-                </CardContent>
-              </Card>
-            </Box>
-          </Box>
         </Container>
         )}
       </Box>

@@ -12,27 +12,27 @@ import {
   Link,
   CircularProgress
 } from '@mui/material';
-import PersonAddIcon from '@mui/icons-material/PersonAdd';
+import LoginIcon from '@mui/icons-material/Login';
+import { authService } from '../services/authService';
 
-interface RegisterProps {
-  onNavigateToLogin?: () => void;
+interface LoginProps {
+  onNavigateToRegister?: () => void;
+  onLoginSuccess?: () => void;
 }
 
-interface RegisterFormData {
+interface LoginFormData {
   email: string;
   password: string;
-  confirmPassword: string;
 }
 
 interface ApiError {
   message: string;
 }
 
-export default function Register({ onNavigateToLogin }: RegisterProps) {
-  const [formData, setFormData] = useState<RegisterFormData>({
+export default function Login({ onNavigateToRegister, onLoginSuccess }: LoginProps) {
+  const [formData, setFormData] = useState<LoginFormData>({
     email: '',
-    password: '',
-    confirmPassword: ''
+    password: ''
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -48,23 +48,13 @@ export default function Register({ onNavigateToLogin }: RegisterProps) {
   };
 
   const validateForm = (): boolean => {
-    if (!formData.email || !formData.password || !formData.confirmPassword) {
+    if (!formData.email || !formData.password) {
       setError('All fields are required');
       return false;
     }
 
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
       setError('Please enter a valid email address');
-      return false;
-    }
-
-    if (formData.password.length < 6) {
-      setError('Password must be at least 6 characters long');
-      return false;
-    }
-
-    if (formData.password !== formData.confirmPassword) {
-      setError('Passwords do not match');
       return false;
     }
 
@@ -82,37 +72,21 @@ export default function Register({ onNavigateToLogin }: RegisterProps) {
     setError(null);
 
     try {
-      const response = await fetch('http://localhost:5000/api/users', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          email: formData.email,
-          password: formData.password
-        }),
-      });
-
-      if (!response.ok) {
-        const errorData: ApiError = await response.json();
-        throw new Error(errorData.message || 'Registration failed');
-      }
-
+      // Use authService to handle login and JWT token storage
+      await authService.login(formData.email, formData.password);
+      
       setSuccess(true);
-      setFormData({
-        email: '',
-        password: '',
-        confirmPassword: ''
-      });
-
-      // Optional: Navigate to login after 2 seconds
-      setTimeout(() => {
-        if (onNavigateToLogin) {
-          onNavigateToLogin();
-        }
-      }, 2000);
+      setFormData({ email: '', password: '' });
+      
+      console.log('Login successful with JWT token');
+      
+      // Trigger parent component's login success handler immediately
+      if (onLoginSuccess) {
+        onLoginSuccess();
+      }
+      
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred during registration');
+      setError(err instanceof Error ? err.message : 'An error occurred during login');
     } finally {
       setLoading(false);
     }
@@ -123,10 +97,10 @@ export default function Register({ onNavigateToLogin }: RegisterProps) {
       <Box sx={{ mt: 3, mb: 4 }}>
         <Card>
           <CardContent sx={{ p: 4 }}>
-            <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
-              <PersonAddIcon color="primary" sx={{ fontSize: 40, mr: 2 }} />
-              <Typography variant="h4" component="h1">
-                Create Account
+            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', mb: 3 }}>
+              <LoginIcon sx={{ fontSize: 40, mr: 2, color: 'primary.main' }} />
+              <Typography component="h1" variant="h4">
+                Login
               </Typography>
             </Box>
 
@@ -138,11 +112,11 @@ export default function Register({ onNavigateToLogin }: RegisterProps) {
 
             {success && (
               <Alert severity="success" sx={{ mb: 2 }}>
-                Registration successful! You can now log in.
+                Login successful! Welcome back.
               </Alert>
             )}
 
-            <Box component="form" onSubmit={handleSubmit} noValidate>
+            <form onSubmit={handleSubmit}>
               <TextField
                 margin="normal"
                 required
@@ -150,13 +124,13 @@ export default function Register({ onNavigateToLogin }: RegisterProps) {
                 id="email"
                 label="Email Address"
                 name="email"
-                type="email"
                 autoComplete="email"
                 autoFocus
                 value={formData.email}
                 onChange={handleChange}
                 disabled={loading || success}
               />
+              
               <TextField
                 margin="normal"
                 required
@@ -165,50 +139,40 @@ export default function Register({ onNavigateToLogin }: RegisterProps) {
                 label="Password"
                 type="password"
                 id="password"
-                autoComplete="new-password"
+                autoComplete="current-password"
                 value={formData.password}
                 onChange={handleChange}
                 disabled={loading || success}
-                helperText="Minimum 6 characters"
               />
-              <TextField
-                margin="normal"
-                required
-                fullWidth
-                name="confirmPassword"
-                label="Confirm Password"
-                type="password"
-                id="confirmPassword"
-                autoComplete="new-password"
-                value={formData.confirmPassword}
-                onChange={handleChange}
-                disabled={loading || success}
-              />
+
               <Button
                 type="submit"
                 fullWidth
                 variant="contained"
                 sx={{ mt: 3, mb: 2 }}
                 disabled={loading || success}
+                startIcon={loading ? <CircularProgress size={20} /> : <LoginIcon />}
               >
-                {loading ? <CircularProgress size={24} /> : 'Sign Up'}
+                {loading ? 'Logging in...' : 'Login'}
               </Button>
 
               <Box sx={{ textAlign: 'center', mt: 2 }}>
                 <Typography variant="body2" color="text.secondary">
-                  Already have an account?{' '}
+                  Don't have an account?{' '}
                   <Link
                     component="button"
                     variant="body2"
-                    type="button"
-                    onClick={onNavigateToLogin}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      onNavigateToRegister?.();
+                    }}
                     sx={{ cursor: 'pointer' }}
                   >
-                    Sign in
+                    Sign up here
                   </Link>
                 </Typography>
               </Box>
-            </Box>
+            </form>
           </CardContent>
         </Card>
       </Box>

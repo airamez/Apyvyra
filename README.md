@@ -118,3 +118,4 @@ For detailed setup and installation instructions, see [Getting Started Guide](ge
 * [Class #5: Third-party React components](https://youtube.com/live/raYyNkPZ2w8)
 * [Class #6: Customer Regitration - frontend - UI](https://www.youtube.com/live/aZqesjmP4DQ)
 * [Class #7: Customer Regitration - Encrypting the password](https://www.youtube.com/live/kkm1WHAEl2E)
+* [Class #8: Login with JWT](https://www.youtube.com/live/noAAIkmSbHA)
