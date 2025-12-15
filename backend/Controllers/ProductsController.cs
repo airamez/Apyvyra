@@ -44,19 +44,25 @@ public class ProductsController : ControllerBase
             if (isActive.HasValue)
                 query = query.Where(p => p.IsActive == isActive);
 
-            // Pagination
+            // Pagination only if more than 1000
             var total = await query.CountAsync();
-            var products = await query
-                .Skip((page - 1) * pageSize)
-                .Take(pageSize)
-                .ToListAsync();
+            List<Product> products;
+            if (total > 1000)
+            {
+                products = await query
+                    .Skip((page - 1) * pageSize)
+                    .Take(pageSize)
+                    .ToListAsync();
+                Response.Headers.Add("X-Page", page.ToString());
+                Response.Headers.Add("X-Page-Size", pageSize.ToString());
+            }
+            else
+            {
+                products = await query.ToListAsync();
+            }
 
             var response = products.Select(p => MapToResponse(p)).ToList();
-
             Response.Headers.Add("X-Total-Count", total.ToString());
-            Response.Headers.Add("X-Page", page.ToString());
-            Response.Headers.Add("X-Page-Size", pageSize.ToString());
-
             return Ok(response);
         }
         catch (Exception ex)

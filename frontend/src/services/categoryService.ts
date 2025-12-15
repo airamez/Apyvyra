@@ -48,4 +48,50 @@ export const categoryService = {
 
     return await response.json();
   },
+
+    // Create a new category
+    async create(data: { name: string; description?: string }): Promise<ProductCategory> {
+      const response = await fetch(`${API_ENDPOINTS.BASE_URL}/api/productcategories`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...authService.getAuthHeader(),
+        },
+        body: JSON.stringify(data),
+      });
+      if (!response.ok) {
+        throw new Error('Failed to create category');
+      }
+      return await response.json();
+    },
+
+    // Update a category
+    async update(id: number, data: { name: string; description?: string }): Promise<ProductCategory> {
+      const response = await fetch(`${API_ENDPOINTS.BASE_URL}/api/productcategories/${id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          ...authService.getAuthHeader(),
+        },
+        body: JSON.stringify(data),
+      });
+      if (!response.ok) {
+        throw new Error('Failed to update category');
+      }
+      return await response.json();
+    },
+
+    // Delete a category
+    async delete(id: number): Promise<void> {
+      const response = await fetch(`${API_ENDPOINTS.BASE_URL}/api/productcategories/${id}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          ...authService.getAuthHeader(),
+        },
+      });
+      if (!response.ok) {
+        throw new Error('Failed to delete category');
+      }
+    },
 };

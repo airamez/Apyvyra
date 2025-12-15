@@ -11,7 +11,9 @@ import {
   Card, 
   CardContent,
   IconButton,
-  Tooltip
+  Tooltip,
+  Menu,
+  MenuItem
 } from '@mui/material';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import PeopleIcon from '@mui/icons-material/People';
@@ -24,6 +26,7 @@ import Login from './components/Login';
 import Dashboard from './components/Dashboard';
 import Products from './components/Products';
 import Customers from './components/Customers';
+import CategoryManager from './components/CategoryManager';
 import { authService } from './services/authService';
 import './App.css'
 
@@ -32,7 +35,9 @@ function App() {
   const [showRegister, setShowRegister] = useState(false);
   const [showLogin, setShowLogin] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [activeView, setActiveView] = useState<'home' | 'dashboard' | 'products' | 'customers'>('home');
+  const [activeView, setActiveView] = useState<'home' | 'dashboard' | 'products' | 'categories' | 'customers'>('home');
+  // Products menu state
+  const [productsMenuAnchor, setProductsMenuAnchor] = useState<null | HTMLElement>(null);
 
   useEffect(() => {
     // Check authentication on component mount
@@ -85,7 +90,7 @@ function App() {
     setActiveView('dashboard');
   };
 
-  const handleNavigateToView = (view: 'home' | 'dashboard' | 'products' | 'customers') => {
+  const handleNavigateToView = (view: 'home' | 'dashboard' | 'products' | 'categories' | 'customers') => {
     if (view === 'home') {
       setActiveView('home');
       setShowLogin(false);
@@ -124,12 +129,26 @@ function App() {
                 >
                   Dashboard
                 </Button>
-                <Button 
-                  color="inherit" 
-                  onClick={() => handleNavigateToView('products')}
-                >
-                  Products
-                </Button>
+                <Box>
+                  <Button
+                    color="inherit"
+                    id="products-menu-button"
+                    aria-controls="products-menu"
+                    aria-haspopup="true"
+                    onClick={e => setProductsMenuAnchor(e.currentTarget)}
+                  >
+                    Products
+                  </Button>
+                  <Menu
+                    id="products-menu"
+                    anchorEl={productsMenuAnchor}
+                    open={Boolean(productsMenuAnchor)}
+                    onClose={() => setProductsMenuAnchor(null)}
+                  >
+                    <MenuItem onClick={() => { setProductsMenuAnchor(null); handleNavigateToView('products'); }}>Products</MenuItem>
+                    <MenuItem onClick={() => { setProductsMenuAnchor(null); handleNavigateToView('categories'); }}>Category</MenuItem>
+                  </Menu>
+                </Box>
                 <Button 
                   color="inherit" 
                   onClick={() => handleNavigateToView('customers')}
@@ -174,6 +193,8 @@ function App() {
           <Dashboard />
         ) : activeView === 'products' && isAuthenticated ? (
           <Products />
+        ) : activeView === 'categories' && isAuthenticated ? (
+          <CategoryManager />
         ) : activeView === 'customers' && isAuthenticated ? (
           <Customers />
         ) : (
