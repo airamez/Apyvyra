@@ -123,3 +123,4 @@ Welcome and enjoy!!!
 * [Class #9: Code Review and Refactoring](https://youtube.com/live/jJbiBe6XsOU)
 * [Class #10: Prodcuts](https://youtube.com/live/KOWKq2kz4k8)
 * [Class #11: Prodcuts - Categories and Pagination](https://youtube.com/live/BCJveP8Nsz4)
+* [Class #12: Filtering, Sorting and Paging: Old vs Modern approaches](https://youtube.com/live/qVU0YBQt8Ag)
