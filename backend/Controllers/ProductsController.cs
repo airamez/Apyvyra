@@ -31,7 +31,7 @@ public class ProductsController : ControllerBase
         {
             var query = _context.Products
                 .Include(p => p.Category)
-                .Include(p => p.Images)
+                .Include(p => p.Documents)
                 .AsQueryable();
 
             // Apply filters
@@ -80,7 +80,7 @@ public class ProductsController : ControllerBase
         {
             var product = await _context.Products
                 .Include(p => p.Category)
-                .Include(p => p.Images)
+                .Include(p => p.Documents)
                 .FirstOrDefaultAsync(p => p.Id == id);
 
             if (product == null)
@@ -139,7 +139,7 @@ public class ProductsController : ControllerBase
             // Reload with includes
             var createdProduct = await _context.Products
                 .Include(p => p.Category)
-                .Include(p => p.Images)
+                .Include(p => p.Documents)
                 .FirstOrDefaultAsync(p => p.Id == product.Id);
 
             return CreatedAtAction(
@@ -199,7 +199,7 @@ public class ProductsController : ControllerBase
             // Reload with includes
             var updatedProduct = await _context.Products
                 .Include(p => p.Category)
-                .Include(p => p.Images)
+                .Include(p => p.Documents)
                 .FirstOrDefaultAsync(p => p.Id == id);
 
             return Ok(MapToResponse(updatedProduct!));
@@ -236,9 +236,9 @@ public class ProductsController : ControllerBase
         }
     }
 
-    // POST: api/products/{id}/images
-    [HttpPost("{id}/images")]
-    public async Task<ActionResult<ProductImageResponse>> AddProductImage(int id, CreateProductImageRequest request)
+    // POST: api/products/{id}/documents
+    [HttpPost("{id}/documents")]
+    public async Task<ActionResult<ProductDocumentResponse>> AddProductDocument(int id, CreateProductDocumentRequest request)
     {
         try
         {
@@ -248,10 +248,11 @@ public class ProductsController : ControllerBase
                 return NotFound(new { message = "Product not found" });
             }
 
-            var image = new ProductImage
+            var document = new ProductDocument
             {
                 ProductId = id,
-                ImageUrl = request.ImageUrl,
+                DocumentUrl = request.DocumentUrl,
+                DocumentType = request.DocumentType,
                 AltText = request.AltText,
                 DisplayOrder = request.DisplayOrder,
                 IsPrimary = request.IsPrimary,
@@ -259,23 +260,49 @@ public class ProductsController : ControllerBase
                 CreatedBy = request.UserId
             };
 
-            _context.ProductImages.Add(image);
+            _context.ProductDocuments.Add(document);
             await _context.SaveChangesAsync();
 
-            return Ok(new ProductImageResponse
+            return Ok(new ProductDocumentResponse
             {
-                Id = image.Id,
-                ProductId = image.ProductId,
-                ImageUrl = image.ImageUrl,
-                AltText = image.AltText,
-                DisplayOrder = image.DisplayOrder,
-                IsPrimary = image.IsPrimary
+                Id = document.Id,
+                ProductId = document.ProductId,
+                DocumentUrl = document.DocumentUrl,
+                DocumentType = document.DocumentType,
+                AltText = document.AltText,
+                DisplayOrder = document.DisplayOrder,
+                IsPrimary = document.IsPrimary
             });
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error adding product image");
-            return StatusCode(500, new { message = "An error occurred while adding the image" });
+            _logger.LogError(ex, "Error adding product document");
+            return StatusCode(500, new { message = "An error occurred while adding the document" });
+        }
+    }
+
+    // DELETE: api/documents/{id}
+    [HttpDelete("/api/documents/{id}")]
+    public async Task<IActionResult> DeleteDocument(int id)
+    {
+        try
+        {
+            var document = await _context.ProductDocuments.FindAsync(id);
+
+            if (document == null)
+            {
+                return NotFound(new { message = "Document not found" });
+            }
+
+            _context.ProductDocuments.Remove(document);
+            await _context.SaveChangesAsync();
+
+            return NoContent();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error deleting document {DocumentId}", id);
+            return StatusCode(500, new { message = "An error occurred while deleting the document" });
         }
     }
 
@@ -302,14 +329,15 @@ public class ProductsController : ControllerBase
             WeightUnit = product.WeightUnit,
             Dimensions = product.Dimensions,
             IsActive = product.IsActive,
-            Images = product.Images.Select(i => new ProductImageResponse
+            Documents = product.Documents.Select(d => new ProductDocumentResponse
             {
-                Id = i.Id,
-                ProductId = i.ProductId,
-                ImageUrl = i.ImageUrl,
-                AltText = i.AltText,
-                DisplayOrder = i.DisplayOrder,
-                IsPrimary = i.IsPrimary
+                Id = d.Id,
+                ProductId = d.ProductId,
+                DocumentUrl = d.DocumentUrl,
+                DocumentType = d.DocumentType,
+                AltText = d.AltText,
+                DisplayOrder = d.DisplayOrder,
+                IsPrimary = d.IsPrimary
             }).ToList(),
             CreatedAt = product.CreatedAt,
             UpdatedAt = product.UpdatedAt
@@ -381,24 +409,26 @@ public record ProductResponse
     public string? WeightUnit { get; init; }
     public string? Dimensions { get; init; }
     public bool IsActive { get; init; }
-    public List<ProductImageResponse> Images { get; init; } = new();
+    public List<ProductDocumentResponse> Documents { get; init; } = new();
     public DateTime CreatedAt { get; init; }
     public DateTime UpdatedAt { get; init; }
 }
 
-public record CreateProductImageRequest(
-    string ImageUrl,
+public record CreateProductDocumentRequest(
+    string DocumentUrl,
+    string DocumentType,
     string? AltText,
     int DisplayOrder,
     bool IsPrimary,
     int? UserId
 );
 
-public record ProductImageResponse
+public record ProductDocumentResponse
 {
     public int Id { get; init; }
     public int ProductId { get; init; }
-    public string ImageUrl { get; init; } = string.Empty;
+    public string DocumentUrl { get; init; } = string.Empty;
+    public string DocumentType { get; init; } = string.Empty;
     public string? AltText { get; init; }
     public int DisplayOrder { get; init; }
     public bool IsPrimary { get; init; }

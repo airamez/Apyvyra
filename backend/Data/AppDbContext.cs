@@ -12,7 +12,7 @@ public class AppDbContext : DbContext
     public DbSet<User> Users { get; set; }
     public DbSet<ProductCategory> ProductCategories { get; set; }
     public DbSet<Product> Products { get; set; }
-    public DbSet<ProductImage> ProductImages { get; set; }
+    public DbSet<ProductDocument> ProductDocuments { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -71,14 +71,15 @@ public class AppDbContext : DbContext
                 .OnDelete(DeleteBehavior.NoAction);
         });
 
-        // Configure ProductImage entity
-        modelBuilder.Entity<ProductImage>(entity =>
+        // Configure ProductDocument entity
+        modelBuilder.Entity<ProductDocument>(entity =>
         {
             entity.HasIndex(e => e.ProductId);
+            entity.HasIndex(e => e.DocumentType);
             entity.HasIndex(e => e.IsPrimary);
 
             entity.HasOne(e => e.Product)
-                .WithMany(e => e.Images)
+                .WithMany(e => e.Documents)
                 .HasForeignKey(e => e.ProductId)
                 .OnDelete(DeleteBehavior.Cascade);
 

@@ -27,13 +27,15 @@ import {
   MenuItem,
   Select,
   FormControl,
-  Pagination
+  Pagination,
+  Divider,
+  Grid
 } from '@mui/material';
 import InventoryIcon from '@mui/icons-material/Inventory';
 import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
-import { productService } from '../services/productService';
+import { productService, type ProductDocument, type CreateProductData, type DocumentType } from '../services/productService';
 import { categoryService } from '../services/categoryService';
 
 interface ProductCategory {
@@ -49,6 +51,7 @@ interface Product {
   name: string;
   description?: string;
   shortDescription?: string;
+  categoryId?: number;
   categoryName?: string;
   price: number;
   costPrice?: number;
@@ -57,6 +60,7 @@ interface Product {
   brand?: string;
   manufacturer?: string;
   isActive: boolean;
+  documents?: ProductDocument[];
 }
 
 
@@ -68,7 +72,11 @@ export default function Products() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
-  const [imageUrls, setImageUrls] = useState<string[]>(['']);
+  const [newDocuments, setNewDocuments] = useState<{ url: string; type: DocumentType }[]>([]);
+  const [existingDocuments, setExistingDocuments] = useState<ProductDocument[]>([]);
+  const [documentsToDelete, setDocumentsToDelete] = useState<number[]>([]);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [productToDelete, setProductToDelete] = useState<Product | null>(null);
   const [formData, setFormData] = useState<CreateProductData>({
     sku: '',
     name: '',
@@ -114,23 +122,35 @@ export default function Products() {
     }
   };
 
-  const handleDelete = async (id: number) => {
-    if (!confirm('Are you sure you want to delete this product?')) {
-      return;
-    }
-    
+  const handleDeleteClick = (product: Product) => {
+    setProductToDelete(product);
+    setDeleteDialogOpen(true);
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!productToDelete) return;
+
     try {
-      await productService.delete(id);
-      setProducts(products.filter(p => p.id !== id));
+      await productService.delete(productToDelete.id);
+      setProducts(products.filter(p => p.id !== productToDelete.id));
+      setDeleteDialogOpen(false);
+      setProductToDelete(null);
     } catch (err) {
       console.error('Error deleting product:', err);
-      alert('Failed to delete product');
+      setError('Failed to delete product');
     }
+  };
+
+  const handleDeleteCancel = () => {
+    setDeleteDialogOpen(false);
+    setProductToDelete(null);
   };
 
   const handleOpenForm = () => {
     setEditingProduct(null);
-    setImageUrls(['']);
+    setNewDocuments([]);
+    setExistingDocuments([]);
+    setDocumentsToDelete([]);
     setFormData({
       sku: '',
       name: '',
@@ -150,13 +170,15 @@ export default function Products() {
 
   const handleEditProduct = (product: Product) => {
     setEditingProduct(product);
-    setImageUrls(['']);
+    setNewDocuments([]);
+    setExistingDocuments(product.documents || []);
+    setDocumentsToDelete([]);
     setFormData({
       sku: product.sku,
       name: product.name,
       description: product.description || '',
       shortDescription: product.shortDescription || '',
-      categoryId: (product as any).categoryId,
+      categoryId: product.categoryId,
       price: product.price,
       costPrice: product.costPrice || 0,
       stockQuantity: product.stockQuantity,
@@ -171,7 +193,9 @@ export default function Products() {
   const handleCloseForm = () => {
     setShowForm(false);
     setEditingProduct(null);
-    setImageUrls(['']);
+    setNewDocuments([]);
+    setExistingDocuments([]);
+    setDocumentsToDelete([]);
     setError(null);
   };
 
@@ -179,31 +203,51 @@ export default function Products() {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
-  const handleImageUrlChange = (index: number, value: string) => {
-    const newUrls = [...imageUrls];
-    newUrls[index] = value;
-    setImageUrls(newUrls);
+  const handleDocumentUrlChange = (index: number, value: string) => {
+    const updated = [...newDocuments];
+    updated[index] = { ...updated[index], url: value };
+    setNewDocuments(updated);
   };
 
-  const handleAddImageUrl = () => {
-    setImageUrls([...imageUrls, '']);
+  const handleDocumentTypeChange = (index: number, value: DocumentType) => {
+    const updated = [...newDocuments];
+    updated[index] = { ...updated[index], type: value };
+    setNewDocuments(updated);
   };
 
-  const handleRemoveImageUrl = (index: number) => {
-    if (imageUrls.length > 1) {
-      setImageUrls(imageUrls.filter((_, i) => i !== index));
-    }
+  const handleAddDocument = () => {
+    setNewDocuments([...newDocuments, { url: '', type: 'image' }]);
+  };
+
+  const handleRemoveDocument = (index: number) => {
+    setNewDocuments(newDocuments.filter((_, i) => i !== index));
+  };
+
+  const handleDeleteExistingDocument = (documentId: number) => {
+    setDocumentsToDelete([...documentsToDelete, documentId]);
+    setExistingDocuments(existingDocuments.filter(doc => doc.id !== documentId));
   };
 
   const handleSubmit = async () => {
     try {
       let productId: number;
-      
+
       if (editingProduct) {
         // Update existing product
         const updatedProduct = await productService.update(editingProduct.id, formData);
         setProducts(products.map(p => p.id === editingProduct.id ? updatedProduct as any : p));
         productId = editingProduct.id;
+
+        // Delete documents marked for deletion
+        if (documentsToDelete.length > 0) {
+          try {
+            for (const documentId of documentsToDelete) {
+              await productService.deleteDocument(documentId);
+            }
+          } catch (docErr) {
+            console.error('Error deleting product documents:', docErr);
+          }
+        }
       } else {
         // Create new product
         const newProduct = await productService.create(formData);
@@ -211,31 +255,35 @@ export default function Products() {
         productId = newProduct.id;
       }
 
-      // Add images if URLs are provided
-      const validImageUrls = imageUrls.filter(url => url.trim());
-      if (validImageUrls.length > 0) {
+      // Add new documents if URLs are provided
+      const validDocuments = newDocuments.filter(doc => doc.url.trim());
+      if (validDocuments.length > 0) {
         try {
-          for (let i = 0; i < validImageUrls.length; i++) {
-            await productService.addImage(productId, {
-              imageUrl: validImageUrls[i].trim(),
+          const startDisplayOrder = existingDocuments.length;
+          const hasPrimaryDocument = existingDocuments.some(doc => doc.isPrimary);
+          for (let i = 0; i < validDocuments.length; i++) {
+            await productService.addDocument(productId, {
+              documentUrl: validDocuments[i].url.trim(),
+              documentType: validDocuments[i].type,
               altText: formData.name,
-              displayOrder: i,
-              isPrimary: i === 0,
+              displayOrder: startDisplayOrder + i,
+              isPrimary: !hasPrimaryDocument && i === 0,
               userId: undefined
             });
           }
-        } catch (imgErr) {
-          console.error('Error adding product images:', imgErr);
-          // Don't fail the whole operation if image add fails
+        } catch (docErr) {
+          console.error('Error adding product documents:', docErr);
         }
       }
 
       setShowForm(false);
       setEditingProduct(null);
-      setImageUrls(['']);
+      setNewDocuments([]);
+      setExistingDocuments([]);
+      setDocumentsToDelete([]);
       setError(null);
-      
-      // Reload products to get updated image data
+
+      // Reload products to get updated document data
       await loadProducts();
     } catch (err: any) {
       console.error('Error saving product:', err);
@@ -332,10 +380,10 @@ export default function Products() {
                           >
                             <EditIcon fontSize="small" />
                           </IconButton>
-                          <IconButton 
-                            size="small" 
+                          <IconButton
+                            size="small"
                             color="error"
-                            onClick={() => handleDelete(product.id)}
+                            onClick={() => handleDeleteClick(product)}
                           >
                             <DeleteIcon fontSize="small" />
                           </IconButton>
@@ -360,182 +408,281 @@ export default function Products() {
         </CardContent>
       </Card>
 
-      {/* Product Form (Add/Edit) as Dialog with Two Columns */}
+      {/* Product Form (Add/Edit) as Dialog */}
       <Dialog open={showForm} onClose={handleCloseForm} maxWidth="md" fullWidth>
         <DialogTitle>{editingProduct ? 'Edit Product' : 'Add New Product'}</DialogTitle>
         <DialogContent>
-          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-            {/* SKU */}
-            <TextField
-              label="SKU"
-              fullWidth
-              required
-              value={formData.sku}
-              onChange={(e) => handleFormChange('sku', e.target.value)}
-              variant="outlined"
-              size="small"
-              sx={{ mt: 2 }}
-            />
-            {/* Product Name */}
-            <TextField
-              label="Product Name"
-              fullWidth
-              required
-              value={formData.name}
-              onChange={(e) => handleFormChange('name', e.target.value)}
-              variant="outlined"
-              size="small"
-            />
-            {/* Category */}
-            <FormControl fullWidth size="small">
-              <Select
-                value={formData.categoryId ?? ''}
-                onChange={(e) => handleFormChange('categoryId', !e.target.value ? undefined : Number(e.target.value))}
-                displayEmpty
+          <Grid container spacing={2} sx={{ mt: 1 }}>
+            {/* Basic Information */}
+            <Grid size={6}>
+              <TextField
+                label="SKU"
+                fullWidth
+                required
+                value={formData.sku}
+                onChange={(e) => handleFormChange('sku', e.target.value)}
                 variant="outlined"
-                renderValue={selected => {
-                  if (!selected) return <em>Category</em>;
-                  const cat = categories.find(c => c.id === selected);
-                  return cat ? cat.name : '';
-                }}
-              >
-                <MenuItem value="" disabled>
-                  <em>Category</em>
-                </MenuItem>
-                {categories.map((category) => (
-                  <MenuItem key={category.id} value={category.id}>
-                    {category.name}
+                size="small"
+              />
+            </Grid>
+            <Grid size={6}>
+              <TextField
+                label="Product Name"
+                fullWidth
+                required
+                value={formData.name}
+                onChange={(e) => handleFormChange('name', e.target.value)}
+                variant="outlined"
+                size="small"
+              />
+            </Grid>
+            <Grid size={6}>
+              <FormControl fullWidth size="small">
+                <Select
+                  value={formData.categoryId ?? ''}
+                  onChange={(e) => handleFormChange('categoryId', !e.target.value ? undefined : Number(e.target.value))}
+                  displayEmpty
+                  variant="outlined"
+                  renderValue={selected => {
+                    if (!selected) return <em>Category</em>;
+                    const cat = categories.find(c => c.id === selected);
+                    return cat ? cat.name : '';
+                  }}
+                >
+                  <MenuItem value="" disabled>
+                    <em>Category</em>
                   </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-            {/* Brand */}
-            <TextField
-              label="Brand"
-              fullWidth
-              value={formData.brand}
-              onChange={(e) => handleFormChange('brand', e.target.value)}
-              variant="outlined"
-              size="small"
-            />
-            {/* Short Description */}
-            <TextField
-              label="Short Description"
-              fullWidth
-              value={formData.shortDescription}
-              onChange={(e) => handleFormChange('shortDescription', e.target.value)}
-              variant="outlined"
-              size="small"
-            />
-            {/* Full Description */}
-            <TextField
-              label="Full Description"
-              fullWidth
-              multiline
-              rows={3}
-              value={formData.description}
-              onChange={(e) => handleFormChange('description', e.target.value)}
-              variant="outlined"
-              size="small"
-            />
-            {/* Price */}
-            <TextField
-              label="Price"
-              fullWidth
-              required
-              type="number"
-              value={formData.price}
-              onChange={(e) => handleFormChange('price', parseFloat(e.target.value) || 0)}
-              InputProps={{ startAdornment: '$' }}
-              variant="outlined"
-              size="small"
-            />
-            {/* Cost Price */}
-            <TextField
-              label="Cost Price"
-              fullWidth
-              type="number"
-              value={formData.costPrice}
-              onChange={(e) => handleFormChange('costPrice', parseFloat(e.target.value) || 0)}
-              InputProps={{ startAdornment: '$' }}
-              variant="outlined"
-              size="small"
-            />
-            {/* Stock Quantity */}
-            <TextField
-              label="Stock Quantity"
-              fullWidth
-              required
-              type="number"
-              value={formData.stockQuantity}
-              onChange={(e) => handleFormChange('stockQuantity', parseInt(e.target.value) || 0)}
-              variant="outlined"
-              size="small"
-            />
-            {/* Low Stock Threshold */}
-            <TextField
-              label="Low Stock Threshold"
-              fullWidth
-              type="number"
-              value={formData.lowStockThreshold}
-              onChange={(e) => handleFormChange('lowStockThreshold', parseInt(e.target.value) || 10)}
-              variant="outlined"
-              size="small"
-            />
-            {/* Manufacturer */}
-            <TextField
-              label="Manufacturer"
-              fullWidth
-              value={formData.manufacturer}
-              onChange={(e) => handleFormChange('manufacturer', e.target.value)}
-              variant="outlined"
-              size="small"
-            />
-            {/* Active Toggle */}
-            <FormControlLabel
-              control={
-                <Switch
-                  checked={formData.isActive}
-                  onChange={(e) => handleFormChange('isActive', e.target.checked)}
-                />
-              }
-              label="Active"
-              sx={{ ml: 0 }}
-            />
-            {/* Product Images */}
-            <Box>
-              <Typography variant="subtitle1" sx={{ mb: 1, fontWeight: 500 }}>
-                Product Images
-              </Typography>
-              {imageUrls.map((url, index) => (
-                <Box key={index} sx={{ display: 'flex', gap: 1, mb: 1 }}>
-                  <TextField
-                    label={`Image URL ${index + 1}`}
-                    fullWidth
-                    value={url}
-                    onChange={(e) => handleImageUrlChange(index, e.target.value)}
-                    placeholder="https://example.com/image.jpg"
-                    size="small"
+                  {categories.map((category) => (
+                    <MenuItem key={category.id} value={category.id}>
+                      {category.name}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Grid>
+            <Grid size={6}>
+              <TextField
+                label="Brand"
+                fullWidth
+                value={formData.brand}
+                onChange={(e) => handleFormChange('brand', e.target.value)}
+                variant="outlined"
+                size="small"
+              />
+            </Grid>
+            <Grid size={12}>
+              <TextField
+                label="Short Description"
+                fullWidth
+                value={formData.shortDescription}
+                onChange={(e) => handleFormChange('shortDescription', e.target.value)}
+                variant="outlined"
+                size="small"
+              />
+            </Grid>
+            <Grid size={12}>
+              <TextField
+                label="Full Description"
+                fullWidth
+                multiline
+                rows={3}
+                value={formData.description}
+                onChange={(e) => handleFormChange('description', e.target.value)}
+                variant="outlined"
+                size="small"
+              />
+            </Grid>
+
+            {/* Pricing */}
+            <Grid size={12}>
+              <Divider sx={{ my: 1 }} />
+              <Typography variant="subtitle2" color="text.secondary">Pricing</Typography>
+            </Grid>
+            <Grid size={6}>
+              <TextField
+                label="Price"
+                fullWidth
+                required
+                type="number"
+                value={formData.price}
+                onChange={(e) => handleFormChange('price', parseFloat(e.target.value) || 0)}
+                InputProps={{ startAdornment: '$' }}
+                variant="outlined"
+                size="small"
+              />
+            </Grid>
+            <Grid size={6}>
+              <TextField
+                label="Cost Price"
+                fullWidth
+                type="number"
+                value={formData.costPrice}
+                onChange={(e) => handleFormChange('costPrice', parseFloat(e.target.value) || 0)}
+                InputProps={{ startAdornment: '$' }}
+                variant="outlined"
+                size="small"
+              />
+            </Grid>
+
+            {/* Inventory */}
+            <Grid size={12}>
+              <Divider sx={{ my: 1 }} />
+              <Typography variant="subtitle2" color="text.secondary">Inventory</Typography>
+            </Grid>
+            <Grid size={6}>
+              <TextField
+                label="Stock Quantity"
+                fullWidth
+                required
+                type="number"
+                value={formData.stockQuantity}
+                onChange={(e) => handleFormChange('stockQuantity', parseInt(e.target.value) || 0)}
+                variant="outlined"
+                size="small"
+              />
+            </Grid>
+            <Grid size={6}>
+              <TextField
+                label="Low Stock Threshold"
+                fullWidth
+                type="number"
+                value={formData.lowStockThreshold}
+                onChange={(e) => handleFormChange('lowStockThreshold', parseInt(e.target.value) || 10)}
+                variant="outlined"
+                size="small"
+              />
+            </Grid>
+
+            {/* Additional Info */}
+            <Grid size={12}>
+              <Divider sx={{ my: 1 }} />
+              <Typography variant="subtitle2" color="text.secondary">Additional Information</Typography>
+            </Grid>
+            <Grid size={6}>
+              <TextField
+                label="Manufacturer"
+                fullWidth
+                value={formData.manufacturer}
+                onChange={(e) => handleFormChange('manufacturer', e.target.value)}
+                variant="outlined"
+                size="small"
+              />
+            </Grid>
+            <Grid size={6}>
+              <FormControlLabel
+                control={
+                  <Switch
+                    checked={formData.isActive}
+                    onChange={(e) => handleFormChange('isActive', e.target.checked)}
                   />
-                  <IconButton 
-                    color="error" 
-                    onClick={() => handleRemoveImageUrl(index)}
-                    disabled={imageUrls.length === 1}
-                  >
-                    <DeleteIcon />
-                  </IconButton>
+                }
+                label="Active"
+                sx={{ ml: 0, mt: 0.5 }}
+              />
+            </Grid>
+
+            {/* Product Documents */}
+            <Grid size={12}>
+              <Divider sx={{ my: 1 }} />
+              <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 1 }}>
+                Product Documents
+              </Typography>
+              {/* Existing Documents */}
+              {existingDocuments.length > 0 && (
+                <Box sx={{ mb: 2 }}>
+                  <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+                    Current Documents:
+                  </Typography>
+                  <Grid container spacing={1}>
+                    {existingDocuments.map((doc) => (
+                      <Grid size={{ xs: 12, sm: 6 }} key={doc.id}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, p: 1, bgcolor: 'grey.100', borderRadius: 1 }}>
+                          {doc.documentType === 'image' && (
+                            <Box
+                              component="img"
+                              src={doc.documentUrl}
+                              alt={doc.altText || 'Product image'}
+                              sx={{ width: 50, height: 50, objectFit: 'cover', borderRadius: 1 }}
+                              onError={(e: React.SyntheticEvent<HTMLImageElement>) => {
+                                e.currentTarget.style.display = 'none';
+                              }}
+                            />
+                          )}
+                          <Box sx={{ flex: 1, minWidth: 0 }}>
+                            <Box sx={{ display: 'flex', gap: 0.5, mb: 0.5 }}>
+                              <Chip
+                                label={doc.documentType}
+                                size="small"
+                                color={doc.documentType === 'image' ? 'info' : doc.documentType === 'video' ? 'secondary' : 'default'}
+                              />
+                              {doc.isPrimary && (
+                                <Chip label="Primary" size="small" color="primary" />
+                              )}
+                            </Box>
+                            <Typography variant="body2" noWrap title={doc.documentUrl}>
+                              {doc.documentUrl}
+                            </Typography>
+                          </Box>
+                          <IconButton
+                            color="error"
+                            onClick={() => handleDeleteExistingDocument(doc.id)}
+                            size="small"
+                          >
+                            <DeleteIcon />
+                          </IconButton>
+                        </Box>
+                      </Grid>
+                    ))}
+                  </Grid>
                 </Box>
-              ))}
-              <Button 
-                startIcon={<AddIcon />} 
-                onClick={handleAddImageUrl}
+              )}
+              {/* New Documents */}
+              {newDocuments.length > 0 && (
+                <Box sx={{ mb: 1 }}>
+                  <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+                    New Documents:
+                  </Typography>
+                  {newDocuments.map((doc, index) => (
+                    <Box key={index} sx={{ display: 'flex', gap: 1, mb: 1, alignItems: 'center' }}>
+                      <FormControl size="small" sx={{ minWidth: 100 }}>
+                        <Select
+                          value={doc.type}
+                          onChange={(e) => handleDocumentTypeChange(index, e.target.value as DocumentType)}
+                        >
+                          <MenuItem value="image">Image</MenuItem>
+                          <MenuItem value="video">Video</MenuItem>
+                          <MenuItem value="manual">Manual</MenuItem>
+                        </Select>
+                      </FormControl>
+                      <TextField
+                        label="Document URL"
+                        fullWidth
+                        value={doc.url}
+                        onChange={(e) => handleDocumentUrlChange(index, e.target.value)}
+                        placeholder="https://example.com/document"
+                        size="small"
+                        autoFocus
+                      />
+                      <IconButton
+                        color="error"
+                        onClick={() => handleRemoveDocument(index)}
+                      >
+                        <DeleteIcon />
+                      </IconButton>
+                    </Box>
+                  ))}
+                </Box>
+              )}
+              <Button
+                startIcon={<AddIcon />}
+                onClick={handleAddDocument}
                 variant="outlined"
                 size="small"
               >
-                Add Image URL
+                Add Document
               </Button>
-            </Box>
-          </Box>
+            </Grid>
+          </Grid>
         </DialogContent>
         <DialogActions>
           <Button onClick={handleCloseForm}>Cancel</Button>
@@ -545,6 +692,25 @@ export default function Products() {
             disabled={!formData.sku || !formData.name || formData.price <= 0}
           >
             {editingProduct ? 'Update Product' : 'Add Product'}
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={deleteDialogOpen} onClose={handleDeleteCancel} maxWidth="xs" fullWidth>
+        <DialogTitle>Delete Product</DialogTitle>
+        <DialogContent>
+          <Typography>
+            Are you sure you want to delete <strong>{productToDelete?.name}</strong>?
+          </Typography>
+          <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+            This action cannot be undone.
+          </Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleDeleteCancel}>Cancel</Button>
+          <Button onClick={handleDeleteConfirm} color="error" variant="contained">
+            Delete
           </Button>
         </DialogActions>
       </Dialog>

@@ -1,5 +1,6 @@
 -- Database initialization script for Apyvyra
 
+DROP TABLE IF EXISTS product_documents;
 DROP TABLE IF EXISTS product_images;
 DROP TABLE IF EXISTS products;
 DROP TABLE IF EXISTS product_categories;
@@ -64,16 +65,18 @@ CREATE INDEX idx_products_category ON products(category_id);
 CREATE INDEX idx_products_brand ON products(brand);
 CREATE INDEX idx_products_is_active ON products(is_active);
 
--- Product Images table with auditing
-CREATE TABLE product_images (
+-- Product Documents table with auditing
+CREATE TABLE product_documents (
     id SERIAL PRIMARY KEY,
     product_id INTEGER NOT NULL REFERENCES products(id) ON DELETE CASCADE,
-    image_url VARCHAR(1000) NOT NULL,
+    document_url VARCHAR(1000) NOT NULL,
+    document_type VARCHAR(20) NOT NULL CHECK (document_type IN ('image', 'video', 'manual')),
     alt_text VARCHAR(500),
     display_order INTEGER DEFAULT 0,
     is_primary BOOLEAN DEFAULT false,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     created_by INTEGER REFERENCES users(id)
 );
-CREATE INDEX idx_product_images_product ON product_images(product_id);
-CREATE INDEX idx_product_images_primary ON product_images(is_primary);
+CREATE INDEX idx_product_documents_product ON product_documents(product_id);
+CREATE INDEX idx_product_documents_type ON product_documents(document_type);
+CREATE INDEX idx_product_documents_primary ON product_documents(is_primary);

@@ -88,7 +88,7 @@ public class Product
     [ForeignKey("CategoryId")]
     public ProductCategory? Category { get; set; }
 
-    public ICollection<ProductImage> Images { get; set; } = new List<ProductImage>();
+    public ICollection<ProductDocument> Documents { get; set; } = new List<ProductDocument>();
 
     [ForeignKey("CreatedBy")]
     public User? CreatedByUser { get; set; }

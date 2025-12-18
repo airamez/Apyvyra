@@ -22,15 +22,18 @@ export interface Product {
   weightUnit?: string;
   dimensions?: string;
   isActive: boolean;
-  images?: ProductImage[];
+  documents?: ProductDocument[];
   createdAt: string;
   updatedAt: string;
 }
 
-export interface ProductImage {
+export type DocumentType = 'image' | 'video' | 'manual';
+
+export interface ProductDocument {
   id: number;
   productId: number;
-  imageUrl: string;
+  documentUrl: string;
+  documentType: DocumentType;
   altText?: string;
   displayOrder: number;
   isPrimary: boolean;
@@ -145,27 +148,43 @@ export const productService = {
     }
   },
 
-  // Add image to product
-  async addImage(productId: number, imageData: {
-    imageUrl: string;
+  // Add document to product
+  async addDocument(productId: number, documentData: {
+    documentUrl: string;
+    documentType: DocumentType;
     altText?: string;
     displayOrder: number;
     isPrimary: boolean;
     userId?: number;
-  }): Promise<ProductImage> {
-    const response = await fetch(`${API_ENDPOINTS.BASE_URL}/api/products/${productId}/images`, {
+  }): Promise<ProductDocument> {
+    const response = await fetch(`${API_ENDPOINTS.BASE_URL}/api/products/${productId}/documents`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         ...authService.getAuthHeader(),
       },
-      body: JSON.stringify(imageData),
+      body: JSON.stringify(documentData),
     });
 
     if (!response.ok) {
-      throw new Error('Failed to add product image');
+      throw new Error('Failed to add product document');
     }
 
     return await response.json();
+  },
+
+  // Delete document (only needs document ID since it's unique)
+  async deleteDocument(documentId: number): Promise<void> {
+    const response = await fetch(`${API_ENDPOINTS.BASE_URL}/api/documents/${documentId}`, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+        ...authService.getAuthHeader(),
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to delete document');
+    }
   },
 };

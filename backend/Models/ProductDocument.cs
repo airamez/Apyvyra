@@ -3,8 +3,8 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace backend.Models;
 
-[Table("product_images")]
-public class ProductImage
+[Table("product_documents")]
+public class ProductDocument
 {
     [Key]
     [Column("id")]
@@ -16,8 +16,13 @@ public class ProductImage
 
     [Required]
     [MaxLength(1000)]
-    [Column("image_url")]
-    public string ImageUrl { get; set; } = string.Empty;
+    [Column("document_url")]
+    public string DocumentUrl { get; set; } = string.Empty;
+
+    [Required]
+    [MaxLength(20)]
+    [Column("document_type")]
+    public string DocumentType { get; set; } = "image"; // image, video, manual
 
     [MaxLength(500)]
     [Column("alt_text")]
