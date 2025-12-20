@@ -17,25 +17,6 @@ Before running the project, ensure you have the following installed:
 * **.NET SDK** (v10.0): (https://dotnet.microsoft.com/download)
 * **Docker** and **Docker Compose**: (https://www.docker.com/)
 
-
-### Generate Entity Framework Code from SQL Database
-
-
-If you need to scaffold Entity Framework Core models and DbContext from the existing SQL database, use the following command (replace connection string and provider as needed). **This command must be executed from the `backend` directory:**
-
-
-
-```bash
-# Regenerate EF Core models and context from the current database schema (run from the backend directory):
-dotnet ef dbcontext scaffold "Host=localhost;Port=5432;Database=apyvyra;Username=apyvyra;Password=apyvyra" Npgsql.EntityFrameworkCore.PostgreSQL --output-dir Models --context-dir Data --context AppDbContext --force
-```
-
-- This command uses the connection string from `backend/appsettings.json` (update if your DB settings differ).
-- The provider is PostgreSQL (Npgsql). For other DBs, use the appropriate provider.
-- Models will be placed in the `Models` directory, and the context in the `Data` directory.
-- The `--force` flag will overwrite existing files in the output directories.
-- You must have the `dotnet-ef` tool installed (`dotnet tool install --global dotnet-ef`).
-
 ### Verify Installations
 
 Check that all prerequisites are correctly installed:
@@ -89,7 +70,11 @@ dotnet restore
 cd ..
 ```
 
-## 3. Running the Project Manually
+## 3. Database Setup
+
+The project includes a DevOps console tool for automated database operations. See [devops/README.md](devops/README.md) for detailed instructions on using the `db-init` command to initialize or re-create the database with the proper schema.
+
+## 4. Running the Project Manually
 
 ### Step 1: Start the Database Container
 
@@ -125,7 +110,7 @@ This starts only the PostgreSQL database container in detached mode.
 * The frontend will be available at `http://localhost:80` (or the port specified in [vite.config.ts](frontend/vite.config.ts)).
 >Note: The sudo is necessary if the port is 80
 
-## 4. Running the Project with Docker
+## 5. Running the Project with Docker
 
 * To run the entire application stack (database, backend, and frontend) using Docker:
 
@@ -154,3 +139,18 @@ This starts only the PostgreSQL database container in detached mode.
   ```
 
 >Note: Make sure the fronend and backend projects are not running in the terminal
+
+## 6. Generate Entity Framework Code from SQL Database
+
+If you need to scaffold Entity Framework Core models and DbContext from the existing SQL database, use the following command (replace connection string and provider as needed). **This command must be executed from the `backend` directory:**
+
+```bash
+# Regenerate EF Core models and context from the current database schema (run from the backend directory):
+dotnet ef dbcontext scaffold "Host=localhost;Port=5432;Database=apyvyra;Username=apyvyra;Password=apyvyra" Npgsql.EntityFrameworkCore.PostgreSQL --output-dir Models --context-dir Data --context AppDbContext --force
+```
+
+- This command uses the connection string from `backend/appsettings.json` (update if your DB settings differ).
+- The provider is PostgreSQL (Npgsql). For other DBs, use the appropriate provider.
+- Models will be placed in the `Models` directory, and the context in the `Data` directory.
+- The `--force` flag will overwrite existing files in the output directories.
+- You must have the `dotnet-ef` tool installed (`dotnet tool install --global dotnet-ef`).
