@@ -45,11 +45,11 @@ export interface CreateProductData {
   description?: string;
   shortDescription?: string;
   categoryId?: number;
-  price: number;
+  price: number | undefined;
   costPrice?: number;
   compareAtPrice?: number;
-  stockQuantity: number;
-  lowStockThreshold: number;
+  stockQuantity: number | undefined;
+  lowStockThreshold: number | undefined;
   skuBarcode?: string;
   brand?: string;
   manufacturer?: string;

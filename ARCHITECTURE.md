@@ -23,6 +23,57 @@ Each table includes standard audit fields:
 
 This ensures consistency and traceability across the database schema.
 
+## Database Field Types
+
+### Date/Time Fields
+
+All date/time columns use `TIMESTAMPTZ` (timestamp with time zone) instead of `TIMESTAMP` (timestamp without time zone):
+
+**Rationale:**
+- **UTC Consistency**: Ensures all timestamps are stored in UTC, preventing timezone-related bugs
+- **Npgsql Compatibility**: Avoids .NET PostgreSQL provider issues with `DateTimeKind.Unspecified` values
+- **Global ERP Support**: Proper handling of international users across different time zones
+- **Future-Proofing**: Aligns with modern web standards and cloud-native applications
+
+**Industry Best Practices:**
+Big tech companies (Google, Amazon, Facebook, Stripe, etc.) universally use UTC timestamps with timezone information:
+
+- **PostgreSQL**: `TIMESTAMPTZ` is the standard for all temporal data
+- **MySQL**: `TIMESTAMP` or `DATETIME` with UTC conversion
+- **MongoDB**: ISODate with UTC
+- **Cloud Services**: All major cloud providers (AWS, GCP, Azure) store timestamps in UTC
+
+**Implementation:**
+- Backend: All `DateTime` properties use `DateTimeKind.Utc`
+- Database: `created_at`, `updated_at` columns use `TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP`
+- API: Return timestamps in ISO 8601 format with 'Z' suffix (e.g., `2025-12-20T10:30:00.000Z`)
+
+**Why TIMESTAMPTZ is Recommended:**
+- **Ambiguity Elimination**: No confusion about whether a timestamp represents local time or UTC
+- **Timezone Safety**: Applications can convert to user timezones without data loss
+- **Compliance**: Meets requirements for financial systems, audit trails, and international standards
+- **Performance**: PostgreSQL optimizes `TIMESTAMPTZ` queries efficiently
+
+### Currency/Monetary Fields
+
+Price and cost fields use `DECIMAL(19, 4)` precision:
+
+**Rationale:**
+- **Calculation Accuracy**: 4 decimal places prevent rounding errors in tax calculations, discounts, and currency conversions
+- **Industry Standard**: Matches practices used by major e-commerce platforms (Stripe, Shopify, Amazon)
+- **Financial Compliance**: Supports precise monetary arithmetic required for ERP systems
+- **Storage Efficiency**: DECIMAL provides exact decimal representation without floating-point precision issues
+
+**Fields Using DECIMAL(19, 4):**
+- `price` - Product selling price
+- `cost_price` - Product cost/purchase price  
+- `compare_at_price` - Original/compare price for sales
+
+**Benefits:**
+- Eliminates floating-point arithmetic errors (e.g., 0.1 + 0.2 = 0.3 exactly)
+- Supports micro-payments and complex pricing rules
+- Enables accurate financial reporting and reconciliation
+
 ## Frontend API Configuration
 
 API endpoints are centralized in `frontend/src/config/api.ts`:

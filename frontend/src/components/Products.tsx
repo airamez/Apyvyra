@@ -83,10 +83,10 @@ export default function Products() {
     description: '',
     shortDescription: '',
     categoryId: undefined,
-    price: 0,
-    costPrice: 0,
-    stockQuantity: 0,
-    lowStockThreshold: 10,
+    price: undefined,
+    costPrice: undefined,
+    stockQuantity: undefined,
+    lowStockThreshold: undefined,
     brand: '',
     manufacturer: '',
     isActive: true
@@ -157,10 +157,10 @@ export default function Products() {
       description: '',
       shortDescription: '',
       categoryId: undefined,
-      price: 0,
-      costPrice: 0,
-      stockQuantity: 0,
-      lowStockThreshold: 10,
+      price: undefined,
+      costPrice: undefined,
+      stockQuantity: undefined,
+      lowStockThreshold: undefined,
       brand: '',
       manufacturer: '',
       isActive: true
@@ -230,11 +230,20 @@ export default function Products() {
 
   const handleSubmit = async () => {
     try {
+      // Normalize form data for submission
+      const normalizedData = {
+        ...formData,
+        price: formData.price ?? 0,
+        costPrice: formData.costPrice ?? 0,
+        stockQuantity: formData.stockQuantity ?? 0,
+        lowStockThreshold: formData.lowStockThreshold ?? 10,
+      };
+
       let productId: number;
 
       if (editingProduct) {
         // Update existing product
-        const updatedProduct = await productService.update(editingProduct.id, formData);
+        const updatedProduct = await productService.update(editingProduct.id, normalizedData);
         setProducts(products.map(p => p.id === editingProduct.id ? updatedProduct as any : p));
         productId = editingProduct.id;
 
@@ -250,7 +259,7 @@ export default function Products() {
         }
       } else {
         // Create new product
-        const newProduct = await productService.create(formData);
+        const newProduct = await productService.create(normalizedData);
         setProducts([...products, newProduct as any]);
         productId = newProduct.id;
       }
@@ -504,11 +513,18 @@ export default function Products() {
                 fullWidth
                 required
                 type="number"
-                value={formData.price}
-                onChange={(e) => handleFormChange('price', parseFloat(e.target.value) || 0)}
-                InputProps={{ startAdornment: '$' }}
+                value={formData.price ?? ''}
+                onChange={(e) => handleFormChange('price', e.target.value === '' ? undefined : parseFloat(e.target.value))}
                 variant="outlined"
                 size="small"
+                sx={{
+                  '& input[type=number]::-webkit-outer-spin-button, & input[type=number]::-webkit-inner-spin-button': {
+                    display: 'none',
+                  },
+                  '& input[type=number]': {
+                    MozAppearance: 'textfield',
+                  },
+                }}
               />
             </Grid>
             <Grid size={6}>
@@ -516,11 +532,18 @@ export default function Products() {
                 label="Cost Price"
                 fullWidth
                 type="number"
-                value={formData.costPrice}
-                onChange={(e) => handleFormChange('costPrice', parseFloat(e.target.value) || 0)}
-                InputProps={{ startAdornment: '$' }}
+                value={formData.costPrice ?? ''}
+                onChange={(e) => handleFormChange('costPrice', e.target.value === '' ? undefined : parseFloat(e.target.value))}
                 variant="outlined"
                 size="small"
+                sx={{
+                  '& input[type=number]::-webkit-outer-spin-button, & input[type=number]::-webkit-inner-spin-button': {
+                    display: 'none',
+                  },
+                  '& input[type=number]': {
+                    MozAppearance: 'textfield',
+                  },
+                }}
               />
             </Grid>
 
@@ -535,10 +558,18 @@ export default function Products() {
                 fullWidth
                 required
                 type="number"
-                value={formData.stockQuantity}
-                onChange={(e) => handleFormChange('stockQuantity', parseInt(e.target.value) || 0)}
+                value={formData.stockQuantity ?? ''}
+                onChange={(e) => handleFormChange('stockQuantity', e.target.value === '' ? undefined : parseInt(e.target.value) || 0)}
                 variant="outlined"
                 size="small"
+                sx={{
+                  '& input[type=number]::-webkit-outer-spin-button, & input[type=number]::-webkit-inner-spin-button': {
+                    display: 'none',
+                  },
+                  '& input[type=number]': {
+                    MozAppearance: 'textfield',
+                  },
+                }}
               />
             </Grid>
             <Grid size={6}>
@@ -546,10 +577,18 @@ export default function Products() {
                 label="Low Stock Threshold"
                 fullWidth
                 type="number"
-                value={formData.lowStockThreshold}
-                onChange={(e) => handleFormChange('lowStockThreshold', parseInt(e.target.value) || 10)}
+                value={formData.lowStockThreshold ?? ''}
+                onChange={(e) => handleFormChange('lowStockThreshold', e.target.value === '' ? undefined : parseInt(e.target.value) || 10)}
                 variant="outlined"
                 size="small"
+                sx={{
+                  '& input[type=number]::-webkit-outer-spin-button, & input[type=number]::-webkit-inner-spin-button': {
+                    display: 'none',
+                  },
+                  '& input[type=number]': {
+                    MozAppearance: 'textfield',
+                  },
+                }}
               />
             </Grid>
 
@@ -689,7 +728,7 @@ export default function Products() {
           <Button 
             onClick={handleSubmit} 
             variant="contained"
-            disabled={!formData.sku || !formData.name || formData.price <= 0}
+            disabled={!formData.sku || !formData.name || !formData.price || formData.price <= 0}
           >
             {editingProduct ? 'Update Product' : 'Add Product'}
           </Button>
