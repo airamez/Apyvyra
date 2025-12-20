@@ -22,18 +22,18 @@ export interface Product {
   weightUnit?: string;
   dimensions?: string;
   isActive: boolean;
-  documents?: ProductDocument[];
+  urls?: ProductUrl[];
   createdAt: string;
   updatedAt: string;
 }
 
-export type DocumentType = 'image' | 'video' | 'manual';
+export type UrlType = 'image' | 'video' | 'manual';
 
-export interface ProductDocument {
+export interface ProductUrl {
   id: number;
   productId: number;
-  documentUrl: string;
-  documentType: DocumentType;
+  url: string;
+  urlType: UrlType;
   altText?: string;
   displayOrder: number;
   isPrimary: boolean;
@@ -63,7 +63,7 @@ export interface CreateProductData {
 export const productService = {
   // Get all products
   async getAll(): Promise<Product[]> {
-    const response = await fetch(`${API_ENDPOINTS.BASE_URL}/api/products`, {
+    const response = await fetch(API_ENDPOINTS.PRODUCT.LIST, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -74,13 +74,12 @@ export const productService = {
     if (!response.ok) {
       throw new Error('Failed to fetch products');
     }
-
     return await response.json();
   },
 
   // Get a single product by ID
   async getById(id: number): Promise<Product> {
-    const response = await fetch(`${API_ENDPOINTS.BASE_URL}/api/products/${id}`, {
+    const response = await fetch(API_ENDPOINTS.PRODUCT.DETAIL(id), {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -97,7 +96,7 @@ export const productService = {
 
   // Create a new product
   async create(data: CreateProductData): Promise<Product> {
-    const response = await fetch(`${API_ENDPOINTS.BASE_URL}/api/products`, {
+    const response = await fetch(API_ENDPOINTS.PRODUCT.LIST, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -116,7 +115,7 @@ export const productService = {
 
   // Update an existing product
   async update(id: number, data: Partial<CreateProductData>): Promise<Product> {
-    const response = await fetch(`${API_ENDPOINTS.BASE_URL}/api/products/${id}`, {
+    const response = await fetch(API_ENDPOINTS.PRODUCT.DETAIL(id), {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
@@ -135,7 +134,7 @@ export const productService = {
 
   // Delete a product
   async delete(id: number): Promise<void> {
-    const response = await fetch(`${API_ENDPOINTS.BASE_URL}/api/products/${id}`, {
+    const response = await fetch(API_ENDPOINTS.PRODUCT.DETAIL(id), {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/json',
@@ -148,34 +147,34 @@ export const productService = {
     }
   },
 
-  // Add document to product
-  async addDocument(productId: number, documentData: {
-    documentUrl: string;
-    documentType: DocumentType;
+  // Add URL to product
+  async addUrl(productId: number, urlData: {
+    url: string;
+    urlType: UrlType;
     altText?: string;
     displayOrder: number;
     isPrimary: boolean;
     userId?: number;
-  }): Promise<ProductDocument> {
-    const response = await fetch(`${API_ENDPOINTS.BASE_URL}/api/products/${productId}/documents`, {
+  }): Promise<ProductUrl> {
+    const response = await fetch(`${API_ENDPOINTS.PRODUCT.DETAIL(productId)}/urls`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         ...authService.getAuthHeader(),
       },
-      body: JSON.stringify(documentData),
+      body: JSON.stringify(urlData),
     });
 
     if (!response.ok) {
-      throw new Error('Failed to add product document');
+      throw new Error('Failed to add product URL');
     }
 
     return await response.json();
   },
 
-  // Delete document (only needs document ID since it's unique)
-  async deleteDocument(documentId: number): Promise<void> {
-    const response = await fetch(`${API_ENDPOINTS.BASE_URL}/api/documents/${documentId}`, {
+  // Delete URL (only needs URL ID since it's unique)
+  async deleteUrl(urlId: number): Promise<void> {
+    const response = await fetch(`${API_ENDPOINTS.BASE_URL}/api/urls/${urlId}`, {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/json',
@@ -184,7 +183,7 @@ export const productService = {
     });
 
     if (!response.ok) {
-      throw new Error('Failed to delete document');
+      throw new Error('Failed to delete URL');
     }
   },
 };

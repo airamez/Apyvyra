@@ -17,7 +17,7 @@ export interface ProductCategory {
 export const categoryService = {
   // Get all categories
   async getAll(): Promise<ProductCategory[]> {
-    const response = await fetch(`${API_ENDPOINTS.BASE_URL}/api/productcategories`, {
+    const response = await fetch(API_ENDPOINTS.PRODUCT_CATEGORY.LIST, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -34,7 +34,7 @@ export const categoryService = {
 
   // Get category by ID
   async getById(id: number): Promise<ProductCategory> {
-    const response = await fetch(`${API_ENDPOINTS.BASE_URL}/api/productcategories/${id}`, {
+    const response = await fetch(API_ENDPOINTS.PRODUCT_CATEGORY.DETAIL(id), {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -51,7 +51,7 @@ export const categoryService = {
 
     // Create a new category
     async create(data: { name: string; description?: string }): Promise<ProductCategory> {
-      const response = await fetch(`${API_ENDPOINTS.BASE_URL}/api/productcategories`, {
+      const response = await fetch(API_ENDPOINTS.PRODUCT_CATEGORY.LIST, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -67,7 +67,7 @@ export const categoryService = {
 
     // Update a category
     async update(id: number, data: { name: string; description?: string }): Promise<ProductCategory> {
-      const response = await fetch(`${API_ENDPOINTS.BASE_URL}/api/productcategories/${id}`, {
+      const response = await fetch(API_ENDPOINTS.PRODUCT_CATEGORY.DETAIL(id), {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -83,7 +83,7 @@ export const categoryService = {
 
     // Delete a category
     async delete(id: number): Promise<void> {
-      const response = await fetch(`${API_ENDPOINTS.BASE_URL}/api/productcategories/${id}`, {
+      const response = await fetch(API_ENDPOINTS.PRODUCT_CATEGORY.DETAIL(id), {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',

@@ -1,98 +1,59 @@
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
+﻿using System;
+using System.Collections.Generic;
 
 namespace backend.Models;
 
-[Table("products")]
-public class Product
+public partial class Product
 {
-    [Key]
-    [Column("id")]
     public int Id { get; set; }
 
-    [Required]
-    [MaxLength(100)]
-    [Column("sku")]
-    public string Sku { get; set; } = string.Empty;
+    public string Sku { get; set; } = null!;
 
-    [Required]
-    [MaxLength(500)]
-    [Column("name")]
-    public string Name { get; set; } = string.Empty;
+    public string Name { get; set; } = null!;
 
-    [Column("description")]
     public string? Description { get; set; }
 
-    [MaxLength(1000)]
-    [Column("short_description")]
     public string? ShortDescription { get; set; }
 
-    [Column("category_id")]
     public int? CategoryId { get; set; }
 
-    [Required]
-    [Column("price", TypeName = "decimal(18,2)")]
     public decimal Price { get; set; }
 
-    [Column("cost_price", TypeName = "decimal(18,2)")]
     public decimal? CostPrice { get; set; }
 
-    [Column("compare_at_price", TypeName = "decimal(18,2)")]
     public decimal? CompareAtPrice { get; set; }
 
-    [Column("stock_quantity")]
-    public int StockQuantity { get; set; } = 0;
+    public int? StockQuantity { get; set; }
 
-    [Column("low_stock_threshold")]
-    public int LowStockThreshold { get; set; } = 10;
+    public int? LowStockThreshold { get; set; }
 
-    [MaxLength(100)]
-    [Column("sku_barcode")]
     public string? SkuBarcode { get; set; }
 
-    [MaxLength(255)]
-    [Column("brand")]
     public string? Brand { get; set; }
 
-    [MaxLength(255)]
-    [Column("manufacturer")]
     public string? Manufacturer { get; set; }
 
-    [Column("weight", TypeName = "decimal(18,2)")]
     public decimal? Weight { get; set; }
 
-    [MaxLength(20)]
-    [Column("weight_unit")]
     public string? WeightUnit { get; set; }
 
-    [Column("dimensions", TypeName = "jsonb")]
     public string? Dimensions { get; set; }
 
-    [Column("is_active")]
-    public bool IsActive { get; set; } = true;
+    public bool? IsActive { get; set; }
 
-    // Auditing fields
-    [Column("created_at")]
-    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+    public DateTime? CreatedAt { get; set; }
 
-    [Column("created_by")]
     public int? CreatedBy { get; set; }
 
-    [Column("updated_at")]
-    public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
+    public DateTime? UpdatedAt { get; set; }
 
-    [Column("updated_by")]
     public int? UpdatedBy { get; set; }
 
-    // Navigation properties
-    [ForeignKey("CategoryId")]
-    public ProductCategory? Category { get; set; }
+    public virtual ProductCategory? Category { get; set; }
 
-    public ICollection<ProductDocument> Documents { get; set; } = new List<ProductDocument>();
+    public virtual AppUser? CreatedByNavigation { get; set; }
 
-    [ForeignKey("CreatedBy")]
-    public User? CreatedByUser { get; set; }
+    public virtual ICollection<ProductUrl> ProductUrls { get; set; } = new List<ProductUrl>();
 
-    [ForeignKey("UpdatedBy")]
-    public User? UpdatedByUser { get; set; }
+    public virtual AppUser? UpdatedByNavigation { get; set; }
 }

@@ -9,14 +9,18 @@ if (!API_BASE_URL) {
 
 export const API_ENDPOINTS = {
   BASE_URL: API_BASE_URL,
-  USERS: {
-    REGISTER: `${API_BASE_URL}/api/users`,
-    LOGIN: `${API_BASE_URL}/api/users/login`,
-    ME: `${API_BASE_URL}/api/users/me`,
+  APP_USER: {
+    REGISTER: `${API_BASE_URL}/api/app_user`,
+    LOGIN: `${API_BASE_URL}/api/app_user/login`,
+    ME: `${API_BASE_URL}/api/app_user/me`,
   },
-  PRODUCTS: {
-    LIST: `${API_BASE_URL}/api/products`,
-    DETAIL: (id: number) => `${API_BASE_URL}/api/products/${id}`,
+  PRODUCT: {
+    LIST: `${API_BASE_URL}/api/product`,
+    DETAIL: (id: number) => `${API_BASE_URL}/api/product/${id}`,
+  },
+  PRODUCT_CATEGORY: {
+    LIST: `${API_BASE_URL}/api/product_category`,
+    DETAIL: (id: number) => `${API_BASE_URL}/api/product_category/${id}`,
   },
   // Add more domain endpoints as needed
   // CUSTOMERS: {

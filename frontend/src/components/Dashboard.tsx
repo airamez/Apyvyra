@@ -48,7 +48,7 @@ export default function Dashboard() {
               </Typography>
               <Typography variant="h3">0</Typography>
               <Typography variant="body2" color="text.secondary">
-                Registered users
+                Registered users (app_user)
               </Typography>
             </CardContent>
           </Card>

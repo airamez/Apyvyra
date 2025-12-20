@@ -12,47 +12,43 @@ using BCrypt.Net;
 namespace backend.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
-public class UsersController : ControllerBase
+[Route("api/app_user")]
+public class AppUserController : ControllerBase
 {
     private readonly AppDbContext _context;
-    private readonly ILogger<UsersController> _logger;
+    private readonly ILogger<AppUserController> _logger;
     private readonly IConfiguration _configuration;
 
-    public UsersController(AppDbContext context, ILogger<UsersController> logger, IConfiguration configuration)
+    public AppUserController(AppDbContext context, ILogger<AppUserController> logger, IConfiguration configuration)
     {
         _context = context;
         _logger = logger;
         _configuration = configuration;
     }
 
-    // POST: api/users
+    // POST: api/app_user
     [HttpPost]
-    public async Task<ActionResult<User>> CreateUser(CreateUserRequest request)
+    public async Task<ActionResult<AppUser>> CreateUser(CreateUserRequest request)
     {
         try
         {
             // Check if email already exists
-            if (await _context.Users.AnyAsync(u => u.Email == request.Email))
+            if (await _context.AppUsers.AnyAsync(u => u.Email == request.Email))
             {
                 return Conflict(new { message = "Email already exists" });
             }
 
-            var user = new User
+            var user = new AppUser
             {
                 Email = request.Email,
                 Password = BCrypt.Net.BCrypt.HashPassword(request.Password)
             };
 
-            _context.Users.Add(user);
+            _context.AppUsers.Add(user);
             await _context.SaveChangesAsync();
 
-            // Return user without password
-            return CreatedAtAction(nameof(GetUser), new { id = user.Id }, new UserResponse
-            {
-                Id = user.Id,
-                Email = user.Email
-            });
+            // Return JSON with message and id for frontend compatibility
+            return Created(string.Empty, new { message = "Registration successful", id = user.Id });
         }
         catch (Exception ex)
         {
@@ -65,7 +61,7 @@ public class UsersController : ControllerBase
     [HttpGet("{id}")]
     public async Task<ActionResult<UserResponse>> GetUser(int id)
     {
-        var user = await _context.Users.FindAsync(id);
+        var user = await _context.AppUsers.FindAsync(id);
 
         if (user == null)
         {
@@ -86,7 +82,7 @@ public class UsersController : ControllerBase
         try
         {
             // Find user by email
-            var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == request.Email);
+            var user = await _context.AppUsers.FirstOrDefaultAsync(u => u.Email == request.Email);
 
             if (user == null)
             {
@@ -133,7 +129,7 @@ public class UsersController : ControllerBase
                 return Unauthorized(new { message = "Invalid token" });
             }
 
-            var user = await _context.Users.FindAsync(userId);
+            var user = await _context.AppUsers.FindAsync(userId);
 
             if (user == null)
             {
@@ -153,7 +149,7 @@ public class UsersController : ControllerBase
         }
     }
 
-    private string GenerateJwtToken(User user)
+    private string GenerateJwtToken(AppUser user)
     {
         var jwtKey = _configuration["Jwt:Key"];
         var jwtIssuer = _configuration["Jwt:Issuer"];

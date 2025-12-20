@@ -85,7 +85,7 @@ export const authService = {
 
   // Login user
   async login(email: string, password: string): Promise<LoginResponse> {
-    const response = await fetch(API_ENDPOINTS.USERS.LOGIN, {
+    const response = await fetch(API_ENDPOINTS.APP_USER.LOGIN, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

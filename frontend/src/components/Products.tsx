@@ -35,7 +35,7 @@ import InventoryIcon from '@mui/icons-material/Inventory';
 import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
-import { productService, type ProductDocument, type CreateProductData, type DocumentType } from '../services/productService';
+import { productService, type ProductUrl, type CreateProductData, type UrlType } from '../services/productService';
 import { categoryService } from '../services/categoryService';
 
 interface ProductCategory {
@@ -60,7 +60,7 @@ interface Product {
   brand?: string;
   manufacturer?: string;
   isActive: boolean;
-  documents?: ProductDocument[];
+  urls?: ProductUrl[];
 }
 
 
@@ -72,9 +72,9 @@ export default function Products() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
-  const [newDocuments, setNewDocuments] = useState<{ url: string; type: DocumentType }[]>([]);
-  const [existingDocuments, setExistingDocuments] = useState<ProductDocument[]>([]);
-  const [documentsToDelete, setDocumentsToDelete] = useState<number[]>([]);
+  const [newUrls, setNewUrls] = useState<{ url: string; type: UrlType }[]>([]);
+  const [existingUrls, setExistingUrls] = useState<ProductUrl[]>([]);
+  const [urlsToDelete, setUrlsToDelete] = useState<number[]>([]);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [productToDelete, setProductToDelete] = useState<Product | null>(null);
   const [formData, setFormData] = useState<CreateProductData>({
@@ -148,9 +148,9 @@ export default function Products() {
 
   const handleOpenForm = () => {
     setEditingProduct(null);
-    setNewDocuments([]);
-    setExistingDocuments([]);
-    setDocumentsToDelete([]);
+    setNewUrls([]);
+    setExistingUrls([]);
+    setUrlsToDelete([]);
     setFormData({
       sku: '',
       name: '',
@@ -170,9 +170,9 @@ export default function Products() {
 
   const handleEditProduct = (product: Product) => {
     setEditingProduct(product);
-    setNewDocuments([]);
-    setExistingDocuments(product.documents || []);
-    setDocumentsToDelete([]);
+    setNewUrls([]);
+    setExistingUrls(product.urls || []);
+    setUrlsToDelete([]);
     setFormData({
       sku: product.sku,
       name: product.name,
@@ -193,9 +193,9 @@ export default function Products() {
   const handleCloseForm = () => {
     setShowForm(false);
     setEditingProduct(null);
-    setNewDocuments([]);
-    setExistingDocuments([]);
-    setDocumentsToDelete([]);
+    setNewUrls([]);
+    setExistingUrls([]);
+    setUrlsToDelete([]);
     setError(null);
   };
 
@@ -203,29 +203,29 @@ export default function Products() {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
-  const handleDocumentUrlChange = (index: number, value: string) => {
-    const updated = [...newDocuments];
+  const handleUrlChange = (index: number, value: string) => {
+    const updated = [...newUrls];
     updated[index] = { ...updated[index], url: value };
-    setNewDocuments(updated);
+    setNewUrls(updated);
   };
 
-  const handleDocumentTypeChange = (index: number, value: DocumentType) => {
-    const updated = [...newDocuments];
+  const handleUrlTypeChange = (index: number, value: UrlType) => {
+    const updated = [...newUrls];
     updated[index] = { ...updated[index], type: value };
-    setNewDocuments(updated);
+    setNewUrls(updated);
   };
 
-  const handleAddDocument = () => {
-    setNewDocuments([...newDocuments, { url: '', type: 'image' }]);
+  const handleAddUrl = () => {
+    setNewUrls([...newUrls, { url: '', type: 'image' }]);
   };
 
-  const handleRemoveDocument = (index: number) => {
-    setNewDocuments(newDocuments.filter((_, i) => i !== index));
+  const handleRemoveUrl = (index: number) => {
+    setNewUrls(newUrls.filter((_, i) => i !== index));
   };
 
-  const handleDeleteExistingDocument = (documentId: number) => {
-    setDocumentsToDelete([...documentsToDelete, documentId]);
-    setExistingDocuments(existingDocuments.filter(doc => doc.id !== documentId));
+  const handleDeleteExistingUrl = (urlId: number) => {
+    setUrlsToDelete([...urlsToDelete, urlId]);
+    setExistingUrls(existingUrls.filter(url => url.id !== urlId));
   };
 
   const handleSubmit = async () => {
@@ -238,14 +238,14 @@ export default function Products() {
         setProducts(products.map(p => p.id === editingProduct.id ? updatedProduct as any : p));
         productId = editingProduct.id;
 
-        // Delete documents marked for deletion
-        if (documentsToDelete.length > 0) {
+        // Delete URLs marked for deletion
+        if (urlsToDelete.length > 0) {
           try {
-            for (const documentId of documentsToDelete) {
-              await productService.deleteDocument(documentId);
+            for (const urlId of urlsToDelete) {
+              await productService.deleteUrl(urlId);
             }
-          } catch (docErr) {
-            console.error('Error deleting product documents:', docErr);
+          } catch (urlErr) {
+            console.error('Error deleting product URLs:', urlErr);
           }
         }
       } else {
@@ -255,35 +255,35 @@ export default function Products() {
         productId = newProduct.id;
       }
 
-      // Add new documents if URLs are provided
-      const validDocuments = newDocuments.filter(doc => doc.url.trim());
-      if (validDocuments.length > 0) {
+      // Add new URLs if provided
+      const validUrls = newUrls.filter(url => url.url.trim());
+      if (validUrls.length > 0) {
         try {
-          const startDisplayOrder = existingDocuments.length;
-          const hasPrimaryDocument = existingDocuments.some(doc => doc.isPrimary);
-          for (let i = 0; i < validDocuments.length; i++) {
-            await productService.addDocument(productId, {
-              documentUrl: validDocuments[i].url.trim(),
-              documentType: validDocuments[i].type,
+          const startDisplayOrder = existingUrls.length;
+          const hasPrimaryUrl = existingUrls.some(url => url.isPrimary);
+          for (let i = 0; i < validUrls.length; i++) {
+            await productService.addUrl(productId, {
+              url: validUrls[i].url.trim(),
+              urlType: validUrls[i].type,
               altText: formData.name,
               displayOrder: startDisplayOrder + i,
-              isPrimary: !hasPrimaryDocument && i === 0,
+              isPrimary: !hasPrimaryUrl && i === 0,
               userId: undefined
             });
           }
-        } catch (docErr) {
-          console.error('Error adding product documents:', docErr);
+        } catch (urlErr) {
+          console.error('Error adding product URLs:', urlErr);
         }
       }
 
       setShowForm(false);
       setEditingProduct(null);
-      setNewDocuments([]);
-      setExistingDocuments([]);
-      setDocumentsToDelete([]);
+      setNewUrls([]);
+      setExistingUrls([]);
+      setUrlsToDelete([]);
       setError(null);
 
-      // Reload products to get updated document data
+      // Reload products to get updated URL data
       await loadProducts();
     } catch (err: any) {
       console.error('Error saving product:', err);
@@ -581,27 +581,27 @@ export default function Products() {
               />
             </Grid>
 
-            {/* Product Documents */}
+            {/* Product URLs */}
             <Grid size={12}>
               <Divider sx={{ my: 1 }} />
               <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 1 }}>
-                Product Documents
+                Product URLs
               </Typography>
-              {/* Existing Documents */}
-              {existingDocuments.length > 0 && (
+              {/* Existing URLs */}
+              {existingUrls.length > 0 && (
                 <Box sx={{ mb: 2 }}>
                   <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-                    Current Documents:
+                    Current URLs:
                   </Typography>
                   <Grid container spacing={1}>
-                    {existingDocuments.map((doc) => (
-                      <Grid size={{ xs: 12, sm: 6 }} key={doc.id}>
+                    {existingUrls.map((url) => (
+                      <Grid size={{ xs: 12, sm: 6 }} key={url.id}>
                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, p: 1, bgcolor: 'grey.100', borderRadius: 1 }}>
-                          {doc.documentType === 'image' && (
+                          {url.urlType === 'image' && (
                             <Box
                               component="img"
-                              src={doc.documentUrl}
-                              alt={doc.altText || 'Product image'}
+                              src={url.url}
+                              alt={url.altText || 'Product image'}
                               sx={{ width: 50, height: 50, objectFit: 'cover', borderRadius: 1 }}
                               onError={(e: React.SyntheticEvent<HTMLImageElement>) => {
                                 e.currentTarget.style.display = 'none';
@@ -611,21 +611,21 @@ export default function Products() {
                           <Box sx={{ flex: 1, minWidth: 0 }}>
                             <Box sx={{ display: 'flex', gap: 0.5, mb: 0.5 }}>
                               <Chip
-                                label={doc.documentType}
+                                label={url.urlType}
                                 size="small"
-                                color={doc.documentType === 'image' ? 'info' : doc.documentType === 'video' ? 'secondary' : 'default'}
+                                color={url.urlType === 'image' ? 'info' : url.urlType === 'video' ? 'secondary' : 'default'}
                               />
-                              {doc.isPrimary && (
+                              {url.isPrimary && (
                                 <Chip label="Primary" size="small" color="primary" />
                               )}
                             </Box>
-                            <Typography variant="body2" noWrap title={doc.documentUrl}>
-                              {doc.documentUrl}
+                            <Typography variant="body2" noWrap title={url.url}>
+                              {url.url}
                             </Typography>
                           </Box>
                           <IconButton
                             color="error"
-                            onClick={() => handleDeleteExistingDocument(doc.id)}
+                            onClick={() => handleDeleteExistingUrl(url.id)}
                             size="small"
                           >
                             <DeleteIcon />
@@ -636,18 +636,18 @@ export default function Products() {
                   </Grid>
                 </Box>
               )}
-              {/* New Documents */}
-              {newDocuments.length > 0 && (
+              {/* New URLs */}
+              {newUrls.length > 0 && (
                 <Box sx={{ mb: 1 }}>
                   <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-                    New Documents:
+                    New URLs:
                   </Typography>
-                  {newDocuments.map((doc, index) => (
+                  {newUrls.map((url, index) => (
                     <Box key={index} sx={{ display: 'flex', gap: 1, mb: 1, alignItems: 'center' }}>
                       <FormControl size="small" sx={{ minWidth: 100 }}>
                         <Select
-                          value={doc.type}
-                          onChange={(e) => handleDocumentTypeChange(index, e.target.value as DocumentType)}
+                          value={url.type}
+                          onChange={(e) => handleUrlTypeChange(index, e.target.value as UrlType)}
                         >
                           <MenuItem value="image">Image</MenuItem>
                           <MenuItem value="video">Video</MenuItem>
@@ -655,17 +655,17 @@ export default function Products() {
                         </Select>
                       </FormControl>
                       <TextField
-                        label="Document URL"
+                        label="URL"
                         fullWidth
-                        value={doc.url}
-                        onChange={(e) => handleDocumentUrlChange(index, e.target.value)}
-                        placeholder="https://example.com/document"
+                        value={url.url}
+                        onChange={(e) => handleUrlChange(index, e.target.value)}
+                        placeholder="https://example.com/url"
                         size="small"
                         autoFocus
                       />
                       <IconButton
                         color="error"
-                        onClick={() => handleRemoveDocument(index)}
+                        onClick={() => handleRemoveUrl(index)}
                       >
                         <DeleteIcon />
                       </IconButton>
@@ -675,11 +675,11 @@ export default function Products() {
               )}
               <Button
                 startIcon={<AddIcon />}
-                onClick={handleAddDocument}
+                onClick={handleAddUrl}
                 variant="outlined"
                 size="small"
               >
-                Add Document
+                Add URL
               </Button>
             </Grid>
           </Grid>

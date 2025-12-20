@@ -1,18 +1,32 @@
+
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using backend.Data;
 using backend.Models;
 
+
 namespace backend.Controllers;
 
+// Place at the end of the file:
+public record ProductUrlResponse
+{
+    public int Id { get; init; }
+    public int ProductId { get; init; }
+    public string Url { get; init; } = string.Empty;
+    public string UrlType { get; init; } = string.Empty;
+    public string? AltText { get; init; }
+    public int DisplayOrder { get; init; }
+    public bool IsPrimary { get; init; }
+}
+
 [ApiController]
-[Route("api/[controller]")]
-public class ProductsController : ControllerBase
+[Route("api/product")]
+public class ProductController : ControllerBase
 {
     private readonly AppDbContext _context;
-    private readonly ILogger<ProductsController> _logger;
+    private readonly ILogger<ProductController> _logger;
 
-    public ProductsController(AppDbContext context, ILogger<ProductsController> logger)
+    public ProductController(AppDbContext context, ILogger<ProductController> logger)
     {
         _context = context;
         _logger = logger;
@@ -31,7 +45,7 @@ public class ProductsController : ControllerBase
         {
             var query = _context.Products
                 .Include(p => p.Category)
-                .Include(p => p.Documents)
+                .Include(p => p.ProductUrls)
                 .AsQueryable();
 
             // Apply filters
@@ -53,8 +67,8 @@ public class ProductsController : ControllerBase
                     .Skip((page - 1) * pageSize)
                     .Take(pageSize)
                     .ToListAsync();
-                Response.Headers.Add("X-Page", page.ToString());
-                Response.Headers.Add("X-Page-Size", pageSize.ToString());
+                Response.Headers.Append("X-Page", page.ToString());
+                Response.Headers.Append("X-Page-Size", pageSize.ToString());
             }
             else
             {
@@ -62,7 +76,7 @@ public class ProductsController : ControllerBase
             }
 
             var response = products.Select(p => MapToResponse(p)).ToList();
-            Response.Headers.Add("X-Total-Count", total.ToString());
+            Response.Headers.Append("X-Total-Count", total.ToString());
             return Ok(response);
         }
         catch (Exception ex)
@@ -80,7 +94,7 @@ public class ProductsController : ControllerBase
         {
             var product = await _context.Products
                 .Include(p => p.Category)
-                .Include(p => p.Documents)
+                .Include(p => p.ProductUrls)
                 .FirstOrDefaultAsync(p => p.Id == id);
 
             if (product == null)
@@ -139,7 +153,7 @@ public class ProductsController : ControllerBase
             // Reload with includes
             var createdProduct = await _context.Products
                 .Include(p => p.Category)
-                .Include(p => p.Documents)
+                .Include(p => p.ProductUrls)
                 .FirstOrDefaultAsync(p => p.Id == product.Id);
 
             return CreatedAtAction(
@@ -199,7 +213,7 @@ public class ProductsController : ControllerBase
             // Reload with includes
             var updatedProduct = await _context.Products
                 .Include(p => p.Category)
-                .Include(p => p.Documents)
+                .Include(p => p.ProductUrls)
                 .FirstOrDefaultAsync(p => p.Id == id);
 
             return Ok(MapToResponse(updatedProduct!));
@@ -236,75 +250,6 @@ public class ProductsController : ControllerBase
         }
     }
 
-    // POST: api/products/{id}/documents
-    [HttpPost("{id}/documents")]
-    public async Task<ActionResult<ProductDocumentResponse>> AddProductDocument(int id, CreateProductDocumentRequest request)
-    {
-        try
-        {
-            var product = await _context.Products.FindAsync(id);
-            if (product == null)
-            {
-                return NotFound(new { message = "Product not found" });
-            }
-
-            var document = new ProductDocument
-            {
-                ProductId = id,
-                DocumentUrl = request.DocumentUrl,
-                DocumentType = request.DocumentType,
-                AltText = request.AltText,
-                DisplayOrder = request.DisplayOrder,
-                IsPrimary = request.IsPrimary,
-                CreatedAt = DateTime.UtcNow,
-                CreatedBy = request.UserId
-            };
-
-            _context.ProductDocuments.Add(document);
-            await _context.SaveChangesAsync();
-
-            return Ok(new ProductDocumentResponse
-            {
-                Id = document.Id,
-                ProductId = document.ProductId,
-                DocumentUrl = document.DocumentUrl,
-                DocumentType = document.DocumentType,
-                AltText = document.AltText,
-                DisplayOrder = document.DisplayOrder,
-                IsPrimary = document.IsPrimary
-            });
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error adding product document");
-            return StatusCode(500, new { message = "An error occurred while adding the document" });
-        }
-    }
-
-    // DELETE: api/documents/{id}
-    [HttpDelete("/api/documents/{id}")]
-    public async Task<IActionResult> DeleteDocument(int id)
-    {
-        try
-        {
-            var document = await _context.ProductDocuments.FindAsync(id);
-
-            if (document == null)
-            {
-                return NotFound(new { message = "Document not found" });
-            }
-
-            _context.ProductDocuments.Remove(document);
-            await _context.SaveChangesAsync();
-
-            return NoContent();
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error deleting document {DocumentId}", id);
-            return StatusCode(500, new { message = "An error occurred while deleting the document" });
-        }
-    }
 
     private static ProductResponse MapToResponse(Product product)
     {
@@ -313,34 +258,24 @@ public class ProductsController : ControllerBase
             Id = product.Id,
             Sku = product.Sku,
             Name = product.Name,
-            Description = product.Description,
-            ShortDescription = product.ShortDescription,
-            CategoryId = product.CategoryId,
-            CategoryName = product.Category?.Name,
-            Price = product.Price,
-            CostPrice = product.CostPrice,
-            CompareAtPrice = product.CompareAtPrice,
-            StockQuantity = product.StockQuantity,
-            LowStockThreshold = product.LowStockThreshold,
-            SkuBarcode = product.SkuBarcode,
+            ProductUrls = product.ProductUrls.Select(u => new ProductUrlResponse
+            {
+                Id = u.Id,
+                ProductId = u.ProductId,
+                Url = u.Url,
+                UrlType = u.UrlType,
+                AltText = u.AltText,
+                DisplayOrder = u.DisplayOrder ?? 0,
+                IsPrimary = u.IsPrimary ?? false
+            }).ToList(),
             Brand = product.Brand,
             Manufacturer = product.Manufacturer,
-            Weight = product.Weight,
+            Weight = product.Weight ?? 0,
             WeightUnit = product.WeightUnit,
             Dimensions = product.Dimensions,
-            IsActive = product.IsActive,
-            Documents = product.Documents.Select(d => new ProductDocumentResponse
-            {
-                Id = d.Id,
-                ProductId = d.ProductId,
-                DocumentUrl = d.DocumentUrl,
-                DocumentType = d.DocumentType,
-                AltText = d.AltText,
-                DisplayOrder = d.DisplayOrder,
-                IsPrimary = d.IsPrimary
-            }).ToList(),
-            CreatedAt = product.CreatedAt,
-            UpdatedAt = product.UpdatedAt
+            IsActive = product.IsActive ?? false,
+            CreatedAt = product.CreatedAt ?? DateTime.MinValue,
+            UpdatedAt = product.UpdatedAt ?? DateTime.MinValue
         };
     }
 }
@@ -393,7 +328,7 @@ public record ProductResponse
     public int Id { get; init; }
     public string Sku { get; init; } = string.Empty;
     public string Name { get; init; } = string.Empty;
-    public string? Description { get; init; }
+    public List<ProductUrlResponse> ProductUrls { get; init; } = new();
     public string? ShortDescription { get; init; }
     public int? CategoryId { get; init; }
     public string? CategoryName { get; init; }
@@ -409,27 +344,8 @@ public record ProductResponse
     public string? WeightUnit { get; init; }
     public string? Dimensions { get; init; }
     public bool IsActive { get; init; }
-    public List<ProductDocumentResponse> Documents { get; init; } = new();
     public DateTime CreatedAt { get; init; }
     public DateTime UpdatedAt { get; init; }
 }
 
-public record CreateProductDocumentRequest(
-    string DocumentUrl,
-    string DocumentType,
-    string? AltText,
-    int DisplayOrder,
-    bool IsPrimary,
-    int? UserId
-);
 
-public record ProductDocumentResponse
-{
-    public int Id { get; init; }
-    public int ProductId { get; init; }
-    public string DocumentUrl { get; init; } = string.Empty;
-    public string DocumentType { get; init; } = string.Empty;
-    public string? AltText { get; init; }
-    public int DisplayOrder { get; init; }
-    public bool IsPrimary { get; init; }
-}

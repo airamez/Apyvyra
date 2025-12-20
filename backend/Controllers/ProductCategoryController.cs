@@ -6,13 +6,13 @@ using backend.Models;
 namespace backend.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
-public class ProductCategoriesController : ControllerBase
+[Route("api/product_category")]
+public class ProductCategoryController : ControllerBase
 {
     private readonly AppDbContext _context;
-    private readonly ILogger<ProductCategoriesController> _logger;
+    private readonly ILogger<ProductCategoryController> _logger;
 
-    public ProductCategoriesController(AppDbContext context, ILogger<ProductCategoriesController> logger)
+    public ProductCategoryController(AppDbContext context, ILogger<ProductCategoryController> logger)
     {
         _context = context;
         _logger = logger;
@@ -27,7 +27,7 @@ public class ProductCategoriesController : ControllerBase
         try
         {
             var query = _context.ProductCategories
-                .Include(c => c.SubCategories)
+                .Include(c => c.InverseParentCategory)
                 .AsQueryable();
 
             // Apply filters
@@ -56,7 +56,7 @@ public class ProductCategoriesController : ControllerBase
         try
         {
             var category = await _context.ProductCategories
-                .Include(c => c.SubCategories)
+                .Include(c => c.InverseParentCategory)
                 .Include(c => c.ParentCategory)
                 .FirstOrDefaultAsync(c => c.Id == id);
 
@@ -108,7 +108,7 @@ public class ProductCategoriesController : ControllerBase
 
             // Reload with includes
             var createdCategory = await _context.ProductCategories
-                .Include(c => c.SubCategories)
+                .Include(c => c.InverseParentCategory)
                 .Include(c => c.ParentCategory)
                 .FirstOrDefaultAsync(c => c.Id == category.Id);
 
@@ -172,7 +172,7 @@ public class ProductCategoriesController : ControllerBase
 
             // Reload with includes
             var updatedCategory = await _context.ProductCategories
-                .Include(c => c.SubCategories)
+                .Include(c => c.InverseParentCategory)
                 .Include(c => c.ParentCategory)
                 .FirstOrDefaultAsync(c => c.Id == id);
 
@@ -192,7 +192,7 @@ public class ProductCategoriesController : ControllerBase
         try
         {
             var category = await _context.ProductCategories
-                .Include(c => c.SubCategories)
+                .Include(c => c.InverseParentCategory)
                 .Include(c => c.Products)
                 .FirstOrDefaultAsync(c => c.Id == id);
 
@@ -202,13 +202,13 @@ public class ProductCategoriesController : ControllerBase
             }
 
             // Check if category has products
-            if (category.Products.Any())
+            if (category.Products != null && category.Products.Any())
             {
                 return BadRequest(new { message = "Cannot delete category with associated products" });
             }
 
             // Check if category has subcategories
-            if (category.SubCategories.Any())
+            if (category.InverseParentCategory != null && category.InverseParentCategory.Any())
             {
                 return BadRequest(new { message = "Cannot delete category with subcategories" });
             }
@@ -232,8 +232,8 @@ public class ProductCategoriesController : ControllerBase
         try
         {
             var categories = await _context.ProductCategories
-                .Include(c => c.SubCategories)
-                .Where(c => c.ParentCategoryId == null && c.IsActive)
+                .Include(c => c.InverseParentCategory)
+                .Where(c => c.ParentCategoryId == null && (c.IsActive ?? false))
                 .ToListAsync();
 
             var response = categories.Select(c => MapToResponse(c, includeChildren: true)).ToList();
@@ -272,12 +272,12 @@ public class ProductCategoriesController : ControllerBase
             Description = category.Description,
             ParentCategoryId = category.ParentCategoryId,
             ParentCategoryName = category.ParentCategory?.Name,
-            IsActive = category.IsActive,
+            IsActive = category.IsActive ?? false,
             SubCategories = includeChildren 
-                ? category.SubCategories.Select(sc => MapToResponse(sc, true)).ToList() 
+                ? category.InverseParentCategory.Select(sc => MapToResponse(sc, true)).ToList() 
                 : new List<ProductCategoryResponse>(),
-            CreatedAt = category.CreatedAt,
-            UpdatedAt = category.UpdatedAt
+            CreatedAt = category.CreatedAt ?? DateTime.MinValue,
+            UpdatedAt = category.UpdatedAt ?? DateTime.MinValue
         };
     }
 }

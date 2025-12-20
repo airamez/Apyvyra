@@ -15,7 +15,7 @@ export interface RegisterResponse {
 export const userService = {
   // Register a new user
   async register(email: string, password: string): Promise<RegisterResponse> {
-    const response = await fetch(API_ENDPOINTS.USERS.REGISTER, {
+    const response = await fetch(API_ENDPOINTS.APP_USER.REGISTER, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -33,7 +33,7 @@ export const userService = {
 
   // Get current user profile (requires authentication)
   async getCurrentUser(): Promise<User> {
-    const response = await fetch(API_ENDPOINTS.USERS.ME, {
+    const response = await fetch(API_ENDPOINTS.APP_USER.ME, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',

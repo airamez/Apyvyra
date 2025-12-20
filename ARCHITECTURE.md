@@ -1,4 +1,27 @@
+
+
 # Architecture Guide
+
+
+> **Best Practice:** As the ERP project grows (including backend, frontend, and DevOps tooling), always follow best software architecture principles:
+> - Use proper modularization: separate logic into methods, classes, and files by responsibility.
+> - Keep code maintainable, testable, and clear.
+> - Document architectural decisions and patterns.
+> - Refactor and organize code as new features are added.
+
+
+## SQL Table Naming Convention
+
+All SQL table names in this project are **singular** (e.g., `product`, `user`, `product_url`).
+
+Each table includes standard audit fields:
+
+- `created_at` (timestamp)
+- `created_by` (user reference)
+- `updated_at` (timestamp)
+- `updated_by` (user reference)
+
+This ensures consistency and traceability across the database schema.
 
 ## Frontend API Configuration
 

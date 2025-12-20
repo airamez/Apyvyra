@@ -1,53 +1,35 @@
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
+﻿using System;
+using System.Collections.Generic;
 
 namespace backend.Models;
 
-[Table("product_categories")]
-public class ProductCategory
+public partial class ProductCategory
 {
-    [Key]
-    [Column("id")]
     public int Id { get; set; }
 
-    [Required]
-    [MaxLength(255)]
-    [Column("name")]
-    public string Name { get; set; } = string.Empty;
+    public string Name { get; set; } = null!;
 
-    [Column("description")]
     public string? Description { get; set; }
 
-    [Column("parent_category_id")]
     public int? ParentCategoryId { get; set; }
 
-    [Column("is_active")]
-    public bool IsActive { get; set; } = true;
+    public bool? IsActive { get; set; }
 
-    // Auditing fields
-    [Column("created_at")]
-    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+    public DateTime? CreatedAt { get; set; }
 
-    [Column("created_by")]
     public int? CreatedBy { get; set; }
 
-    [Column("updated_at")]
-    public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
+    public DateTime? UpdatedAt { get; set; }
 
-    [Column("updated_by")]
     public int? UpdatedBy { get; set; }
 
-    // Navigation properties
-    [ForeignKey("ParentCategoryId")]
-    public ProductCategory? ParentCategory { get; set; }
+    public virtual AppUser? CreatedByNavigation { get; set; }
 
-    public ICollection<ProductCategory> SubCategories { get; set; } = new List<ProductCategory>();
+    public virtual ICollection<ProductCategory> InverseParentCategory { get; set; } = new List<ProductCategory>();
 
-    public ICollection<Product> Products { get; set; } = new List<Product>();
+    public virtual ProductCategory? ParentCategory { get; set; }
 
-    [ForeignKey("CreatedBy")]
-    public User? CreatedByUser { get; set; }
+    public virtual ICollection<Product> Products { get; set; } = new List<Product>();
 
-    [ForeignKey("UpdatedBy")]
-    public User? UpdatedByUser { get; set; }
+    public virtual AppUser? UpdatedByNavigation { get; set; }
 }
