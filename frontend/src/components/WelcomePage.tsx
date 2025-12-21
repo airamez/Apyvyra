@@ -70,7 +70,7 @@ export default function WelcomePage({ isAuthenticated }: WelcomePageProps) {
 
         {/* Key Features Grid */}
         <Grid container spacing={3} sx={{ mb: 4 }}>
-          <Grid item xs={12} md={4}>
+          <Grid size={{ xs: 12, md: 4 }}>
             <Card sx={{ height: '100%' }}>
               <CardContent>
                 <Typography variant="h6" gutterBottom color="primary">
@@ -83,7 +83,7 @@ export default function WelcomePage({ isAuthenticated }: WelcomePageProps) {
               </CardContent>
             </Card>
           </Grid>
-          <Grid item xs={12} md={4}>
+          <Grid size={{ xs: 12, md: 4 }}>
             <Card sx={{ height: '100%' }}>
               <CardContent>
                 <Typography variant="h6" gutterBottom color="primary">
@@ -96,7 +96,7 @@ export default function WelcomePage({ isAuthenticated }: WelcomePageProps) {
               </CardContent>
             </Card>
           </Grid>
-          <Grid item xs={12} md={4}>
+          <Grid size={{ xs: 12, md: 4 }}>
             <Card sx={{ height: '100%' }}>
               <CardContent>
                 <Typography variant="h6" gutterBottom color="primary">

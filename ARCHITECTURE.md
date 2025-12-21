@@ -2,6 +2,102 @@
 
 # Architecture Guide
 
+## Technology Stack Versions & Best Practices
+
+> **CRITICAL: Always Use Latest Versions** - This project uses the latest stable versions of all technologies and APIs. When making changes or adding features, always verify and use the most current versions available. AI agents and developers often default to outdated versions without checking current project dependencies.
+
+### Current Technology Versions (as of December 2025)
+
+#### Backend (.NET)
+- **Framework**: .NET 10.0 (latest LTS)
+- **ASP.NET Core**: 10.0.0
+- **Entity Framework Core**: 10.0.0
+- **Npgsql**: 10.0.1 (PostgreSQL provider)
+- **JWT Authentication**: 10.0.0
+- **OpenAPI/Swagger**: 10.0.0
+- **BCrypt**: 4.0.3
+
+#### Frontend (React/TypeScript)
+- **React**: 19.2.0 (latest stable)
+- **TypeScript**: 5.9.3
+- **Vite**: 7.2.4 (build tool)
+- **Material-UI**: 7.3.6 (latest major version)
+- **ESLint**: 9.39.1
+- **Node.js**: 24.10.1 (via @types/node)
+
+#### Database
+- **PostgreSQL**: Latest stable version (via Docker)
+- **Npgsql.EntityFrameworkCore.PostgreSQL**: 10.0.0
+
+#### DevOps & Tools
+- **Docker**: Latest stable
+- **Docker Compose**: Latest stable
+- **.NET Console App**: .NET 10.0
+
+### Version Update Guidelines
+
+#### Before Making Changes:
+1. **Check Current Versions**: Review `package.json`, `.csproj` files, and `package-lock.json`
+2. **Verify Compatibility**: Ensure all packages work together
+3. **Test Updates**: Run full test suite after version updates
+4. **Update Documentation**: Reflect version changes in this document
+
+#### Package Update Commands:
+```bash
+# Frontend
+cd frontend
+npm update
+npm audit fix
+
+# Backend (update packages in .csproj files)
+dotnet restore
+dotnet build
+
+# Check for outdated packages
+npm outdated
+dotnet list package --outdated
+```
+
+#### Breaking Changes Awareness:
+- **Material-UI v7**: Grid API changed from `item` prop to `size` prop
+- **React 19**: New features and potential breaking changes
+- **.NET 10**: Latest features and performance improvements
+
+### API Version Management
+
+#### REST API Versioning:
+- Use URL versioning: `/api/v1/products`
+- Header versioning: `Accept: application/vnd.apyvyra.v1+json`
+- Document all API changes in OpenAPI/Swagger
+
+#### Database Schema Versioning:
+- Use EF Core migrations for schema changes
+- Never modify existing migration files
+- Test migrations on staging environment first
+
+### Dependency Management Best Practices
+
+#### Security First:
+```bash
+# Regular security audits
+npm audit
+dotnet list package --vulnerable
+
+# Update vulnerable packages immediately
+npm audit fix
+```
+
+#### Performance Considerations:
+- Monitor bundle size with `npm run build`
+- Use tree shaking and code splitting
+- Optimize Docker image sizes
+
+#### Development Workflow:
+1. **Pull latest changes**: `git pull`
+2. **Update dependencies**: `npm install` / `dotnet restore`
+3. **Run tests**: `npm test` / `dotnet test`
+4. **Build locally**: `npm run build` / `dotnet build`
+5. **Test in containers**: `docker-compose up`
 
 > **Best Practice:** As the ERP project grows (including backend, frontend, and DevOps tooling), always follow best software architecture principles:
 > - Use proper modularization: separate logic into methods, classes, and files by responsibility.

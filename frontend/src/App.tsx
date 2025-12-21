@@ -8,16 +8,12 @@ import {
   Typography, 
   Box, 
   Button, 
-  Card, 
-  CardContent,
   IconButton,
   Tooltip,
   Menu,
   MenuItem
 } from '@mui/material';
 import DashboardIcon from '@mui/icons-material/Dashboard';
-import PeopleIcon from '@mui/icons-material/People';
-import InventoryIcon from '@mui/icons-material/Inventory';
 import LogoutIcon from '@mui/icons-material/Logout';
 import Brightness4Icon from '@mui/icons-material/Brightness4';
 import Brightness7Icon from '@mui/icons-material/Brightness7';
@@ -199,7 +195,7 @@ function App() {
         ) : activeView === 'customers' && isAuthenticated ? (
           <Customers />
         ) : activeView === 'home' ? (
-          <WelcomePage />
+          <WelcomePage isAuthenticated={isAuthenticated} />
         ) : (
           <Container maxWidth="lg" sx={{ mt: 4 }}>
           <Typography variant="h4" gutterBottom>
