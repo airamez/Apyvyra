@@ -28,9 +28,6 @@ class Program
     /// <summary>
     /// Recreates the database using the SQL file and the default connection string.
     /// </summary>
-    static async Task<int> InitializeDatabase()
-    {
-
     static async Task<int> InitializeDatabase(bool force)
     {
         if (!force)
@@ -60,10 +57,30 @@ class Program
         }
 
         var sql = await File.ReadAllTextAsync(sqlFilePath);
+        
+        // For simplicity, execute the entire SQL file at once
+        // Handle common errors that occur when re-running the script
         try
         {
             using var conn = new NpgsqlConnection(connectionString);
             await conn.OpenAsync();
+            
+            // First, try to drop all tables with CASCADE to handle dependencies
+            var dropScript = @"
+                DROP TABLE IF EXISTS product_url CASCADE;
+                DROP TABLE IF EXISTS product_image CASCADE; 
+                DROP TABLE IF EXISTS product CASCADE;
+                DROP TABLE IF EXISTS product_category CASCADE;
+                DROP TABLE IF EXISTS app_user CASCADE;
+            ";
+            
+            using (var dropCmd = new NpgsqlCommand(dropScript, conn))
+            {
+                await dropCmd.ExecuteNonQueryAsync();
+                Console.WriteLine("Dropped existing tables.");
+            }
+            
+            // Now execute the full SQL script
             using var cmd = new NpgsqlCommand(sql, conn);
             await cmd.ExecuteNonQueryAsync();
             Console.WriteLine("Database initialized successfully.");

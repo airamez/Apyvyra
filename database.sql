@@ -1,10 +1,10 @@
 -- Database initialization script for Apyvyra
 
-DROP TABLE IF EXISTS product_url;
-DROP TABLE IF EXISTS product_image;
-DROP TABLE IF EXISTS product;
-DROP TABLE IF EXISTS product_category;
-DROP TABLE IF EXISTS app_user;
+DROP TABLE IF EXISTS product_url CASCADE;
+DROP TABLE IF EXISTS product_image CASCADE;
+DROP TABLE IF EXISTS product CASCADE;
+DROP TABLE IF EXISTS product_category CASCADE;
+DROP TABLE IF EXISTS app_user CASCADE;
 
 -- App User table with auditing
 CREATE TABLE app_user (

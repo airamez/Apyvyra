@@ -88,12 +88,7 @@ export default function Register({ onNavigateToLogin }: RegisterProps) {
         confirmPassword: ''
       });
 
-      // Optional: Navigate to login after 2 seconds
-      setTimeout(() => {
-        if (onNavigateToLogin) {
-          onNavigateToLogin();
-        }
-      }, 2000);
+      // Remove automatic redirect - user will click the link to navigate to login
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred during registration');
     } finally {
@@ -109,7 +104,7 @@ export default function Register({ onNavigateToLogin }: RegisterProps) {
             <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
               <PersonAddIcon color="primary" sx={{ fontSize: 40, mr: 2 }} />
               <Typography variant="h4" component="h1">
-                Create Account
+                {success ? 'Account Created!' : 'Create Account'}
               </Typography>
             </Box>
 
@@ -119,13 +114,24 @@ export default function Register({ onNavigateToLogin }: RegisterProps) {
               </Alert>
             )}
 
-            {success && (
-              <Alert severity="success" sx={{ mb: 2 }}>
-                Registration successful! You can now log in.
-              </Alert>
-            )}
-
-            <Box component="form" onSubmit={handleSubmit} noValidate>
+            {success ? (
+              <Box sx={{ textAlign: 'center' }}>
+                <Alert severity="success" sx={{ mb: 3 }}>
+                  <Typography variant="body1" sx={{ mb: 1 }}>
+                    Registration successful! Your account has been created.
+                  </Typography>
+                  <Link
+                    component="button"
+                    variant="body1"
+                    onClick={onNavigateToLogin}
+                    sx={{ cursor: 'pointer', fontWeight: 'bold', textDecoration: 'underline' }}
+                  >
+                    Click here to log in
+                  </Link>
+                </Alert>
+              </Box>
+            ) : (
+              <Box component="form" onSubmit={handleSubmit} noValidate>
               <TextField
                 margin="normal"
                 required
@@ -192,6 +198,7 @@ export default function Register({ onNavigateToLogin }: RegisterProps) {
                 </Typography>
               </Box>
             </Box>
+            )}
           </CardContent>
         </Card>
       </Box>

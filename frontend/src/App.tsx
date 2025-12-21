@@ -27,6 +27,7 @@ import Dashboard from './components/Dashboard';
 import Products from './components/Products';
 import Customers from './components/Customers';
 import CategoryManager from './components/CategoryManager';
+import WelcomePage from './components/WelcomePage';
 import { authService } from './services/authService';
 import './App.css'
 
@@ -197,6 +198,8 @@ function App() {
           <CategoryManager />
         ) : activeView === 'customers' && isAuthenticated ? (
           <Customers />
+        ) : activeView === 'home' ? (
+          <WelcomePage />
         ) : (
           <Container maxWidth="lg" sx={{ mt: 4 }}>
           <Typography variant="h4" gutterBottom>
