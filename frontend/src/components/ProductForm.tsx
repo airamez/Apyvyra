@@ -35,7 +35,6 @@ interface Product {
   sku: string;
   name: string;
   description?: string;
-  shortDescription?: string;
   categoryId?: number;
   categoryName?: string;
   price: number;
@@ -63,7 +62,6 @@ export default function ProductForm({ open, editingProduct, categories, onClose,
     sku: '',
     name: '',
     description: '',
-    shortDescription: '',
     categoryId: undefined,
     price: undefined,
     costPrice: undefined,
@@ -88,7 +86,6 @@ export default function ProductForm({ open, editingProduct, categories, onClose,
         sku: editingProduct.sku,
         name: editingProduct.name,
         description: editingProduct.description || '',
-        shortDescription: editingProduct.shortDescription || '',
         categoryId: editingProduct.categoryId,
         price: editingProduct.price,
         costPrice: editingProduct.costPrice || 0,
@@ -108,7 +105,6 @@ export default function ProductForm({ open, editingProduct, categories, onClose,
         sku: '',
         name: '',
         description: '',
-        shortDescription: '',
         categoryId: undefined,
         price: undefined,
         costPrice: undefined,
@@ -226,21 +222,6 @@ export default function ProductForm({ open, editingProduct, categories, onClose,
                 ))}
               </Select>
             </FormControl>
-          </Grid>
-          <Grid size={6}>
-            <TextField
-              label="Short Description"
-              fullWidth
-              value={formData.shortDescription}
-              onChange={(e) => handleFormChange('shortDescription', e.target.value)}
-              variant="outlined"
-              size="small"
-              slotProps={{
-                inputLabel: {
-                  shrink: true,
-                },
-              }}
-            />
           </Grid>
           <Grid size={12}>
             <TextField

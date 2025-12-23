@@ -100,9 +100,6 @@ public partial class ApyvyraContext : DbContext
             entity.Property(e => e.Price)
                 .HasPrecision(18, 2)
                 .HasColumnName("price");
-            entity.Property(e => e.ShortDescription)
-                .HasMaxLength(1000)
-                .HasColumnName("short_description");
             entity.Property(e => e.Sku)
                 .HasMaxLength(100)
                 .HasColumnName("sku");

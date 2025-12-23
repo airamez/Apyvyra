@@ -7,7 +7,6 @@ export interface Product {
   sku: string;
   name: string;
   description?: string;
-  shortDescription?: string;
   categoryId?: number;
   categoryName?: string;
   price: number;
@@ -40,7 +39,6 @@ export interface CreateProductData {
   sku: string;
   name: string;
   description?: string;
-  shortDescription?: string;
   categoryId?: number;
   price: number | undefined;
   costPrice?: number;

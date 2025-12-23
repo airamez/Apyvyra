@@ -195,6 +195,139 @@ export const API_ENDPOINTS = {
 };
 ```
 
+## Frontend DataGrid Pattern (Default for All Grids)
+
+All data grids in the application should follow this standard pattern using Material-UI DataGrid (`@mui/x-data-grid`):
+
+### Key Features:
+1. **Auto-height**: Grid automatically adjusts height based on page size selection
+2. **Active Filters Display**: Shows all applied filters above the grid with individual chips
+3. **Reset Filters Button**: Positioned on the right side of the active filters display
+4. **Filtered Count Indicator**: Shows filtered vs total records count
+5. **Built-in Toolbar**: Includes columns, filters, density, export, and quick search
+6. **Pagination**: Options for 10, 25, 50, 100 rows per page
+
+### Implementation Pattern:
+
+```typescript
+import { useState } from 'react';
+import { DataGrid, type GridRenderCellParams, GridToolbar, useGridApiRef } from '@mui/x-data-grid';
+import { Box, Chip, Button, Typography } from '@mui/material';
+import FilterAltOffIcon from '@mui/icons-material/FilterAltOff';
+
+export default function DataListComponent() {
+  const [data, setData] = useState<DataType[]>([]);
+  const [filteredRowCount, setFilteredRowCount] = useState(0);
+  const [activeFilters, setActiveFilters] = useState<any[]>([]);
+  const apiRef = useGridApiRef();
+
+  return (
+    <>
+      {/* Record Count Display */}
+      <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
+        {filteredRowCount > 0 && filteredRowCount < data.length && (
+          <Chip label={`${filteredRowCount} filtered`} color="secondary" size="small" />
+        )}
+        <Chip label={`${data.length} total`} color="primary" />
+      </Box>
+
+      {/* Active Filters Display */}
+      {activeFilters.length > 0 && (
+        <Box sx={{ 
+          display: 'flex', 
+          alignItems: 'center', 
+          gap: 1, 
+          mb: 2, 
+          p: 2, 
+          bgcolor: 'background.default', 
+          borderRadius: 1,
+          border: 1,
+          borderColor: 'divider'
+        }}>
+          <Typography variant="body2" fontWeight="medium" sx={{ mr: 1 }}>
+            Active Filters:
+          </Typography>
+          <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', flex: 1 }}>
+            {activeFilters.map((filter, index) => (
+              <Chip
+                key={index}
+                label={`${filter.field}: ${filter.operator} "${filter.value}"`}
+                size="small"
+                color="info"
+                variant="outlined"
+              />
+            ))}
+          </Box>
+          <Button
+            size="small"
+            variant="outlined"
+            startIcon={<FilterAltOffIcon />}
+            onClick={() => apiRef.current?.setFilterModel({ items: [] })}
+          >
+            Reset Filters
+          </Button>
+        </Box>
+      )}
+
+      {/* DataGrid */}
+      <DataGrid
+        rows={data}
+        columns={columns}
+        loading={loading}
+        pageSizeOptions={[10, 25, 50, 100]}
+        initialState={{
+          pagination: { paginationModel: { pageSize: 10 } },
+        }}
+        apiRef={apiRef}
+        onFilterModelChange={(model) => {
+          setActiveFilters(model.items || []);
+          setTimeout(() => {
+            if (apiRef.current) {
+              const filteredRows = apiRef.current.getRowModels();
+              const visibleCount = filteredRows.size;
+              setFilteredRowCount(visibleCount);
+            }
+          }, 100);
+        }}
+        slots={{
+          toolbar: GridToolbar,
+        }}
+        slotProps={{
+          toolbar: {
+            showQuickFilter: true,
+            quickFilterProps: { debounceMs: 500 },
+          },
+        }}
+        autoHeight
+        disableRowSelectionOnClick
+        sx={{
+          '& .MuiDataGrid-cell': {
+            display: 'flex',
+            alignItems: 'center',
+          },
+        }}
+      />
+    </>
+  );
+}
+```
+
+### Required Imports:
+```typescript
+import { DataGrid, type GridRenderCellParams, GridToolbar, useGridApiRef } from '@mui/x-data-grid';
+import FilterAltOffIcon from '@mui/icons-material/FilterAltOff';
+```
+
+### Benefits:
+- **Consistent UX**: All grids behave the same way across the application
+- **User-Friendly**: Clear visibility of active filters and easy reset
+- **Performance**: Auto-height prevents unnecessary scrolling
+- **Accessibility**: Built-in keyboard navigation and screen reader support
+- **Feature-Rich**: Sorting, filtering, column management, export out of the box
+
+### Reference Implementation:
+See `frontend/src/components/Products.tsx` for a complete working example.
+
 ## Service Layer
 
 Domain-specific services handle API communication:

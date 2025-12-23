@@ -11,7 +11,12 @@ class Program
     {
         if (args.Length == 0 || args[0] == "--help" || args[0] == "-h")
         {
-            Console.WriteLine("Usage: devops db-init");
+            Console.WriteLine("Usage: devops [command] [options]");
+            Console.WriteLine("\nCommands:");
+            Console.WriteLine("  db-init              Re-create the database schema");
+            Console.WriteLine("  db-load-test-data    Load test data into the database");
+            Console.WriteLine("\nOptions:");
+            Console.WriteLine("  -force               Skip confirmation prompts");
             return 1;
         }
 
@@ -19,6 +24,12 @@ class Program
         {
             bool force = args.Length > 1 && args[1] == "-force";
             return await InitializeDatabase(force);
+        }
+
+        if (args[0] == "db-load-test-data")
+        {
+            bool force = args.Length > 1 && args[1] == "-force";
+            return await LoadTestData(force);
         }
 
         Console.WriteLine($"Unknown command: {args[0]}");
@@ -89,6 +100,61 @@ class Program
         catch (Exception ex)
         {
             Console.WriteLine($"Error initializing database: {ex.Message}");
+            return 1;
+        }
+    }
+
+    /// <summary>
+    /// Loads test data into the database using the test data SQL file.
+    /// </summary>
+    static async Task<int> LoadTestData(bool force)
+    {
+        if (!force)
+        {
+            Console.WriteLine("This operation will load test data into the database.");
+            Console.Write("Are you sure you want to continue? Type 'yes' to proceed: ");
+            var confirmation = Console.ReadLine();
+            if (confirmation?.Trim().ToLowerInvariant() != "yes")
+            {
+                Console.WriteLine("Operation cancelled.");
+                return 1;
+            }
+        }
+
+        var connectionString = GetDefaultConnectionString();
+        if (string.IsNullOrWhiteSpace(connectionString))
+        {
+            Console.WriteLine("Could not find a valid connection string in backend/appsettings.json");
+            return 1;
+        }
+
+        var sqlFilePath = "../database_test_data.sql";
+        if (!File.Exists(sqlFilePath))
+        {
+            Console.WriteLine($"SQL file not found: {sqlFilePath}");
+            return 1;
+        }
+
+        var sql = await File.ReadAllTextAsync(sqlFilePath);
+        
+        try
+        {
+            using var conn = new NpgsqlConnection(connectionString);
+            await conn.OpenAsync();
+            
+            Console.WriteLine("Loading test data...");
+            using var cmd = new NpgsqlCommand(sql, conn);
+            cmd.CommandTimeout = 120; // Increase timeout for large data load
+            await cmd.ExecuteNonQueryAsync();
+            Console.WriteLine("Test data loaded successfully.");
+            Console.WriteLine("- 5 product categories created");
+            Console.WriteLine("- 100 products created with realistic data");
+            Console.WriteLine("- Product images added from Unsplash (public domain)");
+            return 0;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading test data: {ex.Message}");
             return 1;
         }
     }

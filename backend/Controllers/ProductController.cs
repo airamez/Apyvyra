@@ -154,7 +154,6 @@ public class ProductController : ControllerBase
                 Sku = request.Sku,
                 Name = request.Name,
                 Description = request.Description,
-                ShortDescription = request.ShortDescription,
                 CategoryId = request.CategoryId,
                 Price = request.Price,
                 CostPrice = request.CostPrice,
@@ -214,7 +213,6 @@ public class ProductController : ControllerBase
             product.Sku = request.Sku;
             product.Name = request.Name;
             product.Description = request.Description;
-            product.ShortDescription = request.ShortDescription;
             product.CategoryId = request.CategoryId;
             product.Price = request.Price;
             product.CostPrice = request.CostPrice;
@@ -406,7 +404,6 @@ public class ProductController : ControllerBase
                 IsPrimary = u.IsPrimary ?? false
             }).ToList(),
             Description = product.Description,
-            ShortDescription = product.ShortDescription,
             CategoryId = product.CategoryId,
             CategoryName = product.Category?.Name,
             Price = product.Price,
@@ -429,7 +426,6 @@ public record CreateProductRequest(
     string Sku,
     string Name,
     string? Description,
-    string? ShortDescription,
     int? CategoryId,
     decimal Price,
     decimal? CostPrice,
@@ -447,7 +443,6 @@ public record UpdateProductRequest(
     string Sku,
     string Name,
     string? Description,
-    string? ShortDescription,
     int? CategoryId,
     decimal Price,
     decimal? CostPrice,
@@ -468,7 +463,6 @@ public record ProductResponse
     public string Name { get; init; } = string.Empty;
     public List<ProductUrlResponse> ProductUrls { get; init; } = new();
     public string? Description { get; init; }
-    public string? ShortDescription { get; init; }
     public int? CategoryId { get; init; }
     public string? CategoryName { get; init; }
     public decimal Price { get; init; }

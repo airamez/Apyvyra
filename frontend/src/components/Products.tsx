@@ -15,11 +15,12 @@ import {
   DialogContent,
   DialogActions
 } from '@mui/material';
-import { DataGrid, type GridRenderCellParams, GridToolbar } from '@mui/x-data-grid';
+import { DataGrid, type GridRenderCellParams, GridToolbar, useGridApiRef } from '@mui/x-data-grid';
 import InventoryIcon from '@mui/icons-material/Inventory';
 import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
+import FilterAltOffIcon from '@mui/icons-material/FilterAltOff';
 import { productService, type ProductUrl, type CreateProductData, type UrlType } from '../services/productService';
 import { categoryService } from '../services/categoryService';
 import ProductForm from './ProductForm';
@@ -36,7 +37,6 @@ interface Product {
   sku: string;
   name: string;
   description?: string;
-  shortDescription?: string;
   categoryId?: number;
   categoryName?: string;
   price: number;
@@ -51,7 +51,6 @@ interface Product {
   urls?: ProductUrl[];
 }
 
-
 export default function Products() {
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<ProductCategory[]>([]);
@@ -61,6 +60,9 @@ export default function Products() {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [productToDelete, setProductToDelete] = useState<Product | null>(null);
   const [showForm, setShowForm] = useState(false);
+  const [filteredRowCount, setFilteredRowCount] = useState(0);
+  const [activeFilters, setActiveFilters] = useState<any[]>([]);
+  const apiRef = useGridApiRef();
 
   useEffect(() => {
     loadProducts();
@@ -218,8 +220,53 @@ export default function Products() {
         <CardContent>
           <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
             <Typography variant="h6">Product Inventory</Typography>
-            <Chip label={`${products.length} items`} color="primary" />
+            <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
+              {filteredRowCount > 0 && filteredRowCount < products.length && (
+                <Chip 
+                  label={`${filteredRowCount} filtered`} 
+                  color="secondary" 
+                  size="small"
+                />
+              )}
+              <Chip label={`${products.length} total`} color="primary" />
+            </Box>
           </Box>
+          {activeFilters.length > 0 && (
+            <Box sx={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              gap: 1, 
+              mb: 2, 
+              p: 2, 
+              bgcolor: 'background.default', 
+              borderRadius: 1,
+              border: 1,
+              borderColor: 'divider'
+            }}>
+              <Typography variant="body2" fontWeight="medium" sx={{ mr: 1 }}>
+                Active Filters:
+              </Typography>
+              <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', flex: 1 }}>
+                {activeFilters.map((filter, index) => (
+                  <Chip
+                    key={index}
+                    label={`${filter.field}: ${filter.operator} "${filter.value}"`}
+                    size="small"
+                    color="info"
+                    variant="outlined"
+                  />
+                ))}
+              </Box>
+              <Button
+                size="small"
+                variant="outlined"
+                startIcon={<FilterAltOffIcon />}
+                onClick={() => apiRef.current?.setFilterModel({ items: [] })}
+              >
+                Reset Filters
+              </Button>
+            </Box>
+          )}
           {loading ? (
             <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}>
               <CircularProgress />
@@ -229,7 +276,7 @@ export default function Products() {
               No products found. Start by adding your first product.
             </Typography>
           ) : (
-            <Box sx={{ height: 600, width: '100%', mt: 2 }}>
+            <Box sx={{ width: '100%', mt: 2 }}>
               <DataGrid
                 rows={products}
                 columns={[
@@ -328,6 +375,17 @@ export default function Products() {
                 initialState={{
                   pagination: { paginationModel: { pageSize: 10 } },
                 }}
+                apiRef={apiRef}
+                onFilterModelChange={(model) => {
+                  setActiveFilters(model.items || []);
+                  setTimeout(() => {
+                    if (apiRef.current) {
+                      const filteredRows = apiRef.current.getRowModels();
+                      const visibleCount = filteredRows.size;
+                      setFilteredRowCount(visibleCount);
+                    }
+                  }, 100);
+                }}
                 slots={{
                   toolbar: GridToolbar,
                 }}
@@ -337,6 +395,7 @@ export default function Products() {
                     quickFilterProps: { debounceMs: 500 },
                   },
                 }}
+                autoHeight
                 disableRowSelectionOnClick
                 sx={{
                   '& .MuiDataGrid-cell': {

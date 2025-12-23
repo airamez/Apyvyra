@@ -40,7 +40,6 @@ CREATE TABLE product (
     sku VARCHAR(100) NOT NULL UNIQUE,
     name VARCHAR(500) NOT NULL,
     description TEXT,
-    short_description VARCHAR(1000),
     category_id INTEGER REFERENCES product_category(id) ON DELETE SET NULL,
     price DECIMAL(19, 4) NOT NULL,
     cost_price DECIMAL(19, 4),
