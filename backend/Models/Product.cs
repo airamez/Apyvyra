@@ -21,21 +21,15 @@ public partial class Product
 
     public decimal? CostPrice { get; set; }
 
-    public decimal? CompareAtPrice { get; set; }
-
     public int? StockQuantity { get; set; }
 
     public int? LowStockThreshold { get; set; }
-
-    public string? SkuBarcode { get; set; }
 
     public string? Brand { get; set; }
 
     public string? Manufacturer { get; set; }
 
-    public decimal? Weight { get; set; }
-
-    public string? WeightUnit { get; set; }
+    public string? Weight { get; set; }
 
     public string? Dimensions { get; set; }
 

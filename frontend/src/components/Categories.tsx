@@ -13,7 +13,7 @@ interface ProductCategory {
   description?: string;
 }
 
-export default function CategoryManager() {
+export default function Categories() {
   const [categories, setCategories] = useState<ProductCategory[]>([]);
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<ProductCategory | null>(null);

@@ -12,14 +12,11 @@ export interface Product {
   categoryName?: string;
   price: number;
   costPrice?: number;
-  compareAtPrice?: number;
   stockQuantity: number;
   lowStockThreshold: number;
-  skuBarcode?: string;
   brand?: string;
   manufacturer?: string;
-  weight?: number;
-  weightUnit?: string;
+  weight?: string;
   dimensions?: string;
   isActive: boolean;
   urls?: ProductUrl[];
@@ -47,14 +44,11 @@ export interface CreateProductData {
   categoryId?: number;
   price: number | undefined;
   costPrice?: number;
-  compareAtPrice?: number;
   stockQuantity: number | undefined;
   lowStockThreshold: number | undefined;
-  skuBarcode?: string;
   brand?: string;
   manufacturer?: string;
-  weight?: number;
-  weightUnit?: string;
+  weight?: string;
   dimensions?: string;
   isActive: boolean;
   userId?: number;
@@ -185,5 +179,22 @@ export const productService = {
     if (!response.ok) {
       throw new Error('Failed to delete URL');
     }
+  },
+
+  // Get all URLs for a product
+  async getProductUrls(productId: number): Promise<ProductUrl[]> {
+    const response = await fetch(`${API_ENDPOINTS.BASE_URL}/api/product/${productId}/urls`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        ...authService.getAuthHeader(),
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch product URLs');
+    }
+
+    return await response.json();
   },
 };

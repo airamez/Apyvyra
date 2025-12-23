@@ -22,7 +22,7 @@ import Login from './components/Login';
 import Dashboard from './components/Dashboard';
 import Products from './components/Products';
 import Customers from './components/Customers';
-import CategoryManager from './components/CategoryManager';
+import Categories from './components/Categories';
 import WelcomePage from './components/WelcomePage';
 import { authService } from './services/authService';
 import './App.css'
@@ -191,7 +191,7 @@ function App() {
         ) : activeView === 'products' && isAuthenticated ? (
           <Products />
         ) : activeView === 'categories' && isAuthenticated ? (
-          <CategoryManager />
+          <Categories />
         ) : activeView === 'customers' && isAuthenticated ? (
           <Customers />
         ) : activeView === 'home' ? (

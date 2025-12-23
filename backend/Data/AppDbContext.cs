@@ -82,9 +82,6 @@ public partial class AppDbContext : DbContext
                 .HasMaxLength(255)
                 .HasColumnName("brand");
             entity.Property(e => e.CategoryId).HasColumnName("category_id");
-            entity.Property(e => e.CompareAtPrice)
-                .HasPrecision(18, 2)
-                .HasColumnName("compare_at_price");
             entity.Property(e => e.CostPrice)
                 .HasPrecision(18, 2)
                 .HasColumnName("cost_price");
@@ -95,7 +92,7 @@ public partial class AppDbContext : DbContext
             entity.Property(e => e.CreatedBy).HasColumnName("created_by");
             entity.Property(e => e.Description).HasColumnName("description");
             entity.Property(e => e.Dimensions)
-                .HasColumnType("jsonb")
+                .HasMaxLength(255)
                 .HasColumnName("dimensions");
             entity.Property(e => e.IsActive)
                 .HasDefaultValue(true)
@@ -118,9 +115,6 @@ public partial class AppDbContext : DbContext
             entity.Property(e => e.Sku)
                 .HasMaxLength(100)
                 .HasColumnName("sku");
-            entity.Property(e => e.SkuBarcode)
-                .HasMaxLength(100)
-                .HasColumnName("sku_barcode");
             entity.Property(e => e.StockQuantity)
                 .HasDefaultValue(0)
                 .HasColumnName("stock_quantity");
@@ -130,11 +124,8 @@ public partial class AppDbContext : DbContext
                 .HasColumnName("updated_at");
             entity.Property(e => e.UpdatedBy).HasColumnName("updated_by");
             entity.Property(e => e.Weight)
-                .HasPrecision(18, 2)
+                .HasMaxLength(255)
                 .HasColumnName("weight");
-            entity.Property(e => e.WeightUnit)
-                .HasMaxLength(20)
-                .HasColumnName("weight_unit");
 
             entity.HasOne(d => d.Category).WithMany(p => p.Products)
                 .HasForeignKey(d => d.CategoryId)
