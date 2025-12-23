@@ -11,9 +11,8 @@ using BCrypt.Net;
 
 namespace backend.Controllers;
 
-[ApiController]
 [Route("api/app_user")]
-public class AppUserController : ControllerBase
+public class AppUserController : BaseApiController
 {
     private readonly AppDbContext _context;
     private readonly ILogger<AppUserController> _logger;
@@ -35,7 +34,7 @@ public class AppUserController : ControllerBase
             // Check if email already exists
             if (await _context.AppUsers.AnyAsync(u => u.Email == request.Email))
             {
-                return Conflict(new { message = "Email already exists" });
+                return ConflictWithError("Email already exists");
             }
 
             var user = new AppUser
@@ -53,7 +52,7 @@ public class AppUserController : ControllerBase
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error creating user");
-            return StatusCode(500, new { message = "An error occurred while creating the user" });
+            return InternalServerErrorWithError("An error occurred while creating the user");
         }
     }
 
@@ -65,7 +64,7 @@ public class AppUserController : ControllerBase
 
         if (user == null)
         {
-            return NotFound(new { message = "User not found" });
+            return NotFoundWithError("User not found");
         }
 
         return new UserResponse
@@ -84,15 +83,9 @@ public class AppUserController : ControllerBase
             // Find user by email
             var user = await _context.AppUsers.FirstOrDefaultAsync(u => u.Email == request.Email);
 
-            if (user == null)
+            if (user == null || !BCrypt.Net.BCrypt.Verify(request.Password, user.Password))
             {
-                return Unauthorized(new { message = "Invalid email or password" });
-            }
-
-            // Verify password with BCrypt
-            if (!BCrypt.Net.BCrypt.Verify(request.Password, user.Password))
-            {
-                return Unauthorized(new { message = "Invalid email or password" });
+                return BadRequestWithErrors("Invalid email or password");
             }
 
             // Generate JWT token
@@ -110,7 +103,7 @@ public class AppUserController : ControllerBase
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error during login");
-            return StatusCode(500, new { message = "An error occurred during login" });
+            return InternalServerErrorWithError("An error occurred during login");
         }
     }
 
@@ -126,14 +119,14 @@ public class AppUserController : ControllerBase
             
             if (userIdClaim == null || !int.TryParse(userIdClaim, out int userId))
             {
-                return Unauthorized(new { message = "Invalid token" });
+                return BadRequestWithErrors("Invalid token");
             }
 
             var user = await _context.AppUsers.FindAsync(userId);
 
             if (user == null)
             {
-                return NotFound(new { message = "User not found" });
+                return NotFoundWithError("User not found");
             }
 
             return new UserResponse
@@ -145,7 +138,7 @@ public class AppUserController : ControllerBase
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error retrieving current user");
-            return StatusCode(500, new { message = "An error occurred" });
+            return InternalServerErrorWithError("An error occurred");
         }
     }
 

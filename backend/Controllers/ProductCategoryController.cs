@@ -5,9 +5,8 @@ using backend.Models;
 
 namespace backend.Controllers;
 
-[ApiController]
 [Route("api/product_category")]
-public class ProductCategoryController : ControllerBase
+public class ProductCategoryController : BaseApiController
 {
     private readonly AppDbContext _context;
     private readonly ILogger<ProductCategoryController> _logger;
@@ -45,7 +44,7 @@ public class ProductCategoryController : ControllerBase
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error retrieving product categories");
-            return StatusCode(500, new { message = "An error occurred while retrieving categories" });
+            return InternalServerErrorWithError("An error occurred while retrieving categories");
         }
     }
 
@@ -62,7 +61,7 @@ public class ProductCategoryController : ControllerBase
 
             if (category == null)
             {
-                return NotFound(new { message = "Category not found" });
+                return NotFoundWithError("Category not found");
             }
 
             return Ok(MapToResponse(category));
@@ -70,7 +69,7 @@ public class ProductCategoryController : ControllerBase
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error retrieving category {CategoryId}", id);
-            return StatusCode(500, new { message = "An error occurred while retrieving the category" });
+            return InternalServerErrorWithError("An error occurred while retrieving the category");
         }
     }
 
@@ -88,7 +87,7 @@ public class ProductCategoryController : ControllerBase
                 
                 if (!parentExists)
                 {
-                    return BadRequest(new { message = "Parent category not found" });
+                    return BadRequestWithErrors("Parent category not found");
                 }
             }
 
@@ -120,7 +119,7 @@ public class ProductCategoryController : ControllerBase
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error creating category");
-            return StatusCode(500, new { message = "An error occurred while creating the category" });
+            return InternalServerErrorWithError("An error occurred while creating the category");
         }
     }
 
@@ -134,13 +133,13 @@ public class ProductCategoryController : ControllerBase
 
             if (category == null)
             {
-                return NotFound(new { message = "Category not found" });
+                return NotFoundWithError("Category not found");
             }
 
             // Prevent circular reference
             if (request.ParentCategoryId == id)
             {
-                return BadRequest(new { message = "Category cannot be its own parent" });
+                return BadRequestWithErrors("Category cannot be its own parent");
             }
 
             // Validate parent category exists if provided
@@ -151,13 +150,13 @@ public class ProductCategoryController : ControllerBase
                 
                 if (!parentExists)
                 {
-                    return BadRequest(new { message = "Parent category not found" });
+                    return BadRequestWithErrors("Parent category not found");
                 }
 
                 // Check for circular reference in hierarchy
                 if (await IsCircularReference(id, request.ParentCategoryId.Value))
                 {
-                    return BadRequest(new { message = "Cannot create circular category hierarchy" });
+                    return BadRequestWithErrors("Cannot create circular category hierarchy");
                 }
             }
 
@@ -181,7 +180,7 @@ public class ProductCategoryController : ControllerBase
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error updating category {CategoryId}", id);
-            return StatusCode(500, new { message = "An error occurred while updating the category" });
+            return InternalServerErrorWithError("An error occurred while updating the category");
         }
     }
 
@@ -198,19 +197,19 @@ public class ProductCategoryController : ControllerBase
 
             if (category == null)
             {
-                return NotFound(new { message = "Category not found" });
+                return NotFoundWithError("Category not found");
             }
 
             // Check if category has products
             if (category.Products != null && category.Products.Any())
             {
-                return BadRequest(new { message = "Cannot delete category with associated products" });
+                return BadRequestWithErrors("Cannot delete category with associated products");
             }
 
             // Check if category has subcategories
             if (category.InverseParentCategory != null && category.InverseParentCategory.Any())
             {
-                return BadRequest(new { message = "Cannot delete category with subcategories" });
+                return BadRequestWithErrors("Cannot delete category with subcategories");
             }
 
             _context.ProductCategories.Remove(category);
@@ -221,7 +220,7 @@ public class ProductCategoryController : ControllerBase
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error deleting category {CategoryId}", id);
-            return StatusCode(500, new { message = "An error occurred while deleting the category" });
+            return InternalServerErrorWithError("An error occurred while deleting the category");
         }
     }
 
@@ -243,7 +242,7 @@ public class ProductCategoryController : ControllerBase
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error retrieving category tree");
-            return StatusCode(500, new { message = "An error occurred while retrieving the category tree" });
+            return InternalServerErrorWithError("An error occurred while retrieving the category tree");
         }
     }
 

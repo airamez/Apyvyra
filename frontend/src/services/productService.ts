@@ -1,6 +1,7 @@
 // Product service for handling product-related operations
 import { API_ENDPOINTS } from '../config/api';
 import { authService } from './authService';
+import { apiFetch } from '../utils/apiErrorHandler';
 
 export interface Product {
   id: number;
@@ -55,40 +56,29 @@ export interface CreateProductData {
 export const productService = {
   // Get all products
   async getAll(): Promise<Product[]> {
-    const response = await fetch(API_ENDPOINTS.PRODUCT.LIST, {
+    return apiFetch<Product[]>(API_ENDPOINTS.PRODUCT.LIST, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
         ...authService.getAuthHeader(),
       },
     });
-
-    if (!response.ok) {
-      throw new Error('Failed to fetch products');
-    }
-    return await response.json();
   },
 
   // Get a single product by ID
   async getById(id: number): Promise<Product> {
-    const response = await fetch(API_ENDPOINTS.PRODUCT.DETAIL(id), {
+    return apiFetch<Product>(API_ENDPOINTS.PRODUCT.DETAIL(id), {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
         ...authService.getAuthHeader(),
       },
     });
-
-    if (!response.ok) {
-      throw new Error('Failed to fetch product');
-    }
-
-    return await response.json();
   },
 
   // Create a new product
   async create(data: CreateProductData): Promise<Product> {
-    const response = await fetch(API_ENDPOINTS.PRODUCT.LIST, {
+    return apiFetch<Product>(API_ENDPOINTS.PRODUCT.LIST, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -96,18 +86,11 @@ export const productService = {
       },
       body: JSON.stringify(data),
     });
-
-    if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.message || 'Failed to create product');
-    }
-
-    return await response.json();
   },
 
   // Update an existing product
   async update(id: number, data: Partial<CreateProductData>): Promise<Product> {
-    const response = await fetch(API_ENDPOINTS.PRODUCT.DETAIL(id), {
+    return apiFetch<Product>(API_ENDPOINTS.PRODUCT.DETAIL(id), {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
@@ -115,28 +98,17 @@ export const productService = {
       },
       body: JSON.stringify(data),
     });
-
-    if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.message || 'Failed to update product');
-    }
-
-    return await response.json();
   },
 
   // Delete a product
   async delete(id: number): Promise<void> {
-    const response = await fetch(API_ENDPOINTS.PRODUCT.DETAIL(id), {
+    return apiFetch<void>(API_ENDPOINTS.PRODUCT.DETAIL(id), {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/json',
         ...authService.getAuthHeader(),
       },
     });
-
-    if (!response.ok) {
-      throw new Error('Failed to delete product');
-    }
   },
 
   // Add URL to product
@@ -148,7 +120,7 @@ export const productService = {
     isPrimary: boolean;
     userId?: number;
   }): Promise<ProductUrl> {
-    const response = await fetch(`${API_ENDPOINTS.PRODUCT.DETAIL(productId)}/urls`, {
+    return apiFetch<ProductUrl>(API_ENDPOINTS.PRODUCT.ADD_URL(productId), {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -156,43 +128,27 @@ export const productService = {
       },
       body: JSON.stringify(urlData),
     });
-
-    if (!response.ok) {
-      throw new Error('Failed to add product URL');
-    }
-
-    return await response.json();
   },
 
-  // Delete URL (only needs URL ID since it's unique)
+  // Delete URL from product
   async deleteUrl(urlId: number): Promise<void> {
-    const response = await fetch(`${API_ENDPOINTS.BASE_URL}/api/urls/${urlId}`, {
+    return apiFetch<void>(API_ENDPOINTS.PRODUCT.DELETE_URL(urlId), {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/json',
         ...authService.getAuthHeader(),
       },
     });
-
-    if (!response.ok) {
-      throw new Error('Failed to delete URL');
-    }
   },
 
-  // Get all URLs for a product
+  // Get product URLs
   async getProductUrls(productId: number): Promise<ProductUrl[]> {
-    const response = await fetch(`${API_ENDPOINTS.BASE_URL}/api/product/${productId}/urls`, {
+    return apiFetch<ProductUrl[]>(API_ENDPOINTS.PRODUCT.GET_URLS(productId), {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
         ...authService.getAuthHeader(),
       },
     });
-
-    if (!response.ok) {
-      throw new Error('Failed to fetch product URLs');
-    }
-
-    return await response.json();
   },
 };

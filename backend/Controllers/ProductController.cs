@@ -45,9 +45,8 @@ public record ProductUrlResponse
     public bool IsPrimary { get; init; }
 }
 
-[ApiController]
 [Route("api/product")]
-public class ProductController : ControllerBase
+public class ProductController : BaseApiController
 {
     private readonly AppDbContext _context;
     private readonly ILogger<ProductController> _logger;
@@ -146,7 +145,7 @@ public class ProductController : ControllerBase
             // Check if SKU already exists
             if (await _context.Products.AnyAsync(p => p.Sku == request.Sku))
             {
-                return Conflict(new { message = "SKU already exists" });
+                return ConflictWithError("SKU already exists");
             }
 
             var product = new Product
@@ -186,7 +185,7 @@ public class ProductController : ControllerBase
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error creating product");
-            return StatusCode(500, new { message = "An error occurred while creating the product" });
+            return InternalServerErrorWithError("An error occurred while creating the product");
         }
     }
 
@@ -200,13 +199,13 @@ public class ProductController : ControllerBase
 
             if (product == null)
             {
-                return NotFound(new { message = "Product not found" });
+                return NotFoundWithError("Product not found");
             }
 
             // Check SKU uniqueness if changed
             if (request.Sku != product.Sku && await _context.Products.AnyAsync(p => p.Sku == request.Sku && p.Id != id))
             {
-                return Conflict(new { message = "SKU already exists" });
+                return ConflictWithError("SKU already exists");
             }
 
             // Update fields

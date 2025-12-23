@@ -328,6 +328,260 @@ import FilterAltOffIcon from '@mui/icons-material/FilterAltOff';
 ### Reference Implementation:
 See `frontend/src/components/Products.tsx` for a complete working example.
 
+## Error Handling in Backend API Calls
+
+The application uses a standardized error handling pattern with response headers to communicate success/failure status and error messages between backend and frontend.
+
+### Backend Implementation
+
+#### Response Headers
+All API responses include standardized headers:
+- **`X-Success`**: Boolean string (`"true"` or `"false"`) indicating request success
+- **`X-Errors`**: JSON array of error messages (only present when `X-Success` is `"false"`)
+
+#### Middleware
+`backend/Middleware/ResponseHeadersMiddleware.cs` automatically adds these headers to all responses:
+
+```csharp
+public class ResponseHeadersMiddleware
+{
+    public async Task InvokeAsync(HttpContext context)
+    {
+        // Add X-Success header based on status code
+        var isSuccess = context.Response.StatusCode >= 200 && context.Response.StatusCode < 300;
+        context.Response.Headers["X-Success"] = isSuccess.ToString().ToLower();
+
+        // Add X-Errors header if errors were set in context
+        if (context.Items.TryGetValue("Errors", out var errors) && errors is List<string> errorList)
+        {
+            context.Response.Headers["X-Errors"] = JsonSerializer.Serialize(errorList);
+        }
+    }
+}
+```
+
+#### Base Controller
+`backend/Controllers/BaseApiController.cs` provides helper methods for consistent error responses:
+
+```csharp
+public abstract class BaseApiController : ControllerBase
+{
+    // Returns BadRequest with errors in both body and headers
+    protected IActionResult BadRequestWithErrors(params string[] errors);
+    protected IActionResult BadRequestWithErrors(List<string> errors);
+    
+    // Returns NotFound with error message
+    protected IActionResult NotFoundWithError(string error);
+    
+    // Returns Conflict with error message
+    protected IActionResult ConflictWithError(string error);
+    
+    // Returns InternalServerError with error message
+    protected IActionResult InternalServerErrorWithError(string error);
+    
+    // Returns validation errors from ModelState
+    protected IActionResult ValidationErrors();
+}
+```
+
+#### Controller Usage Example
+```csharp
+[Route("api/product")]
+public class ProductController : BaseApiController
+{
+    [HttpPost]
+    public async Task<ActionResult<ProductResponse>> CreateProduct(CreateProductRequest request)
+    {
+        try
+        {
+            if (await _context.Products.AnyAsync(p => p.Sku == request.Sku))
+            {
+                return ConflictWithError("SKU already exists");
+            }
+            
+            // Create product...
+            return CreatedAtAction(nameof(GetProduct), new { id = product.Id }, response);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error creating product");
+            return InternalServerErrorWithError("An error occurred while creating the product");
+        }
+    }
+}
+```
+
+#### CORS Configuration
+Custom headers must be exposed in CORS policy:
+
+```csharp
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowFrontend", policy =>
+    {
+        policy.SetIsOriginAllowed(origin => /* ... */)
+              .AllowAnyHeader()
+              .AllowAnyMethod()
+              .AllowCredentials()
+              .WithExposedHeaders("X-Success", "X-Errors");  // Expose custom headers
+    });
+});
+```
+
+### Frontend Implementation
+
+#### Error Handler Utility
+`frontend/src/utils/apiErrorHandler.ts` provides centralized error handling:
+
+```typescript
+export interface ApiError {
+  success: boolean;
+  errors: string[];
+  statusCode: number;
+}
+
+// Wrapper for fetch that automatically handles errors
+export async function apiFetch<T>(url: string, options?: RequestInit): Promise<T> {
+  const response = await fetch(url, options);
+  
+  // Check X-Success header
+  const error = checkResponseHeaders(response);
+  if (error) {
+    throw error;  // Throws ApiError with errors array
+  }
+  
+  return response.json();
+}
+
+// Helper to format error messages
+export function getErrorMessages(error: unknown): string[] {
+  if (typeof error === 'object' && error !== null && 'errors' in error) {
+    return (error as ApiError).errors;
+  }
+  return ['An unexpected error occurred'];
+}
+```
+
+#### Error Dialog Component
+`frontend/src/components/ErrorDialog.tsx` displays errors to users:
+
+```typescript
+interface ErrorDialogProps {
+  open: boolean;
+  errors: string[];
+  onClose: () => void;
+  title?: string;
+}
+
+export default function ErrorDialog({ open, errors, onClose, title = 'Error' }: ErrorDialogProps) {
+  return (
+    <Dialog open={open} onClose={onClose}>
+      <DialogTitle>
+        <ErrorOutlineIcon /> {title}
+      </DialogTitle>
+      <DialogContent>
+        {errors.length === 1 ? (
+          <Typography>{errors[0]}</Typography>
+        ) : (
+          <List>
+            {errors.map((error, index) => (
+              <ListItem key={index}>
+                <ListItemIcon><ErrorOutlineIcon color="error" /></ListItemIcon>
+                <ListItemText primary={error} />
+              </ListItem>
+            ))}
+          </List>
+        )}
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={onClose}>OK</Button>
+      </DialogActions>
+    </Dialog>
+  );
+}
+```
+
+#### Service Layer Usage
+Services use `apiFetch` instead of raw `fetch`:
+
+```typescript
+import { apiFetch } from '../utils/apiErrorHandler';
+
+export const productService = {
+  async create(data: CreateProductData): Promise<Product> {
+    return apiFetch<Product>(API_ENDPOINTS.PRODUCT.LIST, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...authService.getAuthHeader(),
+      },
+      body: JSON.stringify(data),
+    });
+    // Automatically throws ApiError if X-Success is false
+  },
+};
+```
+
+#### Component Usage
+Components catch errors and display them using ErrorDialog:
+
+```typescript
+export default function ProductsComponent() {
+  const [errorDialogOpen, setErrorDialogOpen] = useState(false);
+  const [errorMessages, setErrorMessages] = useState<string[]>([]);
+
+  const handleSubmit = async (data: CreateProductData) => {
+    try {
+      await productService.create(data);
+      // Success handling...
+    } catch (error) {
+      const errors = getErrorMessages(error);
+      setErrorMessages(errors);
+      setErrorDialogOpen(true);
+    }
+  };
+
+  return (
+    <>
+      {/* Component UI */}
+      <ErrorDialog
+        open={errorDialogOpen}
+        errors={errorMessages}
+        onClose={() => setErrorDialogOpen(false)}
+      />
+    </>
+  );
+}
+```
+
+### Benefits
+
+1. **Consistency**: All API errors follow the same pattern
+2. **Flexibility**: Supports single or multiple error messages
+3. **User-Friendly**: Clear error messages displayed in a modal dialog
+4. **Maintainability**: Centralized error handling logic
+5. **Type Safety**: TypeScript interfaces ensure correct error handling
+6. **Debugging**: Errors logged on backend, displayed clearly on frontend
+7. **Validation**: ModelState validation errors automatically included
+
+### Error Response Format
+
+**Headers:**
+```
+X-Success: false
+X-Errors: ["SKU already exists", "Name is required"]
+```
+
+**Body (for backward compatibility):**
+```json
+{
+  "message": "SKU already exists; Name is required",
+  "errors": ["SKU already exists", "Name is required"]
+}
+```
+
+This dual approach ensures both header-based and body-based error handling work seamlessly.
+
 ## Service Layer
 
 Domain-specific services handle API communication:

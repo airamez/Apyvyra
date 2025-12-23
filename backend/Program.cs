@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using backend.Data;
+using backend.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -53,7 +54,8 @@ builder.Services.AddCors(options =>
                   origin.StartsWith("https://localhost"))
               .AllowAnyHeader()
               .AllowAnyMethod()
-              .AllowCredentials();
+              .AllowCredentials()
+              .WithExposedHeaders("X-Success", "X-Errors");
     });
 });
 
@@ -61,6 +63,9 @@ var app = builder.Build();
 
 // Use CORS
 app.UseCors("AllowFrontend");
+
+// Use custom response headers middleware
+app.UseMiddleware<ResponseHeadersMiddleware>();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

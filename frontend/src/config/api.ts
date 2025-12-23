@@ -17,6 +17,9 @@ export const API_ENDPOINTS = {
   PRODUCT: {
     LIST: `${API_BASE_URL}/api/product`,
     DETAIL: (id: number) => `${API_BASE_URL}/api/product/${id}`,
+    GET_URLS: (productId: number) => `${API_BASE_URL}/api/product/${productId}/urls`,
+    ADD_URL: (productId: number) => `${API_BASE_URL}/api/product/${productId}/urls`,
+    DELETE_URL: (urlId: number) => `${API_BASE_URL}/api/urls/${urlId}`,
   },
   PRODUCT_CATEGORY: {
     LIST: `${API_BASE_URL}/api/product_category`,
