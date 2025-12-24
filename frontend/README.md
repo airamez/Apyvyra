@@ -135,29 +135,36 @@ When the backend returns more records than the configured limit (default: 100):
 
 ## Server-Side Filtering
 
-All list views include a filter form with a **Search** button that applies filters on the backend before returning results.
+All list views include a **custom filter form** with a **Search** button that applies filters on the backend before returning results.
 
 ### Filter Flow
 
-1. **User enters filter criteria** (search text, category, brand, status, etc.)
-2. **User clicks "Search"** button or presses Enter
+1. **User enters filter criteria** in the custom filter form above the grid
+2. **User clicks "Search"** button or presses Enter in any filter field
 3. **Frontend sends filters as query parameters** to backend API
 4. **Backend applies filters** and returns limited results (up to `MAX_RECORDS_QUERIES_COUNT`)
-5. **Frontend displays results** and shows warning if more records exist
+5. **Frontend displays results** with inline warning alert if more records exist
 6. **User refines filters** to narrow down results further
 
 ### Implementation
 
 **Products Component** (`src/components/Products.tsx`):
+- Custom filter form above DataGrid
 - Search filter (searches name, SKU, description)
 - Category dropdown
 - Brand text field
 - Status dropdown (Active/Inactive/All)
 - Search and Clear Filters buttons
+- **Warning alert inline** with buttons when more records exist
+- **DataGrid column filtering disabled** (`disableColumnFilter={true}`)
+- Only client-side sorting and pagination enabled
 
 **Categories Component** (`src/components/Categories.tsx`):
+- Custom filter form above Table
 - Search filter (searches name, description)
 - Search and Clear buttons
+- Warning alert when more records exist
+- Simple Table component (no grid filtering)
 
 ### Why Not GraphQL?
 

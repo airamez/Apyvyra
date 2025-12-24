@@ -167,17 +167,28 @@ backend/
 - **See**: `paging_vs_filtering.md` for detailed explanation
 
 ### 8. **Server-Side Filtering**
-All list endpoints support filtering via query parameters:
+All list endpoints support filtering via query parameters. Filters are applied **before** the `MAX_RECORDS_QUERIES_COUNT` limit.
 
 **Products** (`GET /api/product`):
-- `categoryId`, `brand`, `manufacturer`, `isActive`, `search`, `sku`
+- `categoryId` (int) - Filter by category ID
+- `brand` (string) - Partial match on brand name
+- `manufacturer` (string) - Partial match on manufacturer
+- `isActive` (bool) - Filter by active status
+- `search` (string) - Searches across name, description, and SKU (case-insensitive partial match)
+- `sku` (string) - Partial match on SKU
 - Example: `/api/product?search=nike&categoryId=5&isActive=true`
 
 **Categories** (`GET /api/product_category`):
-- `isActive`, `parentId`, `search`
-- Example: `/api/product_category?search=electronics`
+- `isActive` (bool) - Filter by active status
+- `parentId` (int) - Filter by parent category ID
+- `search` (string) - Searches across name and description (case-insensitive partial match)
+- Example: `/api/product_category?search=electronics&isActive=true`
 
-Filters are applied **before** the `MAX_RECORDS_QUERIES_COUNT` limit, allowing users to narrow down large datasets efficiently.
+**Implementation Notes**:
+- Filters are applied **before** limiting results to `MAX_RECORDS_QUERIES_COUNT`
+- All string filters use case-insensitive partial matching (`.Contains()`)
+- Frontend uses custom filter forms with Search buttons (grid filtering disabled)
+- Results include `X-Has-More-Records` and `X-Total-Count` headers for frontend warnings
 
 ## API Endpoints
 

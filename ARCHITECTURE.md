@@ -312,21 +312,24 @@ setTotalCount(response.metadata.totalCount);
 
 **User Experience**:
 1. **Check `X-Has-More-Records` header** after loading data
-2. **Display a warning** if `true`: "Showing {count} of {X-Total-Count} results. Please refine your filters to narrow down the search."
-3. **Perform sorting, paging, and searching** on the client-side with the loaded data
-4. **Encourage users** to use more specific filters for better results
+2. **Display a warning** if `true`: "Showing {count} of {X-Total-Count} results. Please refine your filters."
+3. **Client-side sorting and pagination only** - no client-side filtering
+4. **All filtering is server-side** through the custom filter form
 
 **Components Updated**:
-- `Products.tsx` - Shows warning when product list is limited, includes filter form with Search button
-- `Categories.tsx` - Shows warning when category list is limited, includes filter form with Search button
+- `Products.tsx` - Custom filter form with Search/Clear buttons, warning alert inline with buttons, DataGrid with `disableColumnFilter` enabled
+- `Categories.tsx` - Custom filter form with Search/Clear buttons, warning alert, simple Table component
 
 **Frontend Filtering Flow**:
-1. User enters filter criteria in the filter form
-2. User clicks "Search" button (or presses Enter)
-3. Frontend sends filters as query parameters to backend
-4. Backend applies filters and returns limited results with metadata
-5. Frontend displays results and shows warning if more records exist
-6. User can refine filters to narrow down results
+1. User enters filter criteria in the **custom filter form** above the grid
+2. User clicks **"Search" button** (or presses Enter in any filter field)
+3. Frontend sends filters as **query parameters** to backend API
+4. Backend applies filters **before** limiting to `MAX_RECORDS_QUERIES_COUNT`
+5. Frontend displays results with **warning alert inline** with buttons if more records exist
+6. User refines filters to narrow down results
+7. **Grid filtering is disabled** - only sorting and pagination work on loaded data
+
+**Important**: The DataGrid's built-in column filtering is **disabled** (`disableColumnFilter={true}`). All filtering must be done through the custom filter form above the grid.
 
 **Service Layer Example**:
 ```typescript
@@ -352,24 +355,46 @@ async getAll(filters?: ProductFilters): Promise<ApiResponse<Product[]>> {
 
 **Component Example**:
 ```typescript
-const [filters, setFilters] = useState<ProductFilters>({ search: '', categoryId: undefined });
+const [filters, setFilters] = useState<ProductFilters>({ 
+  search: '', 
+  categoryId: undefined,
+  brand: '',
+  isActive: undefined 
+});
 
 const handleSearch = () => {
   const cleanFilters: ProductFilters = {};
   if (filters.search?.trim()) cleanFilters.search = filters.search.trim();
   if (filters.categoryId) cleanFilters.categoryId = filters.categoryId;
+  if (filters.brand?.trim()) cleanFilters.brand = filters.brand.trim();
+  if (filters.isActive !== undefined) cleanFilters.isActive = filters.isActive;
   
   loadProducts(cleanFilters);
 };
 
-// Filter form UI
-<TextField
-  label="Search"
-  value={filters.search}
-  onChange={(e) => setFilters(prev => ({ ...prev, search: e.target.value }))}
-  onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
+// Filter form UI with inline warning
+<Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
+  <Button variant="contained" startIcon={<SearchIcon />} onClick={handleSearch}>
+    Search
+  </Button>
+  <Button variant="outlined" startIcon={<FilterAltOffIcon />} onClick={handleClearFilters}>
+    Clear Filters
+  </Button>
+  {hasMoreRecords && (
+    <Alert severity="warning" sx={{ ml: 2, py: 0.5, flexGrow: 1 }}>
+      Showing {products.length} of {totalCount} results. Please refine your filters.
+    </Alert>
+  )}
+</Box>
+
+// DataGrid with filtering disabled
+<DataGrid
+  rows={products}
+  columns={columns}
+  disableColumnFilter  // ← Grid filtering disabled
+  pageSizeOptions={[10, 25, 50, 100]}
+  initialState={{ pagination: { paginationModel: { pageSize: 25 } } }}
 />
-<Button onClick={handleSearch}>Search</Button>
 ```
 
 ### Benefits
