@@ -1,11 +1,36 @@
 using System.Data;
 using Npgsql;
 using Microsoft.Extensions.Configuration;
+using System.Net.Http;
+using System.Text;
+using System.Text.Json;
 
 namespace DevOpsTool;
 
 class Program
 {
+
+    static string ReadPassword()
+    {
+        var password = new StringBuilder();
+        while (true)
+        {
+            var key = Console.ReadKey(true);
+            if (key.Key == ConsoleKey.Enter) break;
+            if (key.Key == ConsoleKey.Backspace && password.Length > 0)
+            {
+                password.Remove(password.Length - 1, 1);
+                Console.Write("\b \b");
+            }
+            else if (!char.IsControl(key.KeyChar))
+            {
+                password.Append(key.KeyChar);
+                Console.Write("*");
+            }
+        }
+        Console.WriteLine();
+        return password.ToString();
+    }
 
     static async Task<int> Main(string[] args)
     {
@@ -53,6 +78,31 @@ class Program
             }
         }
 
+        var apiBaseUrl = GetApiBaseUrl();
+        if (string.IsNullOrWhiteSpace(apiBaseUrl))
+        {
+            Console.WriteLine("Could not find API base URL in frontend/.env");
+            return 1;
+        }
+
+        Console.WriteLine($"WARNING: The backend service must be running on {apiBaseUrl} for this to work.");
+
+        // Prompt for admin credentials first
+        Console.Write("Enter admin email: ");
+        var email = Console.ReadLine()?.Trim();
+        if (string.IsNullOrEmpty(email))
+        {
+            Console.WriteLine("Email cannot be empty. Aborting.");
+            return 1;
+        }
+        Console.Write("Enter admin password: ");
+        var password = ReadPassword();
+        if (string.IsNullOrEmpty(password))
+        {
+            Console.WriteLine("Password cannot be empty. Aborting.");
+            return 1;
+        }
+
         var connectionString = GetDefaultConnectionString();
         if (string.IsNullOrWhiteSpace(connectionString))
         {
@@ -95,6 +145,34 @@ class Program
             using var cmd = new NpgsqlCommand(sql, conn);
             await cmd.ExecuteNonQueryAsync();
             Console.WriteLine("Database initialized successfully.");
+
+            Console.WriteLine("Creating required admin user...");
+
+            // Call backend API to create user
+            try
+            {
+                using var httpClient = new HttpClient();
+                var request = new { email = email, password = password };
+                var json = JsonSerializer.Serialize(request);
+                var content = new StringContent(json, Encoding.UTF8, "application/json");
+                var response = await httpClient.PostAsync($"{apiBaseUrl}/api/app_user", content);
+                if (response.IsSuccessStatusCode)
+                {
+                    Console.WriteLine("Admin user created successfully.");
+                }
+                else
+                {
+                    var errorContent = await response.Content.ReadAsStringAsync();
+                    Console.WriteLine($"Failed to create admin user: {response.StatusCode} - {errorContent}");
+                    return 1; // Abort if admin creation fails
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error creating admin user: {ex.Message}. Make sure the backend is running.");
+                return 1; // Abort if error
+            }
+
             return 0;
         }
         catch (Exception ex)
@@ -169,5 +247,22 @@ class Program
                 .AddJsonFile(configPath, optional: false, reloadOnChange: false)
                 .Build();
             return config.GetConnectionString("DefaultConnection");
+        }
+
+        static string? GetApiBaseUrl()
+        {
+            var envPath = Path.GetFullPath("../frontend/.env");
+            if (!File.Exists(envPath))
+                return null;
+
+            var lines = File.ReadAllLines(envPath);
+            foreach (var line in lines)
+            {
+                if (line.StartsWith("VITE_API_URL="))
+                {
+                    return line.Substring("VITE_API_URL=".Length).Trim();
+                }
+            }
+            return null;
         }
 }

@@ -26,6 +26,8 @@ dotnet run -- db-init
 
 This command connects to the database using the default connection string from `backend/appsettings.json` and executes all SQL statements from `../database.sql`.
 
+**Note:** After confirming the operation, a warning will be displayed that the backend service must be running on `http://localhost:5000`. You will then be prompted to enter the required admin user credentials. The password will be masked during input.
+
 **Options:**
 - `-force` — Skip the confirmation prompt (useful for automated scripts)
 
@@ -35,6 +37,7 @@ This command connects to the database using the default connection string from `
 - Sets up proper field types (`TIMESTAMPTZ` for dates, `DECIMAL(19,4)` for prices)
 - Creates indexes for performance
 - Initializes foreign key relationships
+- Creates an admin user via the backend API (requires backend service to be running)
 
 #### `db-load-test-data` — Load test data
 
