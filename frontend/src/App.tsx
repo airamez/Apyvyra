@@ -20,9 +20,9 @@ import Brightness7Icon from '@mui/icons-material/Brightness7';
 import Register from './components/Register';
 import Login from './components/Login';
 import Dashboard from './components/Dashboard';
-import Products from './components/Products';
+import Products from './components/products/Products';
 import Customers from './components/Customers';
-import Categories from './components/Categories';
+import Categories from './components/products/Categories';
 import WelcomePage from './components/WelcomePage';
 import { authService } from './services/authService';
 import './App.css'

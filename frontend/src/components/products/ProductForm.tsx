@@ -20,7 +20,8 @@ import {
 import { DataGrid, type GridRenderCellParams } from '@mui/x-data-grid';
 import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
-import { type CreateProductData, type ProductUrl, type UrlType, productService } from '../services/productService';
+import { type CreateProductData, type ProductUrl, type UrlType, productService } from '../../services/productService';
+import { categoryService } from '../../services/categoryService';
 import ProductUrlDialog from './ProductUrlDialog';
 
 interface ProductCategory {
@@ -52,12 +53,12 @@ interface Product {
 interface ProductFormProps {
   open: boolean;
   editingProduct: Product | null;
-  categories: ProductCategory[];
   onClose: () => void;
   onSubmit: (formData: CreateProductData, newUrls: { url: string; type: UrlType }[], urlsToDelete: number[]) => Promise<void>;
 }
 
-export default function ProductForm({ open, editingProduct, categories, onClose, onSubmit }: ProductFormProps) {
+export default function ProductForm({ open, editingProduct, onClose, onSubmit }: ProductFormProps) {
+  const [categories, setCategories] = useState<ProductCategory[]>([]);
   const [formData, setFormData] = useState<CreateProductData>({
     sku: '',
     name: '',
@@ -77,6 +78,21 @@ export default function ProductForm({ open, editingProduct, categories, onClose,
   const [existingUrls, setExistingUrls] = useState<ProductUrl[]>([]);
   const [urlsToDelete, setUrlsToDelete] = useState<number[]>([]);
   const [urlDialogOpen, setUrlDialogOpen] = useState(false);
+
+  useEffect(() => {
+    if (open) {
+      loadCategories();
+    }
+  }, [open]);
+
+  const loadCategories = async () => {
+    try {
+      const response = await categoryService.getAll();
+      setCategories(response.data);
+    } catch (err) {
+      console.error('Error loading categories:', err);
+    }
+  };
   const [isLoadingUrls, setIsLoadingUrls] = useState(false);
   const [urlFilter, setUrlFilter] = useState('');
 

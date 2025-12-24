@@ -242,9 +242,68 @@ public async Task<ActionResult<IEnumerable<ProductResponse>>> GetProducts(
 }
 ```
 
+### Reusable FilterComponent
+
+The application uses a **configurable, reusable FilterComponent** for all filtering needs. This component supports:
+
+- **Multiple field types**: string, number, date, boolean, dropdown
+- **Flexible operators**: eq, ne, lt, lte, gt, gte, contains, startsWith, endsWith, between
+- **Dynamic dropdowns**: Load options from backend endpoints or use static options
+- **Automatic query building**: Converts filters to backend-compatible query parameters
+- **Inline warnings**: Shows alert when more records exist
+- **Keyboard support**: Press Enter to search
+- **Always visible labels**: Field labels remain visible even when fields are empty (using `InputLabelProps={{ shrink: true }}`)
+
+**Configuration Example**:
+```typescript
+// Define filter configuration in src/config/filterConfigs.ts
+import { auditFieldsConfig } from './filterConfigs';
+
+export const productFilterConfig = {
+  fields: [
+    {
+      name: 'name',
+      label: 'Product Name',
+      type: 'string',
+      operators: ['contains', 'eq', 'startsWith'],
+      defaultOperator: 'contains',
+    },
+    {
+      name: 'categoryId',
+      label: 'Category',
+      type: 'dropdown',
+      dropdownConfig: {
+        endpoint: API_ENDPOINTS.PRODUCT_CATEGORY.LIST,
+        idField: 'id',
+        nameField: 'name',
+      },
+    },
+    {
+      name: 'price',
+      label: 'Price',
+      type: 'number',
+      operators: ['eq', 'lt', 'lte', 'gt', 'gte', 'between'],
+      defaultOperator: 'between',
+    },
+    // Include standard audit fields (createdAt, createdBy, updatedAt, updatedBy)
+    ...auditFieldsConfig,
+  ],
+};
+
+// Use in component
+<FilterComponent
+  config={{ ...productFilterConfig, onSearch: loadProducts }}
+  hasMoreRecords={hasMoreRecords}
+  totalCount={totalCount}
+  currentCount={products.length}
+/>
+```
+
+See `frontend/FILTER_COMPONENT_USAGE.md` for complete documentation.
+
 ### Server-Side Filtering
 
-All list endpoints support server-side filtering via query parameters. Filters are applied **before** the `MAX_RECORDS_QUERIES_COUNT` limit.
+All list endpoints support server-side filtering via query parameters with **dynamic operators**. Filters are applied **before** the `MAX_RECORDS_QUERIES_COUNT` limit.
 
 **Products Endpoint** (`GET /api/product`):
 - `categoryId` (int) - Filter by category ID
@@ -265,29 +324,31 @@ GET /api/product?search=nike&categoryId=5&isActive=true
 GET /api/product_category?search=electronics&isActive=true
 ```
 
-**Backend Implementation**:
+**Backend Implementation** (using QueryFilterHelper):
 ```csharp
 [HttpGet]
-public async Task<ActionResult<IEnumerable<ProductResponse>>> GetProducts(
-    [FromQuery] int? categoryId,
-    [FromQuery] string? brand,
-    [FromQuery] bool? isActive,
-    [FromQuery] string? search)
+public async Task<ActionResult<IEnumerable<ProductResponse>>> GetProducts()
 {
-    var query = _context.Products.AsQueryable();
+    var query = _context.Products
+        .Include(p => p.Category)
+        .AsQueryable();
     
-    // Apply filters BEFORE limiting
-    if (categoryId.HasValue)
-        query = query.Where(p => p.CategoryId == categoryId);
-    
-    if (!string.IsNullOrEmpty(search))
-        query = query.Where(p => p.Name.ToLower().Contains(search.ToLower()));
+    // Apply dynamic filters from query parameters
+    // Supports: eq, ne, lt, lte, gt, gte, contains, startsWith, endsWith, between
+    query = Helpers.QueryFilterHelper.ApplyQueryFilters(query, Request.Query);
     
     // Then apply limit
     var products = await ExecuteLimitedQueryAsync(query);
     return Ok(products);
 }
 ```
+
+**Query Parameter Examples**:
+- `?name=nike` → Contains "nike"
+- `?price_gt=100` → Price greater than 100
+- `?price_from=50&price_to=200` → Price between 50 and 200
+- `?categoryId=5` → Category equals 5
+- `?name_startsWith=Pro` → Name starts with "Pro"
 
 ### Frontend Handling
 

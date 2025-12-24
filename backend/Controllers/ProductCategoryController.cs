@@ -18,11 +18,13 @@ public class ProductCategoryController : BaseApiController
     }
 
     // GET: api/productcategories
+    // Supports dynamic filtering with operators: eq, ne, lt, lte, gt, gte, contains, startsWith, endsWith, between
+    // Examples:
+    //   ?name=electronics (contains)
+    //   ?isActive=true (equals)
+    //   ?parentId=5 (equals)
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<ProductCategoryResponse>>> GetCategories(
-        [FromQuery] bool? isActive,
-        [FromQuery] int? parentId,
-        [FromQuery] string? search)
+    public async Task<ActionResult<IEnumerable<ProductCategoryResponse>>> GetCategories()
     {
         try
         {
@@ -30,21 +32,8 @@ public class ProductCategoryController : BaseApiController
                 .Include(c => c.InverseParentCategory)
                 .AsQueryable();
 
-            // Apply filters
-            if (isActive.HasValue)
-                query = query.Where(c => c.IsActive == isActive);
-
-            if (parentId.HasValue)
-                query = query.Where(c => c.ParentCategoryId == parentId);
-
-            // Search filter - searches across name and description
-            if (!string.IsNullOrEmpty(search))
-            {
-                var searchLower = search.ToLower();
-                query = query.Where(c => 
-                    (c.Name != null && c.Name.ToLower().Contains(searchLower)) ||
-                    (c.Description != null && c.Description.ToLower().Contains(searchLower)));
-            }
+            // Apply dynamic filters from query parameters
+            query = Helpers.QueryFilterHelper.ApplyQueryFilters(query, Request.Query);
 
             // Use modern filtering approach - limit results to MAX_RECORDS_QUERIES_COUNT
             // Headers X-Has-More-Records and X-Total-Count will be set automatically

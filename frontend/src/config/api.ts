@@ -14,6 +14,9 @@ export const API_ENDPOINTS = {
     LOGIN: `${API_BASE_URL}/api/app_user/login`,
     ME: `${API_BASE_URL}/api/app_user/me`,
   },
+  USER: {
+    LIST: `${API_BASE_URL}/api/app_user`,
+  },
   PRODUCT: {
     LIST: `${API_BASE_URL}/api/product`,
     DETAIL: (id: number) => `${API_BASE_URL}/api/product/${id}`,

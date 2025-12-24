@@ -56,7 +56,31 @@ public class AppUserController : BaseApiController
         }
     }
 
-    // GET: api/users/{id}
+    // GET: api/app_user
+    [HttpGet]
+    public async Task<ActionResult<IEnumerable<UserListResponse>>> GetUsers()
+    {
+        try
+        {
+            var users = await _context.AppUsers
+                .Select(u => new UserListResponse
+                {
+                    Id = u.Id,
+                    Username = u.Email,
+                    Email = u.Email
+                })
+                .ToListAsync();
+
+            return Ok(users);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error retrieving users");
+            return InternalServerErrorWithError("An error occurred while retrieving users");
+        }
+    }
+
+    // GET: api/app_user/{id}
     [HttpGet("{id}")]
     public async Task<ActionResult<UserResponse>> GetUser(int id)
     {
@@ -187,6 +211,13 @@ public record LoginRequest
 public record UserResponse
 {
     public int Id { get; init; }
+    public string Email { get; init; } = string.Empty;
+}
+
+public record UserListResponse
+{
+    public int Id { get; init; }
+    public string Username { get; init; } = string.Empty;
     public string Email { get; init; } = string.Empty;
 }
 

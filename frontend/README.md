@@ -133,9 +133,42 @@ When the backend returns more records than the configured limit (default: 100):
 - **Better UX**: Encourages precise filtering instead of endless scrolling
 - **Reduced Load**: Less data transferred over network
 
+## Reusable FilterComponent
+
+All list views use the **FilterComponent** - a configurable, reusable component for dynamic filtering.
+
+### Key Features
+
+- **JSON-based configuration**: Define fields, types, and operators in config files
+- **Multiple field types**: string, number, date, boolean, dropdown
+- **Flexible operators**: =, ≠, <, ≤, >, ≥, ~(contains), startsWith, endsWith, between
+- **Dynamic dropdowns**: Load options from backend endpoints
+- **Automatic query building**: Converts filters to backend-compatible query parameters
+- **Type-safe**: Full TypeScript support
+
+### Quick Example
+
+```typescript
+import FilterComponent from '../components/FilterComponent';
+import { productFilterConfig } from '../config/filterConfigs';
+
+<FilterComponent
+  config={{
+    ...productFilterConfig,
+    onSearch: (filters) => loadProducts(filters),
+    onClear: () => loadProducts(),
+  }}
+  hasMoreRecords={hasMoreRecords}
+  totalCount={totalCount}
+  currentCount={products.length}
+/>
+```
+
+See `FILTER_COMPONENT_USAGE.md` for complete documentation and examples.
+
 ## Server-Side Filtering
 
-All list views include a **custom filter form** with a **Search** button that applies filters on the backend before returning results.
+All list views use the FilterComponent with a **Search** button that applies filters on the backend before returning results.
 
 ### Filter Flow
 

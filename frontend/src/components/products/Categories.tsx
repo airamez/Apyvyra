@@ -1,13 +1,15 @@
 import { useState, useEffect } from 'react';
 import { 
-  Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField, Typography, IconButton, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Tooltip, Alert, Card, CardContent 
+  Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField, Typography, IconButton, Tooltip, Alert, Container, Card, CardContent 
 } from '@mui/material';
+import { DataGrid, type GridRenderCellParams } from '@mui/x-data-grid';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
-import SearchIcon from '@mui/icons-material/Search';
-import FilterAltOffIcon from '@mui/icons-material/FilterAltOff';
-import { categoryService, type CategoryFilters } from '../services/categoryService';
+import CategoryIcon from '@mui/icons-material/Category';
+import { categoryService } from '../../services/categoryService';
+import FilterComponent, { type FilterValues } from '../FilterComponent';
+import { categoryFilterConfig } from '../../config/filterConfigs';
 
 interface ProductCategory {
   id: number;
@@ -24,12 +26,8 @@ export default function Categories() {
   const [deleteDialog, setDeleteDialog] = useState<{ open: boolean; id: number | null }>({ open: false, id: null });
   const [hasMoreRecords, setHasMoreRecords] = useState(false);
   const [totalCount, setTotalCount] = useState(0);
-  const [filters, setFilters] = useState<CategoryFilters>({
-    search: '',
-    isActive: undefined,
-  });
 
-  const loadCategories = async (appliedFilters?: CategoryFilters) => {
+  const loadCategories = async (appliedFilters?: FilterValues) => {
     try {
       const response = await categoryService.getAll(appliedFilters);
       setCategories(response.data);
@@ -40,19 +38,11 @@ export default function Categories() {
     }
   };
 
-  const handleSearch = () => {
-    const cleanFilters: CategoryFilters = {};
-    if (filters.search?.trim()) cleanFilters.search = filters.search.trim();
-    if (filters.isActive !== undefined) cleanFilters.isActive = filters.isActive;
-    
-    loadCategories(cleanFilters);
+  const handleSearch = (filters: FilterValues) => {
+    loadCategories(filters);
   };
 
   const handleClearFilters = () => {
-    setFilters({
-      search: '',
-      isActive: undefined,
-    });
     loadCategories();
   };
 
@@ -113,75 +103,112 @@ export default function Categories() {
   };
 
   return (
-    <Box sx={{ mt: 4 }}>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-        <Typography variant="h5">Product Categories</Typography>
-        <Button variant="contained" startIcon={<AddIcon />} onClick={() => handleOpen()}>Add Category</Button>
+    <Container maxWidth={false} sx={{ mt: 4, mb: 4, px: 3 }}>
+      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 3 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+          <CategoryIcon sx={{ fontSize: 40, mr: 2, color: 'primary.main' }} />
+          <Typography variant="h4" component="h1">
+            Product Categories
+          </Typography>
+        </Box>
+        <Button variant="contained" startIcon={<AddIcon />} onClick={() => handleOpen()}>
+          Add Category
+        </Button>
       </Box>
-      
-      {hasMoreRecords && (
-        <Alert severity="warning" sx={{ mb: 2 }}>
-          Showing {categories.length} of {totalCount} results. Please refine your filters to narrow down the search for better results.
+
+      {error && (
+        <Alert severity="error" sx={{ mb: 3 }}>
+          {error}
         </Alert>
       )}
+
+      <FilterComponent
+        config={{
+          ...categoryFilterConfig,
+          onSearch: handleSearch,
+          onClear: handleClearFilters,
+        }}
+        hasMoreRecords={hasMoreRecords}
+        totalCount={totalCount}
+        currentCount={categories.length}
+      />
       
-      <Card sx={{ mb: 2 }}>
+      <Card>
         <CardContent>
-          <Typography variant="h6" sx={{ mb: 2 }}>Search Filters</Typography>
-          <Box sx={{ display: 'flex', gap: 2, alignItems: 'flex-end' }}>
-            <TextField
-              label="Search (Name, Description)"
-              value={filters.search}
-              onChange={(e) => setFilters(prev => ({ ...prev, search: e.target.value }))}
-              onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
-              size="small"
-              sx={{ flexGrow: 1 }}
+          <Box sx={{ width: '100%', mt: 2 }}>
+            <DataGrid
+              rows={categories}
+              columns={[
+                {
+                  field: 'name',
+                  headerName: 'Name',
+                  flex: 1,
+                  minWidth: 200,
+                },
+                {
+                  field: 'description',
+                  headerName: 'Description',
+                  flex: 2,
+                  minWidth: 300,
+                },
+                {
+                  field: 'actions',
+                  headerName: 'Actions',
+                  width: 120,
+                  sortable: false,
+                  filterable: false,
+                  renderCell: (params: GridRenderCellParams) => (
+                    <Box>
+                      <Tooltip title="Edit">
+                        <IconButton
+                          size="small"
+                          color="primary"
+                          onClick={() => handleOpen(params.row as ProductCategory)}
+                        >
+                          <EditIcon fontSize="small" />
+                        </IconButton>
+                      </Tooltip>
+                      <Tooltip title="Delete">
+                        <IconButton
+                          size="small"
+                          color="error"
+                          onClick={() => handleDelete(params.row.id)}
+                        >
+                          <DeleteIcon fontSize="small" />
+                        </IconButton>
+                      </Tooltip>
+                    </Box>
+                  ),
+                },
+              ]}
+              pageSizeOptions={[10, 25, 50, 100]}
+              initialState={{
+                pagination: { paginationModel: { pageSize: 10 } },
+              }}
+              disableColumnFilter
+              disableRowSelectionOnClick
+              autoHeight
+              density="compact"
+              sx={{
+                '& .MuiDataGrid-cell': {
+                  display: 'flex',
+                  alignItems: 'center',
+                  padding: '4px 8px',
+                },
+                '& .MuiDataGrid-row': {
+                  minHeight: '36px !important',
+                  maxHeight: '36px !important',
+                },
+                '& .MuiDataGrid-columnHeaders': {
+                  minHeight: '40px !important',
+                  maxHeight: '40px !important',
+                },
+              }}
             />
-            <Button
-              variant="contained"
-              startIcon={<SearchIcon />}
-              onClick={handleSearch}
-            >
-              Search
-            </Button>
-            <Button
-              variant="outlined"
-              startIcon={<FilterAltOffIcon />}
-              onClick={handleClearFilters}
-            >
-              Clear
-            </Button>
           </Box>
         </CardContent>
       </Card>
-      
-      <TableContainer component={Paper}>
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell>Name</TableCell>
-              <TableCell>Description</TableCell>
-              <TableCell align="right">Actions</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {categories.map(cat => (
-              <TableRow key={cat.id}>
-                <TableCell>{cat.name}</TableCell>
-                <TableCell>{cat.description}</TableCell>
-                <TableCell align="right">
-                  <Tooltip title="Edit">
-                    <IconButton onClick={() => handleOpen(cat)}><EditIcon /></IconButton>
-                  </Tooltip>
-                  <Tooltip title="Delete">
-                    <IconButton color="error" onClick={() => handleDelete(cat.id)}><DeleteIcon /></IconButton>
-                  </Tooltip>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
+
       <Dialog open={open} onClose={handleClose}>
         <DialogTitle>{editing ? 'Edit Category' : 'Add Category'}</DialogTitle>
         <DialogContent>
@@ -220,6 +247,6 @@ export default function Categories() {
           <Button onClick={confirmDelete} color="error" variant="contained">Delete</Button>
         </DialogActions>
       </Dialog>
-    </Box>
+    </Container>
   );
 }

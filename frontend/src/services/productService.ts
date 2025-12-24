@@ -2,6 +2,8 @@
 import { API_ENDPOINTS } from '../config/api';
 import { authService } from './authService';
 import { apiFetch, apiFetchWithMetadata, type ApiResponse } from '../utils/apiErrorHandler';
+import type { FilterValues } from '../components/FilterComponent';
+import { filtersToQueryParams } from '../utils/filterUtils';
 
 export interface Product {
   id: number;
@@ -53,30 +55,15 @@ export interface CreateProductData {
   userId?: number;
 }
 
-export interface ProductFilters {
-  categoryId?: number;
-  brand?: string;
-  isActive?: boolean;
-  search?: string;
-  sku?: string;
-  manufacturer?: string;
-}
-
 export const productService = {
   // Get all products with query metadata and optional filters
-  async getAll(filters?: ProductFilters): Promise<ApiResponse<Product[]>> {
-    const params = new URLSearchParams();
+  async getAll(filters?: FilterValues): Promise<ApiResponse<Product[]>> {
+    let url = API_ENDPOINTS.PRODUCT.LIST;
     
-    if (filters) {
-      if (filters.categoryId) params.append('categoryId', filters.categoryId.toString());
-      if (filters.brand) params.append('brand', filters.brand);
-      if (filters.isActive !== undefined) params.append('isActive', filters.isActive.toString());
-      if (filters.search) params.append('search', filters.search);
-      if (filters.sku) params.append('sku', filters.sku);
-      if (filters.manufacturer) params.append('manufacturer', filters.manufacturer);
+    if (filters && filters.length > 0) {
+      const params = filtersToQueryParams(filters);
+      url = `${url}?${params.toString()}`;
     }
-    
-    const url = params.toString() ? `${API_ENDPOINTS.PRODUCT.LIST}?${params.toString()}` : API_ENDPOINTS.PRODUCT.LIST;
     
     return apiFetchWithMetadata<Product[]>(url, {
       method: 'GET',

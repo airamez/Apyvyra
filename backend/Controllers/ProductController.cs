@@ -58,14 +58,14 @@ public class ProductController : BaseApiController
     }
 
     // GET: api/products
+    // Supports dynamic filtering with operators: eq, ne, lt, lte, gt, gte, contains, startsWith, endsWith, between
+    // Examples: 
+    //   ?name=nike (contains)
+    //   ?price_gt=100 (greater than)
+    //   ?price_from=50&price_to=200 (between)
+    //   ?categoryId=5 (equals)
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<ProductResponse>>> GetProducts(
-        [FromQuery] int? categoryId,
-        [FromQuery] string? brand,
-        [FromQuery] bool? isActive,
-        [FromQuery] string? search,
-        [FromQuery] string? sku,
-        [FromQuery] string? manufacturer)
+    public async Task<ActionResult<IEnumerable<ProductResponse>>> GetProducts()
     {
         try
         {
@@ -74,33 +74,8 @@ public class ProductController : BaseApiController
                 .Include(p => p.ProductUrls)
                 .AsQueryable();
 
-            // Apply filters
-            if (categoryId.HasValue)
-                query = query.Where(p => p.CategoryId == categoryId);
-
-            if (!string.IsNullOrEmpty(brand))
-                query = query.Where(p => p.Brand != null && p.Brand.Contains(brand));
-
-            if (isActive.HasValue)
-                query = query.Where(p => p.IsActive == isActive);
-
-            // Search filter - searches across name, description, SKU
-            if (!string.IsNullOrEmpty(search))
-            {
-                var searchLower = search.ToLower();
-                query = query.Where(p => 
-                    (p.Name != null && p.Name.ToLower().Contains(searchLower)) ||
-                    (p.Description != null && p.Description.ToLower().Contains(searchLower)) ||
-                    (p.Sku != null && p.Sku.ToLower().Contains(searchLower)));
-            }
-
-            // SKU exact match filter
-            if (!string.IsNullOrEmpty(sku))
-                query = query.Where(p => p.Sku != null && p.Sku.Contains(sku));
-
-            // Manufacturer filter
-            if (!string.IsNullOrEmpty(manufacturer))
-                query = query.Where(p => p.Manufacturer != null && p.Manufacturer.Contains(manufacturer));
+            // Apply dynamic filters from query parameters
+            query = Helpers.QueryFilterHelper.ApplyQueryFilters(query, Request.Query);
 
             // Use modern filtering approach - limit results to MAX_RECORDS_QUERIES_COUNT
             // Headers X-Has-More-Records and X-Total-Count will be set automatically

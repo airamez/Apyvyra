@@ -166,29 +166,51 @@ backend/
 - **Benefits**: Better performance, encourages precise filtering, reduces backend load
 - **See**: `paging_vs_filtering.md` for detailed explanation
 
-### 8. **Server-Side Filtering**
-All list endpoints support filtering via query parameters. Filters are applied **before** the `MAX_RECORDS_QUERIES_COUNT` limit.
+### 8. **Dynamic Server-Side Filtering (QueryFilterHelper)**
 
-**Products** (`GET /api/product`):
-- `categoryId` (int) - Filter by category ID
-- `brand` (string) - Partial match on brand name
-- `manufacturer` (string) - Partial match on manufacturer
-- `isActive` (bool) - Filter by active status
-- `search` (string) - Searches across name, description, and SKU (case-insensitive partial match)
-- `sku` (string) - Partial match on SKU
-- Example: `/api/product?search=nike&categoryId=5&isActive=true`
+All list endpoints support **dynamic filtering** via query parameters using the `QueryFilterHelper` class. Filters are applied **before** the `MAX_RECORDS_QUERIES_COUNT` limit.
 
-**Categories** (`GET /api/product_category`):
-- `isActive` (bool) - Filter by active status
-- `parentId` (int) - Filter by parent category ID
-- `search` (string) - Searches across name and description (case-insensitive partial match)
-- Example: `/api/product_category?search=electronics&isActive=true`
+**Supported Operators**:
+- `eq` (equals): `field=value`
+- `ne` (not equals): `field_ne=value`
+- `lt` (less than): `field_lt=value`
+- `lte` (less than or equal): `field_lte=value`
+- `gt` (greater than): `field_gt=value`
+- `gte` (greater than or equal): `field_gte=value`
+- `contains`: `field=value` (default for strings)
+- `startsWith`: `field_startsWith=value`
+- `endsWith`: `field_endsWith=value`
+- `between`: `field_from=value1&field_to=value2`
 
-**Implementation Notes**:
-- Filters are applied **before** limiting results to `MAX_RECORDS_QUERIES_COUNT`
-- All string filters use case-insensitive partial matching (`.Contains()`)
-- Frontend uses custom filter forms with Search buttons (grid filtering disabled)
-- Results include `X-Has-More-Records` and `X-Total-Count` headers for frontend warnings
+**Examples**:
+- `/api/product?name=nike` → Name contains "nike"
+- `/api/product?price_gt=100` → Price > 100
+- `/api/product?price_from=50&price_to=200` → Price between 50 and 200
+- `/api/product?categoryId=5&isActive=true` → Category = 5 AND Active = true
+- `/api/product?name_startsWith=Pro` → Name starts with "Pro"
+
+**Implementation**:
+```csharp
+[HttpGet]
+public async Task<ActionResult<IEnumerable<ProductResponse>>> GetProducts()
+{
+    var query = _context.Products.Include(p => p.Category).AsQueryable();
+    
+    // Apply dynamic filters from query parameters
+    query = Helpers.QueryFilterHelper.ApplyQueryFilters(query, Request.Query);
+    
+    var products = await ExecuteLimitedQueryAsync(query);
+    return Ok(products);
+}
+```
+
+**Benefits**:
+- No need to define individual filter parameters
+- Supports any entity property dynamically
+- Consistent filtering across all endpoints
+- Frontend can use reusable FilterComponent
+- Type-safe conversions (int, decimal, DateTime, bool, etc.)
+- Supports nested properties (e.g., `Category.Name`)
 
 ## API Endpoints
 

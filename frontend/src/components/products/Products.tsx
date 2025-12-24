@@ -14,30 +14,16 @@ import {
   DialogTitle,
   DialogContent,
   DialogActions,
-  TextField,
-  Select,
-  MenuItem,
-  FormControl,
-  InputLabel,
-  Grid
 } from '@mui/material';
 import { DataGrid, type GridRenderCellParams } from '@mui/x-data-grid';
 import InventoryIcon from '@mui/icons-material/Inventory';
 import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
-import FilterAltOffIcon from '@mui/icons-material/FilterAltOff';
-import SearchIcon from '@mui/icons-material/Search';
-import { productService, type ProductUrl, type CreateProductData, type UrlType, type ProductFilters } from '../services/productService';
-import { categoryService } from '../services/categoryService';
+import { productService, type ProductUrl, type CreateProductData, type UrlType } from '../../services/productService';
 import ProductForm from './ProductForm';
-
-interface ProductCategory {
-  id: number;
-  name: string;
-  description?: string;
-  isActive: boolean;
-}
+import FilterComponent, { type FilterValues } from '../FilterComponent';
+import { productFilterConfig } from '../../config/filterConfigs';
 
 interface Product {
   id: number;
@@ -60,7 +46,6 @@ interface Product {
 
 export default function Products() {
   const [products, setProducts] = useState<Product[]>([]);
-  const [categories, setCategories] = useState<ProductCategory[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
@@ -69,29 +54,12 @@ export default function Products() {
   const [showForm, setShowForm] = useState(false);
   const [hasMoreRecords, setHasMoreRecords] = useState(false);
   const [totalCount, setTotalCount] = useState(0);
-  const [filters, setFilters] = useState<ProductFilters>({
-    search: '',
-    categoryId: undefined,
-    brand: '',
-    manufacturer: '',
-    isActive: undefined,
-  });
 
   useEffect(() => {
     loadProducts();
-    loadCategories();
   }, []);
 
-  const loadCategories = async () => {
-    try {
-      const response = await categoryService.getAll();
-      setCategories(response.data);
-    } catch (err) {
-      console.error('Error loading categories:', err);
-    }
-  };
-
-  const loadProducts = async (appliedFilters?: ProductFilters) => {
+  const loadProducts = async (appliedFilters?: FilterValues) => {
     try {
       setLoading(true);
       setError(null);
@@ -107,31 +75,12 @@ export default function Products() {
     }
   };
 
-  const handleSearch = () => {
-    // Clean up filters - remove empty strings and undefined values
-    const cleanFilters: ProductFilters = {};
-    if (filters.search?.trim()) cleanFilters.search = filters.search.trim();
-    if (filters.categoryId) cleanFilters.categoryId = filters.categoryId;
-    if (filters.brand?.trim()) cleanFilters.brand = filters.brand.trim();
-    if (filters.manufacturer?.trim()) cleanFilters.manufacturer = filters.manufacturer.trim();
-    if (filters.isActive !== undefined) cleanFilters.isActive = filters.isActive;
-    
-    loadProducts(cleanFilters);
+  const handleSearch = (filters: FilterValues) => {
+    loadProducts(filters);
   };
 
   const handleClearFilters = () => {
-    setFilters({
-      search: '',
-      categoryId: undefined,
-      brand: '',
-      manufacturer: '',
-      isActive: undefined,
-    });
     loadProducts();
-  };
-
-  const handleFilterChange = (field: keyof ProductFilters, value: any) => {
-    setFilters(prev => ({ ...prev, [field]: value }));
   };
 
   const handleDeleteClick = (product: Product) => {
@@ -239,7 +188,7 @@ export default function Products() {
   };
 
   return (
-    <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
+    <Container maxWidth={false} sx={{ mt: 4, mb: 4, px: 3 }}>
       <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 3 }}>
         <Box sx={{ display: 'flex', alignItems: 'center' }}>
           <InventoryIcon sx={{ fontSize: 40, mr: 2, color: 'primary.main' }} />
@@ -258,87 +207,16 @@ export default function Products() {
         </Alert>
       )}
 
-      <Card sx={{ mb: 3 }}>
-        <CardContent>
-          <Typography variant="h6" sx={{ mb: 2 }}>Search Filters</Typography>
-          <Grid container spacing={2}>
-            <Grid size={{ xs: 12, md: 4 }}>
-              <TextField
-                fullWidth
-                label="Search (Name, SKU, Description)"
-                value={filters.search}
-                onChange={(e) => handleFilterChange('search', e.target.value)}
-                onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
-                size="small"
-              />
-            </Grid>
-            <Grid size={{ xs: 12, md: 3 }}>
-              <FormControl fullWidth size="small">
-                <InputLabel>Category</InputLabel>
-                <Select
-                  value={filters.categoryId || ''}
-                  onChange={(e) => handleFilterChange('categoryId', e.target.value || undefined)}
-                  label="Category"
-                >
-                  <MenuItem value="">All Categories</MenuItem>
-                  {categories.map((cat) => (
-                    <MenuItem key={cat.id} value={cat.id}>
-                      {cat.name}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-            </Grid>
-            <Grid size={{ xs: 12, md: 2 }}>
-              <TextField
-                fullWidth
-                label="Brand"
-                value={filters.brand}
-                onChange={(e) => handleFilterChange('brand', e.target.value)}
-                onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
-                size="small"
-              />
-            </Grid>
-            <Grid size={{ xs: 12, md: 3 }}>
-              <FormControl fullWidth size="small">
-                <InputLabel>Status</InputLabel>
-                <Select
-                  value={filters.isActive === undefined ? '' : filters.isActive.toString()}
-                  onChange={(e) => handleFilterChange('isActive', e.target.value === '' ? undefined : e.target.value === 'true')}
-                  label="Status"
-                >
-                  <MenuItem value="">All</MenuItem>
-                  <MenuItem value="true">Active</MenuItem>
-                  <MenuItem value="false">Inactive</MenuItem>
-                </Select>
-              </FormControl>
-            </Grid>
-            <Grid size={{ xs: 12 }}>
-              <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
-                <Button
-                  variant="contained"
-                  startIcon={<SearchIcon />}
-                  onClick={handleSearch}
-                >
-                  Search
-                </Button>
-                <Button
-                  variant="outlined"
-                  startIcon={<FilterAltOffIcon />}
-                  onClick={handleClearFilters}
-                >
-                  Clear Filters
-                </Button>
-                {hasMoreRecords && (
-                  <Alert severity="warning" sx={{ ml: 2, py: 0.5, flexGrow: 1 }}>
-                    Showing {products.length} of {totalCount} results. Please refine your filters.
-                  </Alert>
-                )}
-              </Box>
-            </Grid>
-          </Grid>
-        </CardContent>
-      </Card>
+      <FilterComponent
+        config={{
+          ...productFilterConfig,
+          onSearch: handleSearch,
+          onClear: handleClearFilters,
+        }}
+        hasMoreRecords={hasMoreRecords}
+        totalCount={totalCount}
+        currentCount={products.length}
+      />
 
       <Card>
         <CardContent>
@@ -362,30 +240,36 @@ export default function Products() {
                   {
                     field: 'sku',
                     headerName: 'SKU',
-                    width: 120,
+                    width: 100,
                   },
                   {
                     field: 'name',
                     headerName: 'Name',
                     flex: 1,
-                    minWidth: 200,
+                    minWidth: 180,
                   },
                   {
                     field: 'categoryName',
                     headerName: 'Category',
-                    width: 150,
+                    width: 120,
                     valueGetter: (value) => value || '-',
                   },
                   {
                     field: 'brand',
                     headerName: 'Brand',
+                    width: 110,
+                    valueGetter: (value) => value || '-',
+                  },
+                  {
+                    field: 'manufacturer',
+                    headerName: 'Manufacturer',
                     width: 130,
                     valueGetter: (value) => value || '-',
                   },
                   {
                     field: 'price',
                     headerName: 'Price',
-                    width: 120,
+                    width: 100,
                     type: 'number',
                     renderCell: (params: GridRenderCellParams) => (
                       <Typography>${params.row.price.toFixed(2)}</Typography>
@@ -394,7 +278,7 @@ export default function Products() {
                   {
                     field: 'stockQuantity',
                     headerName: 'Stock',
-                    width: 100,
+                    width: 80,
                     type: 'number',
                     renderCell: (params: GridRenderCellParams) => (
                       <Chip
@@ -405,9 +289,16 @@ export default function Products() {
                     ),
                   },
                   {
+                    field: 'lowStockThreshold',
+                    headerName: 'Low Stock Threshold',
+                    width: 130,
+                    type: 'number',
+                    valueGetter: (value) => value || 0,
+                  },
+                  {
                     field: 'isActive',
                     headerName: 'Status',
-                    width: 120,
+                    width: 100,
                     type: 'boolean',
                     renderCell: (params: GridRenderCellParams) => (
                       <Chip
@@ -420,7 +311,7 @@ export default function Products() {
                   {
                     field: 'actions',
                     headerName: 'Actions',
-                    width: 120,
+                    width: 100,
                     sortable: false,
                     filterable: false,
                     renderCell: (params: GridRenderCellParams) => (
@@ -446,15 +337,25 @@ export default function Products() {
                 loading={loading}
                 pageSizeOptions={[10, 25, 50, 100]}
                 initialState={{
-                  pagination: { paginationModel: { pageSize: 25 } },
+                  pagination: { paginationModel: { pageSize: 10 } },
                 }}
                 disableColumnFilter
-                autoHeight
                 disableRowSelectionOnClick
+                autoHeight
+                density="compact"
                 sx={{
                   '& .MuiDataGrid-cell': {
                     display: 'flex',
                     alignItems: 'center',
+                    padding: '4px 8px',
+                  },
+                  '& .MuiDataGrid-row': {
+                    minHeight: '36px !important',
+                    maxHeight: '36px !important',
+                  },
+                  '& .MuiDataGrid-columnHeaders': {
+                    minHeight: '40px !important',
+                    maxHeight: '40px !important',
                   },
                 }}
               />
@@ -467,7 +368,6 @@ export default function Products() {
       <ProductForm
         open={showForm}
         editingProduct={editingProduct}
-        categories={categories}
         onClose={handleCloseForm}
         onSubmit={handleFormSubmit}
       />

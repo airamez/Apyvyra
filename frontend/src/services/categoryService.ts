@@ -2,6 +2,8 @@
 import { API_ENDPOINTS } from '../config/api';
 import { authService } from './authService';
 import { apiFetch, apiFetchWithMetadata, type ApiResponse } from '../utils/apiErrorHandler';
+import type { FilterValues } from '../components/FilterComponent';
+import { filtersToQueryParams } from '../utils/filterUtils';
 
 export interface ProductCategory {
   id: number;
@@ -15,24 +17,15 @@ export interface ProductCategory {
   updatedAt: string;
 }
 
-export interface CategoryFilters {
-  isActive?: boolean;
-  parentId?: number;
-  search?: string;
-}
-
 export const categoryService = {
   // Get all categories with query metadata and optional filters
-  async getAll(filters?: CategoryFilters): Promise<ApiResponse<ProductCategory[]>> {
-    const params = new URLSearchParams();
+  async getAll(filters?: FilterValues): Promise<ApiResponse<ProductCategory[]>> {
+    let url = API_ENDPOINTS.PRODUCT_CATEGORY.LIST;
     
-    if (filters) {
-      if (filters.isActive !== undefined) params.append('isActive', filters.isActive.toString());
-      if (filters.parentId) params.append('parentId', filters.parentId.toString());
-      if (filters.search) params.append('search', filters.search);
+    if (filters && filters.length > 0) {
+      const params = filtersToQueryParams(filters);
+      url = `${url}?${params.toString()}`;
     }
-    
-    const url = params.toString() ? `${API_ENDPOINTS.PRODUCT_CATEGORY.LIST}?${params.toString()}` : API_ENDPOINTS.PRODUCT_CATEGORY.LIST;
     
     return apiFetchWithMetadata<ProductCategory[]>(url, {
       method: 'GET',
