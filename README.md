@@ -89,7 +89,7 @@
 * Container
   * Docker
 * AI Assistant Tool
-  * GitHub Copilot
+  * GitHub Copilot, Claude Code and Windsurf
 
 ## Requirements
 
@@ -107,8 +107,17 @@ Welcome and enjoy!!!
 
 
 ## Extra Documentation
-* [Getting Started Guide](GETTING-STARTED.md)
-* [Architecture Guide](ARCHITECTURE.md)
+
+| File | Description |
+|------|-------------|
+| [README.md](README.md) | Main project overview, tech stack, and ERP explanation (this file) |
+| [GETTING-STARTED.md](GETTING-STARTED.md) | Quick setup guide for cloning, running, and working on the project |
+| [ARCHITECTURE.md](ARCHITECTURE.md) | Detailed architecture guide including technology versions, patterns, and best practices |
+| [CODING_GUIDELINES.md](CODING_GUIDELINES.md) | Coding standards and guidelines for frontend and backend development |
+| [paging_vs_filtering.md](paging_vs_filtering.md) | Comparison of traditional server-side paging vs modern filtering approaches |
+| [backend/README.md](backend/README.md) | Backend setup and development details |
+| [frontend/README.md](frontend/README.md) | Frontend setup and development details |
+| [devops/README.md](devops/README.md) | DevOps console tool documentation and database management |
 
 ## Classes
 

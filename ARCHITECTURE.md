@@ -2,6 +2,17 @@
 
 # Architecture Guide
 
+## Project Architecture Overview
+
+Apyvyra is a full-stack ERP application built with modern web technologies. The architecture follows a layered approach with clear separation of concerns:
+
+- **Frontend**: React SPA with TypeScript, Material-UI, and Vite
+- **Backend**: ASP.NET Core Web API with C#, Entity Framework Core
+- **Database**: PostgreSQL with proper schema design
+- **DevOps**: Docker containerization and automated database tools
+
+The application uses RESTful APIs for communication, JWT for authentication, and follows modern development practices including audit trails, error handling, and responsive design.
+
 ## Technology Stack Versions & Best Practices
 
 > **CRITICAL: Always Use Latest Versions** - This project uses the latest stable versions of all technologies and APIs. When making changes or adding features, always verify and use the most current versions available. AI agents and developers often default to outdated versions without checking current project dependencies.

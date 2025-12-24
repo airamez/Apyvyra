@@ -61,6 +61,19 @@ This command loads realistic test data into an existing database schema.
 
 **Note:** This command should be run AFTER `db-init` to populate the database with test data.
 
+## Extra Documentation
+
+| File | Description |
+|------|-------------|
+| [../README.md](../README.md) | Main project overview, tech stack, and ERP explanation |
+| [../GETTING-STARTED.md](../GETTING-STARTED.md) | Quick setup guide for cloning, running, and working on the project |
+| [../ARCHITECTURE.md](../ARCHITECTURE.md) | Detailed architecture guide including technology versions, patterns, and best practices |
+| [../CODING_GUIDELINES.md](../CODING_GUIDELINES.md) | Coding standards and guidelines for frontend and backend development |
+| [../paging_vs_filtering.md](../paging_vs_filtering.md) | Comparison of traditional server-side paging vs modern filtering approaches |
+| [README.md](README.md) | DevOps console tool documentation (this file) |
+| [../backend/README.md](../backend/README.md) | Backend setup and development details |
+| [../frontend/README.md](../frontend/README.md) | Frontend setup and development details |
+
 ## Notes
 - This tool uses ADO.NET directly (Npgsql) for flexibility.
 - No Entity Framework dependency is required.
