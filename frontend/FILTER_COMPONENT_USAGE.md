@@ -11,6 +11,31 @@ The `FilterComponent` is a reusable, configurable component for building dynamic
 - **Inline Warning**: Shows warning when more records exist
 - **Keyboard Support**: Press Enter in any field to trigger search
 
+## Record Limiting and Grid Integration
+
+The FilterComponent is designed to work with the application's modern filtering approach, which limits query results to prevent performance issues with large datasets.
+
+### Backend Record Limits
+
+- **Default Limit**: 100 records per query (configurable in `backend/appsettings.json` under `QuerySettings.MAX_RECORDS_QUERIES_COUNT`)
+- **Headers**: Backend automatically adds `X-Total-Count` and `X-Has-More-Records` headers
+- **Purpose**: Prevents UI slowdowns and encourages users to refine filters for better results
+
+### Integration with Data Grids
+
+The FilterComponent seamlessly integrates with Material-UI's DataGrid or similar grid components:
+
+```typescript
+// Response includes metadata from backend headers
+const response = await productService.getAll(filters);
+setProducts(response.data);                    // Limited to 100 records
+setHasMoreRecords(response.metadata.hasMoreRecords); // true if > 100 total
+setTotalCount(response.metadata.totalCount);   // Total matching records
+setCurrentCount(response.data.length);         // Records actually displayed
+```
+
+When `hasMoreRecords` is true, the FilterComponent displays a warning message encouraging users to refine their filters.
+
 ## UI Patterns
 
 ### Always Visible Labels
@@ -348,6 +373,7 @@ export default function Products() {
         Products
       </Typography>
 
+      {/* Filter Component with record limit awareness */}
       <FilterComponent
         config={{
           ...productFilterConfig,
@@ -363,14 +389,18 @@ export default function Products() {
         <CardContent>
           <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
             <Typography variant="h6">Product Inventory</Typography>
-            <Chip label={`${products.length} products`} color="primary" />
+            <Chip 
+              label={`${products.length}${hasMoreRecords ? '+' : ''} of ${totalCount} products`} 
+              color={hasMoreRecords ? "warning" : "primary"} 
+            />
           </Box>
           
+          {/* DataGrid displays the filtered results */}
           <DataGrid
             rows={products}
             columns={columns}
             loading={loading}
-            disableColumnFilter
+            disableColumnFilter  // Filtering handled by FilterComponent
             pageSizeOptions={[10, 25, 50, 100]}
             initialState={{ pagination: { paginationModel: { pageSize: 25 } } }}
             autoHeight
@@ -382,6 +412,21 @@ export default function Products() {
 }
 ```
 
+### How Record Limits Work in Practice
+
+1. **User applies filters** → FilterComponent builds query parameters
+2. **Backend processes filters** → Applies all filters to database query
+3. **Backend limits results** → Returns max 100 records + metadata
+4. **Frontend displays results** → Shows data in grid + warning if more records exist
+5. **User refines filters** → Process repeats with more specific criteria
+
+**Example Flow:**
+- User searches for "fruit" → Backend finds 250 matching products
+- Frontend receives 100 products + `hasMoreRecords: true` + `totalCount: 250`
+- FilterComponent shows: "More than 100 results found. Please refine your filter."
+- Chip shows: "100+ of 250 products"
+- User adds category filter → Now shows 45 of 45 products
+
 ## Benefits
 
 1. **Reusable**: Same component for all pages with grids
@@ -390,7 +435,8 @@ export default function Products() {
 4. **Flexible**: Supports all common filter scenarios
 5. **Backend-Integrated**: Automatic query parameter generation
 6. **User-Friendly**: Inline warnings, keyboard shortcuts, clear UI
-7. **Maintainable**: Centralized filter logic and configuration
+7. **Performance-Aware**: Works with backend record limits to prevent UI slowdowns
+8. **Maintainable**: Centralized filter logic and configuration
 
 ## Migration from Old Filter Forms
 
@@ -411,3 +457,22 @@ const [filters, setFilters] = useState({ search: '', categoryId: undefined });
 ```
 
 Reduces code by ~80% and makes filters consistent across all pages!
+
+## Configuration Reference
+
+### Record Limit Configuration
+
+The maximum records returned is configured in `backend/appsettings.json`:
+
+```json
+{
+  "QuerySettings": {
+    "MAX_RECORDS_QUERIES_COUNT": 100
+  }
+}
+```
+
+To change the limit:
+1. Update the value in `appsettings.json`
+2. Restart the backend service
+3. The FilterComponent will automatically adapt to show appropriate warnings
