@@ -63,8 +63,9 @@ public class ProductController : BaseApiController
         [FromQuery] int? categoryId,
         [FromQuery] string? brand,
         [FromQuery] bool? isActive,
-        [FromQuery] int page = 1,
-        [FromQuery] int pageSize = 20)
+        [FromQuery] string? search,
+        [FromQuery] string? sku,
+        [FromQuery] string? manufacturer)
     {
         try
         {
@@ -78,36 +79,40 @@ public class ProductController : BaseApiController
                 query = query.Where(p => p.CategoryId == categoryId);
 
             if (!string.IsNullOrEmpty(brand))
-                query = query.Where(p => p.Brand == brand);
+                query = query.Where(p => p.Brand != null && p.Brand.Contains(brand));
 
             if (isActive.HasValue)
                 query = query.Where(p => p.IsActive == isActive);
 
-            // Pagination only if more than 1000
-            var total = await query.CountAsync();
-            List<Product> products;
-            if (total > 1000)
+            // Search filter - searches across name, description, SKU
+            if (!string.IsNullOrEmpty(search))
             {
-                products = await query
-                    .Skip((page - 1) * pageSize)
-                    .Take(pageSize)
-                    .ToListAsync();
-                Response.Headers.Append("X-Page", page.ToString());
-                Response.Headers.Append("X-Page-Size", pageSize.ToString());
-            }
-            else
-            {
-                products = await query.ToListAsync();
+                var searchLower = search.ToLower();
+                query = query.Where(p => 
+                    (p.Name != null && p.Name.ToLower().Contains(searchLower)) ||
+                    (p.Description != null && p.Description.ToLower().Contains(searchLower)) ||
+                    (p.Sku != null && p.Sku.ToLower().Contains(searchLower)));
             }
 
+            // SKU exact match filter
+            if (!string.IsNullOrEmpty(sku))
+                query = query.Where(p => p.Sku != null && p.Sku.Contains(sku));
+
+            // Manufacturer filter
+            if (!string.IsNullOrEmpty(manufacturer))
+                query = query.Where(p => p.Manufacturer != null && p.Manufacturer.Contains(manufacturer));
+
+            // Use modern filtering approach - limit results to MAX_RECORDS_QUERIES_COUNT
+            // Headers X-Has-More-Records and X-Total-Count will be set automatically
+            var products = await ExecuteLimitedQueryAsync(query);
+
             var response = products.Select(p => MapToResponse(p)).ToList();
-            Response.Headers.Append("X-Total-Count", total.ToString());
             return Ok(response);
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error retrieving products");
-            return StatusCode(500, new { message = "An error occurred while retrieving products" });
+            return InternalServerErrorWithError("An error occurred while retrieving products");
         }
     }
 

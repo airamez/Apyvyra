@@ -74,7 +74,7 @@
 
 * IDE/Code Editor
   * Visual Studio CODE
-* Pragramming Languages
+* Programming Languages
   * TypeScript
   * C#
   * SQL

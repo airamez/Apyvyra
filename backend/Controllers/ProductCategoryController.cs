@@ -21,7 +21,8 @@ public class ProductCategoryController : BaseApiController
     [HttpGet]
     public async Task<ActionResult<IEnumerable<ProductCategoryResponse>>> GetCategories(
         [FromQuery] bool? isActive,
-        [FromQuery] int? parentId)
+        [FromQuery] int? parentId,
+        [FromQuery] string? search)
     {
         try
         {
@@ -36,7 +37,18 @@ public class ProductCategoryController : BaseApiController
             if (parentId.HasValue)
                 query = query.Where(c => c.ParentCategoryId == parentId);
 
-            var categories = await query.ToListAsync();
+            // Search filter - searches across name and description
+            if (!string.IsNullOrEmpty(search))
+            {
+                var searchLower = search.ToLower();
+                query = query.Where(c => 
+                    (c.Name != null && c.Name.ToLower().Contains(searchLower)) ||
+                    (c.Description != null && c.Description.ToLower().Contains(searchLower)));
+            }
+
+            // Use modern filtering approach - limit results to MAX_RECORDS_QUERIES_COUNT
+            // Headers X-Has-More-Records and X-Total-Count will be set automatically
+            var categories = await ExecuteLimitedQueryAsync(query);
             var response = categories.Select(c => MapToResponse(c)).ToList();
 
             return Ok(response);

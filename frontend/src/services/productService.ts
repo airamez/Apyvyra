@@ -1,7 +1,7 @@
 // Product service for handling product-related operations
 import { API_ENDPOINTS } from '../config/api';
 import { authService } from './authService';
-import { apiFetch } from '../utils/apiErrorHandler';
+import { apiFetch, apiFetchWithMetadata, type ApiResponse } from '../utils/apiErrorHandler';
 
 export interface Product {
   id: number;
@@ -53,10 +53,32 @@ export interface CreateProductData {
   userId?: number;
 }
 
+export interface ProductFilters {
+  categoryId?: number;
+  brand?: string;
+  isActive?: boolean;
+  search?: string;
+  sku?: string;
+  manufacturer?: string;
+}
+
 export const productService = {
-  // Get all products
-  async getAll(): Promise<Product[]> {
-    return apiFetch<Product[]>(API_ENDPOINTS.PRODUCT.LIST, {
+  // Get all products with query metadata and optional filters
+  async getAll(filters?: ProductFilters): Promise<ApiResponse<Product[]>> {
+    const params = new URLSearchParams();
+    
+    if (filters) {
+      if (filters.categoryId) params.append('categoryId', filters.categoryId.toString());
+      if (filters.brand) params.append('brand', filters.brand);
+      if (filters.isActive !== undefined) params.append('isActive', filters.isActive.toString());
+      if (filters.search) params.append('search', filters.search);
+      if (filters.sku) params.append('sku', filters.sku);
+      if (filters.manufacturer) params.append('manufacturer', filters.manufacturer);
+    }
+    
+    const url = params.toString() ? `${API_ENDPOINTS.PRODUCT.LIST}?${params.toString()}` : API_ENDPOINTS.PRODUCT.LIST;
+    
+    return apiFetchWithMetadata<Product[]>(url, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',

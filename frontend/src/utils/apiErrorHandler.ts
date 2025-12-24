@@ -9,6 +9,16 @@ export interface ApiError {
   statusCode: number;
 }
 
+export interface QueryMetadata {
+  hasMoreRecords: boolean;
+  totalCount: number;
+}
+
+export interface ApiResponse<T> {
+  data: T;
+  metadata: QueryMetadata;
+}
+
 /**
  * Checks response headers for success status and error messages
  * @param response - Fetch Response object
@@ -64,6 +74,21 @@ export async function handleApiResponse(response: Response): Promise<Response> {
 }
 
 /**
+ * Extracts query metadata from response headers
+ * @param response - Fetch Response object
+ * @returns QueryMetadata object with hasMoreRecords and totalCount
+ */
+export function extractQueryMetadata(response: Response): QueryMetadata {
+  const hasMoreRecordsHeader = response.headers.get('X-Has-More-Records');
+  const totalCountHeader = response.headers.get('X-Total-Count');
+  
+  return {
+    hasMoreRecords: hasMoreRecordsHeader === 'true',
+    totalCount: totalCountHeader ? parseInt(totalCountHeader, 10) : 0
+  };
+}
+
+/**
  * Wrapper for fetch that automatically handles errors
  * @param url - Request URL
  * @param options - Fetch options
@@ -80,6 +105,28 @@ export async function apiFetch<T = any>(url: string, options?: RequestInit): Pro
   }
   
   return response.json();
+}
+
+/**
+ * Wrapper for fetch that returns data with query metadata
+ * @param url - Request URL
+ * @param options - Fetch options
+ * @returns ApiResponse with data and metadata
+ * @throws ApiError if request failed
+ */
+export async function apiFetchWithMetadata<T = any>(url: string, options?: RequestInit): Promise<ApiResponse<T>> {
+  const response = await fetch(url, options);
+  await handleApiResponse(response);
+  
+  const metadata = extractQueryMetadata(response);
+  
+  // If response has no content (204), return null data
+  if (response.status === 204) {
+    return { data: null as T, metadata };
+  }
+  
+  const data = await response.json();
+  return { data, metadata };
 }
 
 /**

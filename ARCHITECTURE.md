@@ -69,11 +69,6 @@ npm outdated
 dotnet list package --outdated
 ```
 
-#### Breaking Changes Awareness:
-- **Material-UI v7**: Grid API changed from `item` prop to `size` prop
-- **React 19**: New features and potential breaking changes
-- **.NET 10**: Latest features and performance improvements
-
 ### API Version Management
 
 #### REST API Versioning:
@@ -173,13 +168,248 @@ Price and cost fields use `DECIMAL(19, 4)` precision:
 
 **Fields Using DECIMAL(19, 4):**
 - `price` - Product selling price
-- `cost_price` - Product cost/purchase price  
-- `compare_at_price` - Original/compare price for sales
+- `cost_price` - Product cost/purchase price
 
 **Benefits:**
 - Eliminates floating-point arithmetic errors (e.g., 0.1 + 0.2 = 0.3 exactly)
 - Supports micro-payments and complex pricing rules
 - Enables accurate financial reporting and reconciliation
+
+## Query Limiting and Modern Filtering Approach
+
+Following the guidelines from `paging_vs_filtering.md`, the backend implements a modern filtering approach instead of traditional server-side pagination.
+
+### Configuration
+
+**Setting**: `MAX_RECORDS_QUERIES_COUNT` in `appsettings.json`
+```json
+{
+  "QuerySettings": {
+    "MAX_RECORDS_QUERIES_COUNT": 100
+  }
+}
+```
+
+This setting defines the maximum number of records returned from any backend query. Default value: **100 records**.
+
+### Response Headers
+
+All list endpoints automatically include these headers:
+
+- **`X-Total-Count`**: Total number of records matching the filter (before limiting)
+- **`X-Has-More-Records`**: `true` if there are more records than MAX_RECORDS_QUERIES_COUNT, `false` otherwise
+
+### Backend Implementation
+
+#### BaseApiController Helper Method
+
+All controllers inherit from `BaseApiController` which provides the `ExecuteLimitedQueryAsync<T>()` method:
+
+```csharp
+// Automatically limits results and sets headers
+var products = await ExecuteLimitedQueryAsync(query);
+```
+
+This method:
+1. Counts total matching records
+2. Returns only up to MAX_RECORDS_QUERIES_COUNT results
+3. Sets `X-Total-Count` header with total count
+4. Sets `X-Has-More-Records` header if more records exist
+
+#### Example Controller Usage
+
+```csharp
+[HttpGet]
+public async Task<ActionResult<IEnumerable<ProductResponse>>> GetProducts(
+    [FromQuery] int? categoryId,
+    [FromQuery] string? brand)
+{
+    var query = _context.Products
+        .Include(p => p.Category)
+        .AsQueryable();
+
+    // Apply filters
+    if (categoryId.HasValue)
+        query = query.Where(p => p.CategoryId == categoryId);
+
+    if (!string.IsNullOrEmpty(brand))
+        query = query.Where(p => p.Brand == brand);
+
+    // Limit results automatically
+    var products = await ExecuteLimitedQueryAsync(query);
+    
+    return Ok(products.Select(p => MapToResponse(p)));
+}
+```
+
+### Server-Side Filtering
+
+All list endpoints support server-side filtering via query parameters. Filters are applied **before** the `MAX_RECORDS_QUERIES_COUNT` limit.
+
+**Products Endpoint** (`GET /api/product`):
+- `categoryId` (int) - Filter by category ID
+- `brand` (string) - Filter by brand (partial match)
+- `manufacturer` (string) - Filter by manufacturer (partial match)
+- `isActive` (bool) - Filter by active status
+- `search` (string) - Search across name, description, and SKU (partial match)
+- `sku` (string) - Filter by SKU (partial match)
+
+**Categories Endpoint** (`GET /api/product_category`):
+- `isActive` (bool) - Filter by active status
+- `parentId` (int) - Filter by parent category ID
+- `search` (string) - Search across name and description (partial match)
+
+**Example Requests**:
+```
+GET /api/product?search=nike&categoryId=5&isActive=true
+GET /api/product_category?search=electronics&isActive=true
+```
+
+**Backend Implementation**:
+```csharp
+[HttpGet]
+public async Task<ActionResult<IEnumerable<ProductResponse>>> GetProducts(
+    [FromQuery] int? categoryId,
+    [FromQuery] string? brand,
+    [FromQuery] bool? isActive,
+    [FromQuery] string? search)
+{
+    var query = _context.Products.AsQueryable();
+    
+    // Apply filters BEFORE limiting
+    if (categoryId.HasValue)
+        query = query.Where(p => p.CategoryId == categoryId);
+    
+    if (!string.IsNullOrEmpty(search))
+        query = query.Where(p => p.Name.ToLower().Contains(search.ToLower()));
+    
+    // Then apply limit
+    var products = await ExecuteLimitedQueryAsync(query);
+    return Ok(products);
+}
+```
+
+### Frontend Handling
+
+The frontend automatically handles query metadata through the `apiFetchWithMetadata()` utility:
+
+**Implementation**:
+```typescript
+// Service layer returns data with metadata
+const response = await productService.getAll();
+setProducts(response.data);
+setHasMoreRecords(response.metadata.hasMoreRecords);
+setTotalCount(response.metadata.totalCount);
+
+// Display warning when more records exist
+{hasMoreRecords && (
+  <Alert severity="warning" sx={{ mb: 3 }}>
+    Showing {products.length} of {totalCount} results. 
+    Please refine your filters to narrow down the search for better results.
+  </Alert>
+)}
+```
+
+**User Experience**:
+1. **Check `X-Has-More-Records` header** after loading data
+2. **Display a warning** if `true`: "Showing {count} of {X-Total-Count} results. Please refine your filters to narrow down the search."
+3. **Perform sorting, paging, and searching** on the client-side with the loaded data
+4. **Encourage users** to use more specific filters for better results
+
+**Components Updated**:
+- `Products.tsx` - Shows warning when product list is limited, includes filter form with Search button
+- `Categories.tsx` - Shows warning when category list is limited, includes filter form with Search button
+
+**Frontend Filtering Flow**:
+1. User enters filter criteria in the filter form
+2. User clicks "Search" button (or presses Enter)
+3. Frontend sends filters as query parameters to backend
+4. Backend applies filters and returns limited results with metadata
+5. Frontend displays results and shows warning if more records exist
+6. User can refine filters to narrow down results
+
+**Service Layer Example**:
+```typescript
+export interface ProductFilters {
+  categoryId?: number;
+  brand?: string;
+  isActive?: boolean;
+  search?: string;
+}
+
+async getAll(filters?: ProductFilters): Promise<ApiResponse<Product[]>> {
+  const params = new URLSearchParams();
+  if (filters?.categoryId) params.append('categoryId', filters.categoryId.toString());
+  if (filters?.search) params.append('search', filters.search);
+  
+  const url = params.toString() 
+    ? `${API_ENDPOINTS.PRODUCT.LIST}?${params.toString()}` 
+    : API_ENDPOINTS.PRODUCT.LIST;
+  
+  return apiFetchWithMetadata<Product[]>(url, { ... });
+}
+```
+
+**Component Example**:
+```typescript
+const [filters, setFilters] = useState<ProductFilters>({ search: '', categoryId: undefined });
+
+const handleSearch = () => {
+  const cleanFilters: ProductFilters = {};
+  if (filters.search?.trim()) cleanFilters.search = filters.search.trim();
+  if (filters.categoryId) cleanFilters.categoryId = filters.categoryId;
+  
+  loadProducts(cleanFilters);
+};
+
+// Filter form UI
+<TextField
+  label="Search"
+  value={filters.search}
+  onChange={(e) => setFilters(prev => ({ ...prev, search: e.target.value }))}
+  onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
+/>
+<Button onClick={handleSearch}>Search</Button>
+```
+
+### Benefits
+
+- **Performance**: Only top N records returned, reducing network and memory usage
+- **User Experience**: Fast, responsive UI with immediate feedback
+- **Scalability**: Reduces backend load by avoiding large result sets
+- **Encourages Better Filtering**: Users learn to use precise filters
+
+### Migration from Traditional Paging
+
+**Old approach** (removed):
+```csharp
+// ❌ Traditional pagination with page/pageSize parameters
+[HttpGet]
+public async Task<ActionResult> GetProducts(
+    [FromQuery] int page = 1,
+    [FromQuery] int pageSize = 20)
+{
+    var products = await query
+        .Skip((page - 1) * pageSize)
+        .Take(pageSize)
+        .ToListAsync();
+}
+```
+
+**New approach** (implemented):
+```csharp
+// ✅ Modern filtering with automatic limiting
+[HttpGet]
+public async Task<ActionResult> GetProducts([FromQuery] int? categoryId)
+{
+    var query = _context.Products.AsQueryable();
+    if (categoryId.HasValue)
+        query = query.Where(p => p.CategoryId == categoryId);
+    
+    var products = await ExecuteLimitedQueryAsync(query);
+    return Ok(products);
+}
+```
 
 ## Frontend API Configuration
 
@@ -194,14 +424,18 @@ if (!API_BASE_URL) {
 
 export const API_ENDPOINTS = {
   BASE_URL: API_BASE_URL,
-  USERS: {
-    REGISTER: `${API_BASE_URL}/api/users`,
-    LOGIN: `${API_BASE_URL}/api/users/login`,
-    ME: `${API_BASE_URL}/api/users/me`,
+  APP_USER: {
+    REGISTER: `${API_BASE_URL}/api/app_user`,
+    LOGIN: `${API_BASE_URL}/api/app_user/login`,
+    ME: `${API_BASE_URL}/api/app_user/me`,
   },
-  PRODUCTS: {
-    LIST: `${API_BASE_URL}/api/products`,
-    DETAIL: (id: number) => `${API_BASE_URL}/api/products/${id}`,
+  PRODUCT: {
+    LIST: `${API_BASE_URL}/api/product`,
+    DETAIL: (id: number) => `${API_BASE_URL}/api/product/${id}`,
+  },
+  PRODUCT_CATEGORY: {
+    LIST: `${API_BASE_URL}/api/product_category`,
+    DETAIL: (id: number) => `${API_BASE_URL}/api/product_category/${id}`,
   },
 };
 ```

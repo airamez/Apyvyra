@@ -1,14 +1,26 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System.Text.Json;
 
 namespace backend.Controllers;
 
 /// <summary>
-/// Base controller with standardized error handling
+/// Base controller with standardized error handling and query limiting
 /// </summary>
 [ApiController]
 public abstract class BaseApiController : ControllerBase
 {
+    /// <summary>
+    /// Gets the maximum number of records to return from queries (from appsettings.json)
+    /// </summary>
+    protected int MaxRecordsCount
+    {
+        get
+        {
+            var config = HttpContext.RequestServices.GetService<IConfiguration>();
+            return config?.GetValue<int>("QuerySettings:MAX_RECORDS_QUERIES_COUNT") ?? 100;
+        }
+    }
     /// <summary>
     /// Returns a BadRequest with error messages in both body and headers
     /// </summary>
@@ -72,5 +84,47 @@ public abstract class BaseApiController : ControllerBase
     private void AddErrorsToContext(List<string> errors)
     {
         HttpContext.Items["Errors"] = errors;
+    }
+
+    /// <summary>
+    /// Executes a query with automatic limiting based on MAX_RECORDS_QUERIES_COUNT.
+    /// Sets X-Has-More-Records and X-Total-Count headers if there are more records than the limit.
+    /// </summary>
+    /// <typeparam name="T">Entity type</typeparam>
+    /// <param name="query">The IQueryable to execute</param>
+    /// <returns>List of results limited by MAX_RECORDS_QUERIES_COUNT</returns>
+    protected async Task<List<T>> ExecuteLimitedQueryAsync<T>(IQueryable<T> query)
+    {
+        var maxRecords = MaxRecordsCount;
+        
+        // Get total count
+        var totalCount = await query.CountAsync();
+        
+        // Take only up to maxRecords + 1 to check if there are more
+        var results = await query.Take(maxRecords + 1).ToListAsync();
+        
+        // Check if there are more records than the limit
+        var hasMoreRecords = results.Count > maxRecords;
+        
+        // If there are more, remove the extra record
+        if (hasMoreRecords)
+        {
+            results = results.Take(maxRecords).ToList();
+        }
+        
+        // Set context items for middleware to add headers
+        HttpContext.Items["HasMoreRecords"] = hasMoreRecords;
+        HttpContext.Items["TotalCount"] = totalCount;
+        
+        return results;
+    }
+
+    /// <summary>
+    /// Sets query metadata headers (total count and has more records flag)
+    /// </summary>
+    protected void SetQueryMetadata(int totalCount, bool hasMoreRecords)
+    {
+        HttpContext.Items["TotalCount"] = totalCount;
+        HttpContext.Items["HasMoreRecords"] = hasMoreRecords;
     }
 }

@@ -1,11 +1,13 @@
 import { useState, useEffect } from 'react';
 import { 
-  Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField, Typography, IconButton, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Tooltip 
+  Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField, Typography, IconButton, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Tooltip, Alert, Card, CardContent 
 } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
-import { categoryService } from '../services/categoryService';
+import SearchIcon from '@mui/icons-material/Search';
+import FilterAltOffIcon from '@mui/icons-material/FilterAltOff';
+import { categoryService, type CategoryFilters } from '../services/categoryService';
 
 interface ProductCategory {
   id: number;
@@ -20,14 +22,38 @@ export default function Categories() {
   const [form, setForm] = useState({ name: '', description: '' });
   const [error, setError] = useState('');
   const [deleteDialog, setDeleteDialog] = useState<{ open: boolean; id: number | null }>({ open: false, id: null });
+  const [hasMoreRecords, setHasMoreRecords] = useState(false);
+  const [totalCount, setTotalCount] = useState(0);
+  const [filters, setFilters] = useState<CategoryFilters>({
+    search: '',
+    isActive: undefined,
+  });
 
-  const loadCategories = async () => {
+  const loadCategories = async (appliedFilters?: CategoryFilters) => {
     try {
-      const data = await categoryService.getAll();
-      setCategories(data);
+      const response = await categoryService.getAll(appliedFilters);
+      setCategories(response.data);
+      setHasMoreRecords(response.metadata.hasMoreRecords);
+      setTotalCount(response.metadata.totalCount);
     } catch (err) {
       setError('Failed to load categories');
     }
+  };
+
+  const handleSearch = () => {
+    const cleanFilters: CategoryFilters = {};
+    if (filters.search?.trim()) cleanFilters.search = filters.search.trim();
+    if (filters.isActive !== undefined) cleanFilters.isActive = filters.isActive;
+    
+    loadCategories(cleanFilters);
+  };
+
+  const handleClearFilters = () => {
+    setFilters({
+      search: '',
+      isActive: undefined,
+    });
+    loadCategories();
   };
 
   useEffect(() => {
@@ -92,6 +118,43 @@ export default function Categories() {
         <Typography variant="h5">Product Categories</Typography>
         <Button variant="contained" startIcon={<AddIcon />} onClick={() => handleOpen()}>Add Category</Button>
       </Box>
+      
+      {hasMoreRecords && (
+        <Alert severity="warning" sx={{ mb: 2 }}>
+          Showing {categories.length} of {totalCount} results. Please refine your filters to narrow down the search for better results.
+        </Alert>
+      )}
+      
+      <Card sx={{ mb: 2 }}>
+        <CardContent>
+          <Typography variant="h6" sx={{ mb: 2 }}>Search Filters</Typography>
+          <Box sx={{ display: 'flex', gap: 2, alignItems: 'flex-end' }}>
+            <TextField
+              label="Search (Name, Description)"
+              value={filters.search}
+              onChange={(e) => setFilters(prev => ({ ...prev, search: e.target.value }))}
+              onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
+              size="small"
+              sx={{ flexGrow: 1 }}
+            />
+            <Button
+              variant="contained"
+              startIcon={<SearchIcon />}
+              onClick={handleSearch}
+            >
+              Search
+            </Button>
+            <Button
+              variant="outlined"
+              startIcon={<FilterAltOffIcon />}
+              onClick={handleClearFilters}
+            >
+              Clear
+            </Button>
+          </Box>
+        </CardContent>
+      </Card>
+      
       <TableContainer component={Paper}>
         <Table>
           <TableHead>

@@ -55,7 +55,7 @@ builder.Services.AddCors(options =>
               .AllowAnyHeader()
               .AllowAnyMethod()
               .AllowCredentials()
-              .WithExposedHeaders("X-Success", "X-Errors");
+              .WithExposedHeaders("X-Success", "X-Errors", "X-Has-More-Records", "X-Total-Count");
     });
 });
 

@@ -3,14 +3,14 @@
 ## Technology Stack
 - **Backend**: C# / ASP.NET Core
 - **Frontend**: React + TypeScript + Vite
-- **UI Library**: Material-UI (MUI) v5
+- **UI Library**: Material-UI (MUI) v7
 - **Database**: PostgreSQL
 
 ## Frontend Development Rules
 
 ### MUI Versioning & API Usage
 - **ALWAYS** use the latest stable version of Material-UI (MUI) components and APIs
-- Follow official MUI migration guides for breaking changes (e.g., Grid v2: use `columns`, `columnSpacing`, `rowSpacing`, and `gridColumn` instead of `item`, `xs`, `md`)
+- Follow official MUI migration guides for breaking changes (e.g., Grid v7: use `size` prop instead of deprecated `item` prop - `<Grid size={{ xs: 12, md: 6 }}>` instead of `<Grid item xs={12} md={6}>`)
 - Remove deprecated props and update code to match the latest MUI documentation
 - Regularly review https://mui.com/material-ui/migration/ for updates
 
@@ -65,8 +65,8 @@
 
 ### Authentication & Authorization
 - **ALL endpoints require authentication EXCEPT:**
-  - `POST /api/users` (Register)
-  - `POST /api/users/login` (Login)
+  - `POST /api/app_user` (Register)
+  - `POST /api/app_user/login` (Login)
 - Use `[Authorize]` attribute on controllers/actions
 - Validate JWT tokens on all protected endpoints
 - Return 401 Unauthorized for missing/invalid tokens
@@ -120,6 +120,8 @@ updated_by INTEGER REFERENCES users(id)
 - Log errors with ILogger
 - Return DTOs, not raw entities (hide sensitive data like passwords)
 - Populate auditing fields (created_by, updated_by) from authenticated user
+- **Use `ExecuteLimitedQueryAsync()` for all list queries** to enforce MAX_RECORDS_QUERIES_COUNT limit
+- **Do NOT use traditional pagination** (page/pageSize parameters) - use modern filtering approach instead
 
 ### ORM
 - **ALWAYS use Entity Framework Core** for all database access and migrations
@@ -127,6 +129,31 @@ updated_by INTEGER REFERENCES users(id)
 - Define all models as C# classes with proper attributes
 - Use DbContext for all data access
 - Use migrations to manage schema changes
+
+### Query Limiting (Modern Filtering)
+- **All list endpoints** must use `ExecuteLimitedQueryAsync()` from `BaseApiController`
+- **No pagination parameters** (page, pageSize) - use filtering instead
+- **Example**:
+  ```csharp
+  [HttpGet]
+  public async Task<ActionResult<IEnumerable<ProductResponse>>> GetProducts(
+      [FromQuery] int? categoryId,
+      [FromQuery] string? brand)
+  {
+      var query = _context.Products.AsQueryable();
+      
+      // Apply filters
+      if (categoryId.HasValue)
+          query = query.Where(p => p.CategoryId == categoryId);
+      
+      // Automatically limits to MAX_RECORDS_QUERIES_COUNT and sets headers
+      var products = await ExecuteLimitedQueryAsync(query);
+      
+      return Ok(products.Select(p => MapToResponse(p)));
+  }
+  ```
+- **Headers set automatically**: `X-Has-More-Records`, `X-Total-Count`
+- **Frontend responsibility**: Show warning if more records exist, encourage better filtering
 
 ## Code Quality
 

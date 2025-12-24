@@ -13,15 +13,22 @@ import {
   Dialog,
   DialogTitle,
   DialogContent,
-  DialogActions
+  DialogActions,
+  TextField,
+  Select,
+  MenuItem,
+  FormControl,
+  InputLabel,
+  Grid
 } from '@mui/material';
-import { DataGrid, type GridRenderCellParams, GridToolbar, useGridApiRef } from '@mui/x-data-grid';
+import { DataGrid, type GridRenderCellParams } from '@mui/x-data-grid';
 import InventoryIcon from '@mui/icons-material/Inventory';
 import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import FilterAltOffIcon from '@mui/icons-material/FilterAltOff';
-import { productService, type ProductUrl, type CreateProductData, type UrlType } from '../services/productService';
+import SearchIcon from '@mui/icons-material/Search';
+import { productService, type ProductUrl, type CreateProductData, type UrlType, type ProductFilters } from '../services/productService';
 import { categoryService } from '../services/categoryService';
 import ProductForm from './ProductForm';
 
@@ -60,9 +67,15 @@ export default function Products() {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [productToDelete, setProductToDelete] = useState<Product | null>(null);
   const [showForm, setShowForm] = useState(false);
-  const [filteredRowCount, setFilteredRowCount] = useState(0);
-  const [activeFilters, setActiveFilters] = useState<any[]>([]);
-  const apiRef = useGridApiRef();
+  const [hasMoreRecords, setHasMoreRecords] = useState(false);
+  const [totalCount, setTotalCount] = useState(0);
+  const [filters, setFilters] = useState<ProductFilters>({
+    search: '',
+    categoryId: undefined,
+    brand: '',
+    manufacturer: '',
+    isActive: undefined,
+  });
 
   useEffect(() => {
     loadProducts();
@@ -71,25 +84,54 @@ export default function Products() {
 
   const loadCategories = async () => {
     try {
-      const data = await categoryService.getAll();
-      setCategories(data);
+      const response = await categoryService.getAll();
+      setCategories(response.data);
     } catch (err) {
       console.error('Error loading categories:', err);
     }
   };
 
-  const loadProducts = async () => {
+  const loadProducts = async (appliedFilters?: ProductFilters) => {
     try {
       setLoading(true);
       setError(null);
-      const data = await productService.getAll();
-      setProducts(data);
+      const response = await productService.getAll(appliedFilters);
+      setProducts(response.data);
+      setHasMoreRecords(response.metadata.hasMoreRecords);
+      setTotalCount(response.metadata.totalCount);
     } catch (err) {
       console.error('Error loading products:', err);
       setError('Failed to load products. Please try again.');
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleSearch = () => {
+    // Clean up filters - remove empty strings and undefined values
+    const cleanFilters: ProductFilters = {};
+    if (filters.search?.trim()) cleanFilters.search = filters.search.trim();
+    if (filters.categoryId) cleanFilters.categoryId = filters.categoryId;
+    if (filters.brand?.trim()) cleanFilters.brand = filters.brand.trim();
+    if (filters.manufacturer?.trim()) cleanFilters.manufacturer = filters.manufacturer.trim();
+    if (filters.isActive !== undefined) cleanFilters.isActive = filters.isActive;
+    
+    loadProducts(cleanFilters);
+  };
+
+  const handleClearFilters = () => {
+    setFilters({
+      search: '',
+      categoryId: undefined,
+      brand: '',
+      manufacturer: '',
+      isActive: undefined,
+    });
+    loadProducts();
+  };
+
+  const handleFilterChange = (field: keyof ProductFilters, value: any) => {
+    setFilters(prev => ({ ...prev, [field]: value }));
   };
 
   const handleDeleteClick = (product: Product) => {
@@ -216,57 +258,94 @@ export default function Products() {
         </Alert>
       )}
 
+      <Card sx={{ mb: 3 }}>
+        <CardContent>
+          <Typography variant="h6" sx={{ mb: 2 }}>Search Filters</Typography>
+          <Grid container spacing={2}>
+            <Grid size={{ xs: 12, md: 4 }}>
+              <TextField
+                fullWidth
+                label="Search (Name, SKU, Description)"
+                value={filters.search}
+                onChange={(e) => handleFilterChange('search', e.target.value)}
+                onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
+                size="small"
+              />
+            </Grid>
+            <Grid size={{ xs: 12, md: 3 }}>
+              <FormControl fullWidth size="small">
+                <InputLabel>Category</InputLabel>
+                <Select
+                  value={filters.categoryId || ''}
+                  onChange={(e) => handleFilterChange('categoryId', e.target.value || undefined)}
+                  label="Category"
+                >
+                  <MenuItem value="">All Categories</MenuItem>
+                  {categories.map((cat) => (
+                    <MenuItem key={cat.id} value={cat.id}>
+                      {cat.name}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Grid>
+            <Grid size={{ xs: 12, md: 2 }}>
+              <TextField
+                fullWidth
+                label="Brand"
+                value={filters.brand}
+                onChange={(e) => handleFilterChange('brand', e.target.value)}
+                onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
+                size="small"
+              />
+            </Grid>
+            <Grid size={{ xs: 12, md: 3 }}>
+              <FormControl fullWidth size="small">
+                <InputLabel>Status</InputLabel>
+                <Select
+                  value={filters.isActive === undefined ? '' : filters.isActive.toString()}
+                  onChange={(e) => handleFilterChange('isActive', e.target.value === '' ? undefined : e.target.value === 'true')}
+                  label="Status"
+                >
+                  <MenuItem value="">All</MenuItem>
+                  <MenuItem value="true">Active</MenuItem>
+                  <MenuItem value="false">Inactive</MenuItem>
+                </Select>
+              </FormControl>
+            </Grid>
+            <Grid size={{ xs: 12 }}>
+              <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
+                <Button
+                  variant="contained"
+                  startIcon={<SearchIcon />}
+                  onClick={handleSearch}
+                >
+                  Search
+                </Button>
+                <Button
+                  variant="outlined"
+                  startIcon={<FilterAltOffIcon />}
+                  onClick={handleClearFilters}
+                >
+                  Clear Filters
+                </Button>
+                {hasMoreRecords && (
+                  <Alert severity="warning" sx={{ ml: 2, py: 0.5, flexGrow: 1 }}>
+                    Showing {products.length} of {totalCount} results. Please refine your filters.
+                  </Alert>
+                )}
+              </Box>
+            </Grid>
+          </Grid>
+        </CardContent>
+      </Card>
+
       <Card>
         <CardContent>
           <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
             <Typography variant="h6">Product Inventory</Typography>
-            <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
-              {filteredRowCount > 0 && filteredRowCount < products.length && (
-                <Chip 
-                  label={`${filteredRowCount} filtered`} 
-                  color="secondary" 
-                  size="small"
-                />
-              )}
-              <Chip label={`${products.length} total`} color="primary" />
-            </Box>
+            <Chip label={`${products.length} products`} color="primary" />
           </Box>
-          {activeFilters.length > 0 && (
-            <Box sx={{ 
-              display: 'flex', 
-              alignItems: 'center', 
-              gap: 1, 
-              mb: 2, 
-              p: 2, 
-              bgcolor: 'background.default', 
-              borderRadius: 1,
-              border: 1,
-              borderColor: 'divider'
-            }}>
-              <Typography variant="body2" fontWeight="medium" sx={{ mr: 1 }}>
-                Active Filters:
-              </Typography>
-              <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', flex: 1 }}>
-                {activeFilters.map((filter, index) => (
-                  <Chip
-                    key={index}
-                    label={`${filter.field}: ${filter.operator} "${filter.value}"`}
-                    size="small"
-                    color="info"
-                    variant="outlined"
-                  />
-                ))}
-              </Box>
-              <Button
-                size="small"
-                variant="outlined"
-                startIcon={<FilterAltOffIcon />}
-                onClick={() => apiRef.current?.setFilterModel({ items: [] })}
-              >
-                Reset Filters
-              </Button>
-            </Box>
-          )}
           {loading ? (
             <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}>
               <CircularProgress />
@@ -284,27 +363,23 @@ export default function Products() {
                     field: 'sku',
                     headerName: 'SKU',
                     width: 120,
-                    filterable: true,
                   },
                   {
                     field: 'name',
                     headerName: 'Name',
                     flex: 1,
                     minWidth: 200,
-                    filterable: true,
                   },
                   {
                     field: 'categoryName',
                     headerName: 'Category',
                     width: 150,
-                    filterable: true,
                     valueGetter: (value) => value || '-',
                   },
                   {
                     field: 'brand',
                     headerName: 'Brand',
                     width: 130,
-                    filterable: true,
                     valueGetter: (value) => value || '-',
                   },
                   {
@@ -312,7 +387,6 @@ export default function Products() {
                     headerName: 'Price',
                     width: 120,
                     type: 'number',
-                    filterable: true,
                     renderCell: (params: GridRenderCellParams) => (
                       <Typography>${params.row.price.toFixed(2)}</Typography>
                     ),
@@ -335,7 +409,6 @@ export default function Products() {
                     headerName: 'Status',
                     width: 120,
                     type: 'boolean',
-                    filterable: true,
                     renderCell: (params: GridRenderCellParams) => (
                       <Chip
                         label={params.row.isActive ? 'Active' : 'Inactive'}
@@ -373,28 +446,9 @@ export default function Products() {
                 loading={loading}
                 pageSizeOptions={[10, 25, 50, 100]}
                 initialState={{
-                  pagination: { paginationModel: { pageSize: 10 } },
+                  pagination: { paginationModel: { pageSize: 25 } },
                 }}
-                apiRef={apiRef}
-                onFilterModelChange={(model) => {
-                  setActiveFilters(model.items || []);
-                  setTimeout(() => {
-                    if (apiRef.current) {
-                      const filteredRows = apiRef.current.getRowModels();
-                      const visibleCount = filteredRows.size;
-                      setFilteredRowCount(visibleCount);
-                    }
-                  }, 100);
-                }}
-                slots={{
-                  toolbar: GridToolbar,
-                }}
-                slotProps={{
-                  toolbar: {
-                    showQuickFilter: true,
-                    quickFilterProps: { debounceMs: 500 },
-                  },
-                }}
+                disableColumnFilter
                 autoHeight
                 disableRowSelectionOnClick
                 sx={{
