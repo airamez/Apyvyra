@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { 
   Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField, Typography, IconButton, Tooltip, Alert, Container, Card, CardContent, FormControl, InputLabel, Select, MenuItem, FormControlLabel, Checkbox 
 } from '@mui/material';
+import type { SelectChangeEvent } from '@mui/material';
 import { DataGrid, type GridRenderCellParams } from '@mui/x-data-grid';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -76,7 +77,7 @@ export default function Categories() {
     setError('');
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement> | SelectChangeEvent) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
