@@ -66,6 +66,7 @@ export default function Categories() {
       parentCategoryId: cat.parentCategoryId?.toString() || '',
       isActive: cat.isActive
     } : { name: '', description: '', parentCategoryId: '', isActive: true });
+    (document.activeElement as HTMLElement)?.blur();
     setOpen(true);
     setError('');
   };

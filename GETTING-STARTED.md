@@ -55,18 +55,36 @@ For development, you can run services individually:
   ```bash
   cd Apyvyra
   docker-compose up -d db
+
+  # Initialize database schema
+  cd devops
+  dotnet run -- db-init
+
+  # Load demo data
+  dotnet run -- db-load-test-data
+  cd ..
   ```
 - **Backend**:
   ```bash
-  #go to backend folder
+  # Navigate to backend folder
   dotnet run
+
+  # use this for devopment, so the changes are applied on the fly
+  dotnet run watch
   ```
   >Note: (Backend at http://localhost:5000)
 - **Frontend**:
   ```bash
-  #go to Frontend folder
-  npm run dev
+  # Navigate to Frontend folder
+  sudo npm run dev
   ```
-  >Note: (Frontend at http://localhost:80)
+  >Note: (Frontend at http://localhost:80). The `sudo` is required becase of the pot 80
 
-See individual project READMEs for detailed setup instructions.
+## Documentation
+- [Main README](README.md)
+- [DevOps](devops/README.md)
+- [Backend README](backend/README.md)
+- [Frontend README](frontend/README.md)
+- [Architecture](ARCHITECTURE.md)
+- [Coding Guidelines](CODING_GUIDELINES.md)
+- [Paging vs Filtering](PAGING_VS_FILTERING.md)

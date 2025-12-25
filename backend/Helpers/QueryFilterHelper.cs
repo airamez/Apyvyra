@@ -135,10 +135,10 @@ public static class QueryFilterHelper
                 return bool.Parse(value);
 
             if (underlyingType == typeof(DateTime))
-                return DateTime.Parse(value);
+                return DateTime.Parse(value).ToUniversalTime();
 
             if (underlyingType == typeof(DateTimeOffset))
-                return DateTimeOffset.Parse(value);
+                return DateTimeOffset.Parse(value).ToUniversalTime();
 
             if (underlyingType == typeof(Guid))
                 return Guid.Parse(value);
