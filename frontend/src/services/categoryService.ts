@@ -48,7 +48,7 @@ export const categoryService = {
   },
 
   // Create a new category
-  async create(data: { name: string; description?: string }): Promise<ProductCategory> {
+  async create(data: { name: string; description?: string; parentCategoryId?: number; isActive?: boolean }): Promise<ProductCategory> {
     return apiFetch<ProductCategory>(API_ENDPOINTS.PRODUCT_CATEGORY.LIST, {
       method: 'POST',
       headers: {
@@ -60,7 +60,7 @@ export const categoryService = {
   },
 
   // Update a category
-  async update(id: number, data: { name: string; description?: string }): Promise<ProductCategory> {
+  async update(id: number, data: { name: string; description?: string; parentCategoryId?: number; isActive?: boolean }): Promise<ProductCategory> {
     return apiFetch<ProductCategory>(API_ENDPOINTS.PRODUCT_CATEGORY.DETAIL(id), {
       method: 'PUT',
       headers: {

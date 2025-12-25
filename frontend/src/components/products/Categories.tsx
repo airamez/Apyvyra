@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { 
-  Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField, Typography, IconButton, Tooltip, Alert, Container, Card, CardContent 
+  Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField, Typography, IconButton, Tooltip, Alert, Container, Card, CardContent, FormControl, InputLabel, Select, MenuItem, FormControlLabel, Checkbox 
 } from '@mui/material';
 import { DataGrid, type GridRenderCellParams } from '@mui/x-data-grid';
 import EditIcon from '@mui/icons-material/Edit';
@@ -15,26 +15,33 @@ interface ProductCategory {
   id: number;
   name: string;
   description?: string;
+  parentCategoryId?: number;
+  parentCategoryName?: string;
+  isActive: boolean;
 }
 
 export default function Categories() {
   const [categories, setCategories] = useState<ProductCategory[]>([]);
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<ProductCategory | null>(null);
-  const [form, setForm] = useState({ name: '', description: '' });
+  const [form, setForm] = useState({ name: '', description: '', parentCategoryId: '', isActive: true });
   const [error, setError] = useState('');
   const [deleteDialog, setDeleteDialog] = useState<{ open: boolean; id: number | null }>({ open: false, id: null });
   const [hasMoreRecords, setHasMoreRecords] = useState(false);
   const [totalCount, setTotalCount] = useState(0);
+  const [loading, setLoading] = useState(true);
 
   const loadCategories = async (appliedFilters?: FilterValues) => {
     try {
+      setLoading(true);
       const response = await categoryService.getAll(appliedFilters);
       setCategories(response.data);
       setHasMoreRecords(response.metadata.hasMoreRecords);
       setTotalCount(response.metadata.totalCount);
     } catch (err) {
       setError('Failed to load categories');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -52,7 +59,12 @@ export default function Categories() {
 
   const handleOpen = (cat?: ProductCategory) => {
     setEditing(cat || null);
-    setForm(cat ? { name: cat.name, description: cat.description || '' } : { name: '', description: '' });
+    setForm(cat ? { 
+      name: cat.name, 
+      description: cat.description || '',
+      parentCategoryId: cat.parentCategoryId?.toString() || '',
+      isActive: cat.isActive
+    } : { name: '', description: '', parentCategoryId: '', isActive: true });
     setOpen(true);
     setError('');
   };
@@ -60,7 +72,7 @@ export default function Categories() {
   const handleClose = () => {
     setOpen(false);
     setEditing(null);
-    setForm({ name: '', description: '' });
+    setForm({ name: '', description: '', parentCategoryId: '', isActive: true });
     setError('');
   };
 
@@ -74,10 +86,16 @@ export default function Categories() {
       return;
     }
     try {
+      const data = {
+        name: form.name,
+        description: form.description || undefined,
+        parentCategoryId: form.parentCategoryId ? parseInt(form.parentCategoryId) : undefined,
+        isActive: form.isActive
+      };
       if (editing) {
-        await categoryService.update(editing.id, form);
+        await categoryService.update(editing.id, data);
       } else {
-        await categoryService.create(form);
+        await categoryService.create(data);
       }
       await loadCategories();
       handleClose();
@@ -152,6 +170,19 @@ export default function Categories() {
                   minWidth: 300,
                 },
                 {
+                  field: 'parentCategoryName',
+                  headerName: 'Parent Category',
+                  flex: 1,
+                  minWidth: 150,
+                  renderCell: (params) => params.row?.parentCategoryName || 'None',
+                },
+                {
+                  field: 'isActive',
+                  headerName: 'Active',
+                  width: 80,
+                  type: 'boolean',
+                },
+                {
                   field: 'actions',
                   headerName: 'Actions',
                   width: 120,
@@ -181,6 +212,7 @@ export default function Categories() {
                   ),
                 },
               ]}
+              loading={loading}
               pageSizeOptions={[10, 25, 50, 100]}
               initialState={{
                 pagination: { paginationModel: { pageSize: 10 } },
@@ -229,6 +261,37 @@ export default function Categories() {
             fullWidth
             value={form.description}
             onChange={handleChange}
+          />
+          <FormControl fullWidth margin="dense">
+            <InputLabel>Parent Category</InputLabel>
+            <Select
+              name="parentCategoryId"
+              value={form.parentCategoryId}
+              onChange={handleChange}
+              label="Parent Category"
+            >
+              <MenuItem value="">
+                <em>None</em>
+              </MenuItem>
+              {categories
+                .filter(cat => !editing || cat.id !== editing.id) // Don't allow self-reference
+                .map(cat => (
+                <MenuItem key={cat.id} value={cat.id.toString()}>
+                  {cat.name}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={form.isActive}
+                onChange={(e) => setForm({ ...form, isActive: e.target.checked })}
+                name="isActive"
+              />
+            }
+            label="Active"
+            sx={{ mt: 1 }}
           />
           {error && <Typography color="error" variant="body2">{error}</Typography>}
         </DialogContent>
