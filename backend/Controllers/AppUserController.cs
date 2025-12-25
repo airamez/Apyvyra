@@ -40,10 +40,16 @@ public class AppUserController : BaseApiController
             var user = new AppUser
             {
                 Email = request.Email,
-                Password = BCrypt.Net.BCrypt.HashPassword(request.Password)
+                Password = BCrypt.Net.BCrypt.HashPassword(request.Password),
+                UserType = request.UserType
             };
 
             _context.AppUsers.Add(user);
+            await _context.SaveChangesAsync();
+
+            // Set created_by and updated_by to the user's own ID (for self-registration)
+            user.CreatedBy = user.Id;
+            user.UpdatedBy = user.Id;
             await _context.SaveChangesAsync();
 
             // Return JSON with message and id for frontend compatibility
@@ -52,7 +58,7 @@ public class AppUserController : BaseApiController
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error creating user");
-            return InternalServerErrorWithError("An error occurred while creating the user");
+            return InternalServerErrorWithError($"An error occurred while creating the user: {ex.Message}");
         }
     }
 
@@ -200,6 +206,7 @@ public record CreateUserRequest
 {
     public string Email { get; init; } = string.Empty;
     public string Password { get; init; } = string.Empty;
+    public int UserType { get; init; } = 2; // 0: admin, 1: staff, 2: customer
 }
 
 public record LoginRequest

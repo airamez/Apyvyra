@@ -24,7 +24,7 @@ const URL_REGEX = /^https?:\/\/(www\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9(
 
 export default function ProductUrlDialog({ open, onClose, onSubmit }: ProductUrlDialogProps) {
   const [url, setUrl] = useState('');
-  const [urlType, setUrlType] = useState<UrlType>('image');
+  const [urlType, setUrlType] = useState<UrlType>(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [urlError, setUrlError] = useState('');
 
@@ -59,7 +59,7 @@ export default function ProductUrlDialog({ open, onClose, onSubmit }: ProductUrl
     try {
       await onSubmit(url, urlType);
       setUrl('');
-      setUrlType('image');
+      setUrlType(0);
       setUrlError('');
       onClose();
     } catch (error: any) {
@@ -72,7 +72,7 @@ export default function ProductUrlDialog({ open, onClose, onSubmit }: ProductUrl
 
   const handleClose = () => {
     setUrl('');
-    setUrlType('image');
+    setUrlType(0);
     setUrlError('');
     onClose();
   };
@@ -106,9 +106,9 @@ export default function ProductUrlDialog({ open, onClose, onSubmit }: ProductUrl
                 onChange={(e) => setUrlType(e.target.value as UrlType)}
                 variant="outlined"
               >
-                <MenuItem value="image">Image</MenuItem>
-                <MenuItem value="video">Video</MenuItem>
-                <MenuItem value="manual">Manual</MenuItem>
+                <MenuItem value={0}>Image</MenuItem>
+                <MenuItem value={1}>Video</MenuItem>
+                <MenuItem value={2}>Manual</MenuItem>
               </Select>
             </FormControl>
           </Grid>

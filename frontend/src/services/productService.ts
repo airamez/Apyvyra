@@ -26,7 +26,7 @@ export interface Product {
   updatedAt: string;
 }
 
-export type UrlType = 'image' | 'video' | 'manual';
+export type UrlType = 0 | 1 | 2; // 0: image, 1: video, 2: manual
 
 export interface ProductUrl {
   id: number;

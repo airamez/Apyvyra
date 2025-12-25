@@ -11,8 +11,9 @@ CREATE TABLE app_user (
     id SERIAL PRIMARY KEY,
     email VARCHAR(255) NOT NULL UNIQUE,
     password VARCHAR(255) NOT NULL,
-    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
-    created_by INTEGER,
+    user_type INTEGER NOT NULL DEFAULT 2 CHECK (user_type IN (0, 1, 2)), -- 0: admin, 1: staff, 2: customer
+    created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    created_by INTEGER NOT NULL,
     updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
     updated_by INTEGER
 );
@@ -25,8 +26,8 @@ CREATE TABLE product_category (
     description TEXT,
     parent_category_id INTEGER,
     is_active BOOLEAN DEFAULT true,
-    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
-    created_by INTEGER REFERENCES app_user(id),
+    created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    created_by INTEGER NOT NULL REFERENCES app_user(id),
     updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
     updated_by INTEGER REFERENCES app_user(id),
     FOREIGN KEY (parent_category_id) REFERENCES product_category(id) ON DELETE SET NULL
@@ -50,7 +51,7 @@ CREATE TABLE product (
     weight VARCHAR(255),
     dimensions VARCHAR(255),
     is_active BOOLEAN DEFAULT true,
-    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     created_by INTEGER REFERENCES app_user(id),
     updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
     updated_by INTEGER REFERENCES app_user(id)
@@ -66,12 +67,12 @@ CREATE TABLE product_url (
     id SERIAL PRIMARY KEY,
     product_id INTEGER NOT NULL REFERENCES product(id) ON DELETE CASCADE,
     url VARCHAR(1000) NOT NULL,
-    url_type VARCHAR(20) NOT NULL CHECK (url_type IN ('image', 'video', 'manual')),
+    url_type INTEGER NOT NULL CHECK (url_type IN (0, 1, 2)), -- 0: image, 1: video, 2: manual
     alt_text VARCHAR(500),
     display_order INTEGER DEFAULT 0,
     is_primary BOOLEAN DEFAULT false,
-    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
-    created_by INTEGER REFERENCES app_user(id)
+    created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    created_by INTEGER NOT NULL REFERENCES app_user(id)
 );
 CREATE INDEX idx_product_url_product ON product_url(product_id);
 CREATE INDEX idx_product_url_type ON product_url(url_type);

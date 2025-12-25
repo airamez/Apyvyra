@@ -56,7 +56,7 @@ This command loads realistic test data into an existing database schema.
 - `-force` — Skip the confirmation prompt (useful for automated scripts)
 
 **What it does:**
-- Creates a test user account
+- Uses the admin user account created during db-init for audit fields
 - Inserts 5 product categories (Electronics, Home & Kitchen, Sports & Outdoors, Books & Media, Clothing & Accessories)
 - Inserts 100 realistic products with complete details (SKU, name, description, pricing, stock, etc.)
 - Adds product images using public domain images from Unsplash

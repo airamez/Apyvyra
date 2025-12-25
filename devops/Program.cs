@@ -4,6 +4,7 @@ using Microsoft.Extensions.Configuration;
 using System.Net.Http;
 using System.Text;
 using System.Text.Json;
+using BCrypt.Net;
 
 namespace DevOpsTool;
 
@@ -148,30 +149,31 @@ class Program
 
             Console.WriteLine("Creating required admin user...");
 
-            // Call backend API to create user
-            try
+            // Create admin user directly in database (with temporary created_by value)
+            using var createAdminCmd = new NpgsqlCommand(@"
+                INSERT INTO app_user (email, password, user_type, created_by, updated_by) 
+                VALUES (@email, @password, 0, 0, 1)", conn);
+            
+            createAdminCmd.Parameters.AddWithValue("@email", email);
+            createAdminCmd.Parameters.AddWithValue("@password", BCrypt.Net.BCrypt.HashPassword(password));
+            
+            await createAdminCmd.ExecuteNonQueryAsync();
+            
+            // Get the admin user ID and set created_by to self
+            using var getAdminIdCmd = new NpgsqlCommand("SELECT id FROM app_user WHERE email = @email", conn);
+            getAdminIdCmd.Parameters.AddWithValue("@email", email);
+            var adminIdResult = await getAdminIdCmd.ExecuteScalarAsync();
+            if (adminIdResult == null)
             {
-                using var httpClient = new HttpClient();
-                var request = new { email = email, password = password };
-                var json = JsonSerializer.Serialize(request);
-                var content = new StringContent(json, Encoding.UTF8, "application/json");
-                var response = await httpClient.PostAsync($"{apiBaseUrl}/api/app_user", content);
-                if (response.IsSuccessStatusCode)
-                {
-                    Console.WriteLine("Admin user created successfully.");
-                }
-                else
-                {
-                    var errorContent = await response.Content.ReadAsStringAsync();
-                    Console.WriteLine($"Failed to create admin user: {response.StatusCode} - {errorContent}");
-                    return 1; // Abort if admin creation fails
-                }
+                throw new Exception("Failed to retrieve admin user ID after creation");
             }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error creating admin user: {ex.Message}. Make sure the backend is running.");
-                return 1; // Abort if error
-            }
+            var adminId = (int)adminIdResult;
+            
+            using var updateAdminCmd = new NpgsqlCommand("UPDATE app_user SET created_by = @id WHERE id = @id", conn);
+            updateAdminCmd.Parameters.AddWithValue("@id", adminId);
+            await updateAdminCmd.ExecuteNonQueryAsync();
+            
+            Console.WriteLine("Admin user created successfully.");
 
             return 0;
         }

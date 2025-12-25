@@ -11,9 +11,11 @@ public partial class AppUser
 
     public string Password { get; set; } = null!;
 
+    public int UserType { get; set; } = 2; // 0: admin, 1: staff, 2: customer
+
     public DateTime? CreatedAt { get; set; }
 
-    public int? CreatedBy { get; set; }
+    public int CreatedBy { get; set; }
 
     public DateTime? UpdatedAt { get; set; }
 

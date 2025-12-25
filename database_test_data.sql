@@ -2,28 +2,36 @@
 -- This script creates sample categories and products for testing purposes
 -- All product images use public domain images from Unsplash
 
--- Insert test user (for created_by/updated_by references)
-INSERT INTO app_user (email, password, created_at, updated_at) 
-VALUES ('test@apyvyra.com', '$2a$11$test.hash.for.development.only', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
-ON CONFLICT (email) DO NOTHING;
 
--- Get the test user ID for reference
 DO $$
 DECLARE
-    test_user_id INTEGER;
+    admin_user_id INTEGER;
 BEGIN
-    SELECT id INTO test_user_id FROM app_user WHERE email = 'test@apyvyra.com';
+    -- Check if admin user exists
+    SELECT id INTO admin_user_id FROM app_user WHERE user_type = 0 LIMIT 1;
+    
+    -- If no admin user exists, create a dummy one
+    IF admin_user_id IS NULL THEN
+        INSERT INTO app_user (email, password, user_type, created_by, updated_by) 
+        VALUES ('admin@apyvyra.com', 'dummy_hash', 0, 1, 1);
+        
+        -- Get the newly created admin user ID
+        SELECT id INTO admin_user_id FROM app_user WHERE user_type = 0 LIMIT 1;
+        
+        -- Update the created_by to reference itself
+        UPDATE app_user SET created_by = admin_user_id WHERE id = admin_user_id;
+    END IF;
 
     -- Insert Product Categories
-    INSERT INTO product_category (name, description, is_active, created_at, created_by, updated_at, updated_by) VALUES
-    ('Electronics', 'Electronic devices and accessories', true, CURRENT_TIMESTAMP, test_user_id, CURRENT_TIMESTAMP, test_user_id),
-    ('Home & Kitchen', 'Home appliances and kitchen essentials', true, CURRENT_TIMESTAMP, test_user_id, CURRENT_TIMESTAMP, test_user_id),
-    ('Sports & Outdoors', 'Sports equipment and outdoor gear', true, CURRENT_TIMESTAMP, test_user_id, CURRENT_TIMESTAMP, test_user_id),
-    ('Books & Media', 'Books, magazines, and media content', true, CURRENT_TIMESTAMP, test_user_id, CURRENT_TIMESTAMP, test_user_id),
-    ('Clothing & Accessories', 'Apparel and fashion accessories', true, CURRENT_TIMESTAMP, test_user_id, CURRENT_TIMESTAMP, test_user_id);
+    INSERT INTO product_category (name, description, is_active, created_by, updated_by) VALUES
+    ('Electronics', 'Electronic devices and accessories', true, admin_user_id, admin_user_id),
+    ('Home & Kitchen', 'Home appliances and kitchen essentials', true, admin_user_id, admin_user_id),
+    ('Sports & Outdoors', 'Sports equipment and outdoor gear', true, admin_user_id, admin_user_id),
+    ('Books & Media', 'Books, magazines, and media content', true, admin_user_id, admin_user_id),
+    ('Clothing & Accessories', 'Apparel and fashion accessories', true, admin_user_id, admin_user_id);
 
     -- Electronics Products (20 products)
-    INSERT INTO product (sku, name, description, category_id, price, cost_price, stock_quantity, low_stock_threshold, brand, manufacturer, weight, dimensions, is_active, created_at, created_by, updated_at, updated_by)
+    INSERT INTO product (sku, name, description, category_id, price, cost_price, stock_quantity, low_stock_threshold, brand, manufacturer, weight, dimensions, is_active, created_by, updated_by)
     SELECT 
         'ELEC-' || LPAD(generate_series::text, 4, '0'),
         name,
@@ -38,10 +46,8 @@ BEGIN
         weight,
         dimensions,
         true,
-        CURRENT_TIMESTAMP,
-        test_user_id,
-        CURRENT_TIMESTAMP,
-        test_user_id
+        admin_user_id,
+        admin_user_id
     FROM (VALUES
         (1, 'Wireless Bluetooth Headphones', 'Premium noise-canceling wireless headphones with 30-hour battery life', 79.99, 45.00, 150, 'AudioTech', 'AudioTech Inc', '250g', '20x18x8cm'),
         (2, 'USB-C Fast Charger 65W', 'Universal fast charging adapter with multiple ports', 34.99, 18.00, 200, 'PowerMax', 'PowerMax Electronics', '180g', '8x8x3cm'),
@@ -66,7 +72,7 @@ BEGIN
     ) AS products(generate_series, name, description, price, cost_price, stock_quantity, brand, manufacturer, weight, dimensions);
 
     -- Home & Kitchen Products (20 products)
-    INSERT INTO product (sku, name, description, category_id, price, cost_price, stock_quantity, low_stock_threshold, brand, manufacturer, weight, dimensions, is_active, created_at, created_by, updated_at, updated_by)
+    INSERT INTO product (sku, name, description, category_id, price, cost_price, stock_quantity, low_stock_threshold, brand, manufacturer, weight, dimensions, is_active, created_by, updated_by)
     SELECT 
         'HOME-' || LPAD(generate_series::text, 4, '0'),
         name,
@@ -81,10 +87,8 @@ BEGIN
         weight,
         dimensions,
         true,
-        CURRENT_TIMESTAMP,
-        test_user_id,
-        CURRENT_TIMESTAMP,
-        test_user_id
+        admin_user_id,
+        admin_user_id
     FROM (VALUES
         (1, 'Stainless Steel Cookware Set', '10-piece professional cookware set', 199.99, 120.00, 60, 'ChefMaster', 'ChefMaster Kitchens', '8.5kg', '45x35x25cm'),
         (2, 'Electric Kettle 1.7L', 'Fast-boiling cordless electric kettle', 39.99, 22.00, 100, 'BrewPro', 'BrewPro Appliances', '1.1kg', '22x16x25cm'),
@@ -109,7 +113,7 @@ BEGIN
     ) AS products(generate_series, name, description, price, cost_price, stock_quantity, brand, manufacturer, weight, dimensions);
 
     -- Sports & Outdoors Products (20 products)
-    INSERT INTO product (sku, name, description, category_id, price, cost_price, stock_quantity, low_stock_threshold, brand, manufacturer, weight, dimensions, is_active, created_at, created_by, updated_at, updated_by)
+    INSERT INTO product (sku, name, description, category_id, price, cost_price, stock_quantity, low_stock_threshold, brand, manufacturer, weight, dimensions, is_active, created_by, updated_by)
     SELECT 
         'SPRT-' || LPAD(generate_series::text, 4, '0'),
         name,
@@ -124,10 +128,8 @@ BEGIN
         weight,
         dimensions,
         true,
-        CURRENT_TIMESTAMP,
-        test_user_id,
-        CURRENT_TIMESTAMP,
-        test_user_id
+        admin_user_id,
+        admin_user_id
     FROM (VALUES
         (1, 'Yoga Mat Premium', 'Extra thick non-slip exercise mat with carrying strap', 29.99, 15.00, 200, 'YogaFit', 'YogaFit Sports', '1.2kg', '183x61x1cm'),
         (2, 'Resistance Bands Set', 'Set of 5 resistance bands with handles and door anchor', 24.99, 12.00, 180, 'FitBand', 'FitBand Fitness', '680g', '30x20x5cm'),
@@ -152,7 +154,7 @@ BEGIN
     ) AS products(generate_series, name, description, price, cost_price, stock_quantity, brand, manufacturer, weight, dimensions);
 
     -- Books & Media Products (20 products)
-    INSERT INTO product (sku, name, description, category_id, price, cost_price, stock_quantity, low_stock_threshold, brand, manufacturer, weight, dimensions, is_active, created_at, created_by, updated_at, updated_by)
+    INSERT INTO product (sku, name, description, category_id, price, cost_price, stock_quantity, low_stock_threshold, brand, manufacturer, weight, dimensions, is_active, created_by, updated_by)
     SELECT 
         'BOOK-' || LPAD(generate_series::text, 4, '0'),
         name,
@@ -167,10 +169,8 @@ BEGIN
         weight,
         dimensions,
         true,
-        CURRENT_TIMESTAMP,
-        test_user_id,
-        CURRENT_TIMESTAMP,
-        test_user_id
+        admin_user_id,
+        admin_user_id
     FROM (VALUES
         (1, 'The Art of Programming', 'Comprehensive guide to software development', 49.99, 25.00, 100, 'TechBooks', 'TechBooks Publishing', '850g', '24x18x3cm'),
         (2, 'Modern Web Development', 'Learn modern web technologies and frameworks', 54.99, 28.00, 85, 'CodePress', 'CodePress', '920g', '24x18x3cm'),
@@ -195,7 +195,7 @@ BEGIN
     ) AS products(generate_series, name, description, price, cost_price, stock_quantity, brand, manufacturer, weight, dimensions);
 
     -- Clothing & Accessories Products (20 products)
-    INSERT INTO product (sku, name, description, category_id, price, cost_price, stock_quantity, low_stock_threshold, brand, manufacturer, weight, dimensions, is_active, created_at, created_by, updated_at, updated_by)
+    INSERT INTO product (sku, name, description, category_id, price, cost_price, stock_quantity, low_stock_threshold, brand, manufacturer, weight, dimensions, is_active, created_by, updated_by)
     SELECT 
         'CLTH-' || LPAD(generate_series::text, 4, '0'),
         name,
@@ -210,10 +210,8 @@ BEGIN
         weight,
         dimensions,
         true,
-        CURRENT_TIMESTAMP,
-        test_user_id,
-        CURRENT_TIMESTAMP,
-        test_user_id
+        admin_user_id,
+        admin_user_id
     FROM (VALUES
         (1, 'Cotton T-Shirt Classic', 'Premium cotton crew neck t-shirt', 19.99, 8.00, 300, 'ComfortWear', 'ComfortWear Apparel', '180g', 'M: 71x51cm'),
         (2, 'Denim Jeans Slim Fit', 'Classic slim fit denim jeans', 49.99, 25.00, 150, 'DenimPro', 'DenimPro Fashion', '520g', '32x32 inches'),
@@ -239,7 +237,7 @@ BEGIN
 
     -- Add Product URLs (using Unsplash public domain images)
     -- Electronics URLs
-    INSERT INTO product_url (product_id, url, url_type, alt_text, display_order, is_primary, created_at, created_by)
+    INSERT INTO product_url (product_id, url, url_type, alt_text, display_order, is_primary, created_by)
     SELECT 
         p.id,
         CASE 
@@ -264,17 +262,16 @@ BEGIN
             WHEN p.name LIKE '%Microphone%' THEN 'https://images.unsplash.com/photo-1590602847861-f357a9332bbc'
             WHEN p.name LIKE '%Router%' THEN 'https://images.unsplash.com/photo-1606904825846-647eb07f5be2'
         END,
-        'image',
+        0,
         p.name || ' product image',
         0,
         true,
-        CURRENT_TIMESTAMP,
-        test_user_id
+        admin_user_id
     FROM product p
     WHERE p.sku LIKE 'ELEC-%';
 
     -- Home & Kitchen URLs
-    INSERT INTO product_url (product_id, url, url_type, alt_text, display_order, is_primary, created_at, created_by)
+    INSERT INTO product_url (product_id, url, url_type, alt_text, display_order, is_primary, created_by)
     SELECT 
         p.id,
         CASE 
@@ -299,17 +296,16 @@ BEGIN
             WHEN p.name LIKE '%Soap%' THEN 'https://images.unsplash.com/photo-1600857062241-98e5dba60f2f'
             WHEN p.name LIKE '%Timer%' THEN 'https://images.unsplash.com/photo-1509048191080-d2984bad6ae5'
         END,
-        'image',
+        0,
         p.name || ' product image',
         0,
         true,
-        CURRENT_TIMESTAMP,
-        test_user_id
+        admin_user_id
     FROM product p
     WHERE p.sku LIKE 'HOME-%';
 
     -- Sports & Outdoors URLs
-    INSERT INTO product_url (product_id, url, url_type, alt_text, display_order, is_primary, created_at, created_by)
+    INSERT INTO product_url (product_id, url, url_type, alt_text, display_order, is_primary, created_by)
     SELECT 
         p.id,
         CASE 
@@ -334,17 +330,16 @@ BEGIN
             WHEN p.name LIKE '%Sunglasses%' THEN 'https://images.unsplash.com/photo-1511499767150-a48a237f0083'
             WHEN p.name LIKE '%Fitness Tracker%' THEN 'https://images.unsplash.com/photo-1575311373937-040b8e1fd5b6'
         END,
-        'image',
+        0,
         p.name || ' product image',
         0,
         true,
-        CURRENT_TIMESTAMP,
-        test_user_id
+        admin_user_id
     FROM product p
     WHERE p.sku LIKE 'SPRT-%';
 
     -- Books & Media URLs
-    INSERT INTO product_url (product_id, url, url_type, alt_text, display_order, is_primary, created_at, created_by)
+    INSERT INTO product_url (product_id, url, url_type, alt_text, display_order, is_primary, created_by)
     SELECT 
         p.id,
         CASE 
@@ -369,17 +364,16 @@ BEGIN
             WHEN p.name LIKE '%Writing%' THEN 'https://images.unsplash.com/photo-1512820790803-83ca734da794'
             WHEN p.name LIKE '%Music%' THEN 'https://images.unsplash.com/photo-1507838153414-b4b713384a76'
         END,
-        'image',
+        0,
         p.name || ' product image',
         0,
         true,
-        CURRENT_TIMESTAMP,
-        test_user_id
+        admin_user_id
     FROM product p
     WHERE p.sku LIKE 'BOOK-%';
 
     -- Clothing & Accessories URLs
-    INSERT INTO product_url (product_id, url, url_type, alt_text, display_order, is_primary, created_at, created_by)
+    INSERT INTO product_url (product_id, url, url_type, alt_text, display_order, is_primary, created_by)
     SELECT 
         p.id,
         CASE 
@@ -404,12 +398,11 @@ BEGIN
             WHEN p.name LIKE '%Beanie%' THEN 'https://images.unsplash.com/photo-1576871337622-98d48d1cf531'
             WHEN p.name LIKE '%Umbrella%' THEN 'https://images.unsplash.com/photo-1527693224012-e12255d5a6e3'
         END,
-        'image',
+        0,
         p.name || ' product image',
         0,
         true,
-        CURRENT_TIMESTAMP,
-        test_user_id
+        admin_user_id
     FROM product p
     WHERE p.sku LIKE 'CLTH-%';
 

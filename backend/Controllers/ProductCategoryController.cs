@@ -1,5 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
 using backend.Data;
 using backend.Models;
 
@@ -76,10 +78,18 @@ public class ProductCategoryController : BaseApiController
 
     // POST: api/productcategories
     [HttpPost]
+    [Authorize]
     public async Task<ActionResult<ProductCategoryResponse>> CreateCategory(CreateProductCategoryRequest request)
     {
         try
         {
+            // Get user ID from JWT token claims
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (userIdClaim == null || !int.TryParse(userIdClaim, out int userId))
+            {
+                return Unauthorized("Invalid user token");
+            }
+
             // Validate parent category exists if provided
             if (request.ParentCategoryId.HasValue)
             {
@@ -99,7 +109,7 @@ public class ProductCategoryController : BaseApiController
                 ParentCategoryId = request.ParentCategoryId,
                 IsActive = request.IsActive,
                 CreatedAt = DateTime.UtcNow,
-                CreatedBy = request.UserId,
+                CreatedBy = userId,
                 UpdatedAt = DateTime.UtcNow
             };
 
@@ -126,10 +136,18 @@ public class ProductCategoryController : BaseApiController
 
     // PUT: api/productcategories/{id}
     [HttpPut("{id}")]
+    [Authorize]
     public async Task<ActionResult<ProductCategoryResponse>> UpdateCategory(int id, UpdateProductCategoryRequest request)
     {
         try
         {
+            // Get user ID from JWT token claims
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (userIdClaim == null || !int.TryParse(userIdClaim, out int userId))
+            {
+                return Unauthorized("Invalid user token");
+            }
+
             var category = await _context.ProductCategories.FindAsync(id);
 
             if (category == null)
@@ -166,7 +184,7 @@ public class ProductCategoryController : BaseApiController
             category.ParentCategoryId = request.ParentCategoryId;
             category.IsActive = request.IsActive;
             category.UpdatedAt = DateTime.UtcNow;
-            category.UpdatedBy = request.UserId;
+            category.UpdatedBy = userId;
 
             await _context.SaveChangesAsync();
 
@@ -287,16 +305,14 @@ public record CreateProductCategoryRequest(
     string Name,
     string? Description,
     int? ParentCategoryId,
-    bool IsActive,
-    int? UserId
+    bool IsActive
 );
 
 public record UpdateProductCategoryRequest(
     string Name,
     string? Description,
     int? ParentCategoryId,
-    bool IsActive,
-    int? UserId
+    bool IsActive
 );
 
 public record ProductCategoryResponse

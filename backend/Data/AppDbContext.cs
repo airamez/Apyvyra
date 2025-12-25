@@ -52,6 +52,9 @@ public partial class AppDbContext : DbContext
             entity.Property(e => e.Password)
                 .HasMaxLength(255)
                 .HasColumnName("password");
+            entity.Property(e => e.UserType)
+                .HasDefaultValue(2)
+                .HasColumnName("user_type");
             entity.Property(e => e.UpdatedAt)
                 .HasDefaultValueSql("CURRENT_TIMESTAMP")
                 .HasColumnType("timestamp with time zone")
@@ -214,7 +217,6 @@ public partial class AppDbContext : DbContext
                 .HasMaxLength(1000)
                 .HasColumnName("url");
             entity.Property(e => e.UrlType)
-                .HasMaxLength(20)
                 .HasColumnName("url_type");
 
             entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.ProductUrls)

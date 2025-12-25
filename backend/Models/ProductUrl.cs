@@ -11,7 +11,7 @@ public partial class ProductUrl
 
     public string Url { get; set; } = null!;
 
-    public string UrlType { get; set; } = null!;
+    public int UrlType { get; set; }
 
     public string? AltText { get; set; }
 
@@ -21,7 +21,7 @@ public partial class ProductUrl
 
     public DateTime? CreatedAt { get; set; }
 
-    public int? CreatedBy { get; set; }
+    public int CreatedBy { get; set; }
 
     public virtual AppUser? CreatedByNavigation { get; set; }
 

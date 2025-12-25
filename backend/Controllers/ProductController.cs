@@ -1,6 +1,8 @@
 
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
 using backend.Data;
 using backend.Models;
 using System.ComponentModel.DataAnnotations;
@@ -39,7 +41,7 @@ public record ProductUrlResponse
     public int Id { get; init; }
     public int ProductId { get; init; }
     public string Url { get; init; } = string.Empty;
-    public string UrlType { get; init; } = string.Empty;
+    public int UrlType { get; init; }
     public string? AltText { get; init; }
     public int DisplayOrder { get; init; }
     public bool IsPrimary { get; init; }
@@ -118,10 +120,18 @@ public class ProductController : BaseApiController
 
     // POST: api/products
     [HttpPost]
+    [Authorize]
     public async Task<ActionResult<ProductResponse>> CreateProduct(CreateProductRequest request)
     {
         try
         {
+            // Get user ID from JWT token claims
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (userIdClaim == null || !int.TryParse(userIdClaim, out int userId))
+            {
+                return Unauthorized("Invalid user token");
+            }
+
             // Check if SKU already exists
             if (await _context.Products.AnyAsync(p => p.Sku == request.Sku))
             {
@@ -144,7 +154,7 @@ public class ProductController : BaseApiController
                 Dimensions = request.Dimensions,
                 IsActive = request.IsActive,
                 CreatedAt = DateTime.UtcNow,
-                CreatedBy = request.UserId, // From authenticated user
+                CreatedBy = userId, // From authenticated user
                 UpdatedAt = DateTime.UtcNow
             };
 
@@ -171,10 +181,18 @@ public class ProductController : BaseApiController
 
     // PUT: api/products/{id}
     [HttpPut("{id}")]
+    [Authorize]
     public async Task<ActionResult<ProductResponse>> UpdateProduct(int id, UpdateProductRequest request)
     {
         try
         {
+            // Get user ID from JWT token claims
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (userIdClaim == null || !int.TryParse(userIdClaim, out int userId))
+            {
+                return Unauthorized("Invalid user token");
+            }
+
             var product = await _context.Products.FindAsync(id);
 
             if (product == null)
@@ -203,7 +221,7 @@ public class ProductController : BaseApiController
             product.Dimensions = request.Dimensions;
             product.IsActive = request.IsActive;
             product.UpdatedAt = DateTime.UtcNow;
-            product.UpdatedBy = request.UserId; // From authenticated user
+            product.UpdatedBy = userId; // From authenticated user
 
             await _context.SaveChangesAsync();
 
@@ -286,10 +304,18 @@ public class ProductController : BaseApiController
 
     // POST: api/product/{id}/urls
     [HttpPost("{id}/urls")]
+    [Authorize]
     public async Task<ActionResult<ProductUrlResponse>> AddProductUrl(int id, CreateProductUrlRequest request)
     {
         try
         {
+            // Get user ID from JWT token claims
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (userIdClaim == null || !int.TryParse(userIdClaim, out int userId))
+            {
+                return Unauthorized("Invalid user token");
+            }
+
             if (!ModelState.IsValid)
             {
                 var errors = ModelState.Values
@@ -314,7 +340,7 @@ public class ProductController : BaseApiController
                 DisplayOrder = request.DisplayOrder,
                 IsPrimary = request.IsPrimary,
                 CreatedAt = DateTime.UtcNow,
-                CreatedBy = request.UserId
+                CreatedBy = userId
             };
 
             _context.ProductUrls.Add(productUrl);
@@ -414,8 +440,7 @@ public record CreateProductRequest(
     string? Manufacturer,
     string? Weight,
     string? Dimensions,
-    bool IsActive,
-    int? UserId
+    bool IsActive
 );
 
 public record UpdateProductRequest(
@@ -431,8 +456,7 @@ public record UpdateProductRequest(
     string? Manufacturer,
     string? Weight,
     string? Dimensions,
-    bool IsActive,
-    int? UserId
+    bool IsActive
 );
 
 public record ProductResponse
@@ -463,12 +487,11 @@ public record CreateProductUrlRequest(
     string Url,
     
     [Required(ErrorMessage = "URL type is required")]
-    string UrlType,
+    int UrlType,
     
     string? AltText,
     int DisplayOrder,
-    bool IsPrimary,
-    int? UserId
+    bool IsPrimary
 );
 
 
