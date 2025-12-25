@@ -26,6 +26,7 @@ public class AppUserController : BaseApiController
     }
 
     // POST: api/app_user
+    [AllowAnonymous]
     [HttpPost]
     public async Task<ActionResult<AppUser>> CreateUser(CreateUserRequest request)
     {
@@ -63,6 +64,7 @@ public class AppUserController : BaseApiController
     }
 
     // GET: api/app_user
+    [Authorize(Roles = "0")] // Admin only
     [HttpGet]
     public async Task<ActionResult<IEnumerable<UserListResponse>>> GetUsers()
     {
@@ -87,6 +89,7 @@ public class AppUserController : BaseApiController
     }
 
     // GET: api/app_user/{id}
+    [Authorize(Roles = "0")] // Admin only
     [HttpGet("{id}")]
     public async Task<ActionResult<UserResponse>> GetUser(int id)
     {
@@ -105,6 +108,7 @@ public class AppUserController : BaseApiController
     }
 
     // POST: api/users/login
+    [AllowAnonymous]
     [HttpPost("login")]
     public async Task<ActionResult<LoginResponse>> Login(LoginRequest request)
     {
@@ -126,6 +130,7 @@ public class AppUserController : BaseApiController
             {
                 Id = user.Id,
                 Email = user.Email,
+                Role = user.UserType,
                 Token = token,
                 Message = "Login successful"
             });
@@ -186,6 +191,7 @@ public class AppUserController : BaseApiController
         {
             new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
             new Claim(ClaimTypes.Email, user.Email),
+            new Claim(ClaimTypes.Role, user.UserType.ToString()),
             new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
         };
 
@@ -232,6 +238,7 @@ public record LoginResponse
 {
     public int Id { get; init; }
     public string Email { get; init; } = string.Empty;
+    public int Role { get; init; }
     public string Token { get; init; } = string.Empty;
     public string Message { get; init; } = string.Empty;
 }

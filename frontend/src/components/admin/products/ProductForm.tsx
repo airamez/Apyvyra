@@ -20,8 +20,8 @@ import {
 import { DataGrid, type GridRenderCellParams } from '@mui/x-data-grid';
 import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
-import { type CreateProductData, type ProductUrl, type UrlType, productService } from '../../services/productService';
-import { categoryService } from '../../services/categoryService';
+import { type CreateProductData, type ProductUrl, type UrlType, productService } from '../../../services/productService';
+import { categoryService } from '../../../services/categoryService';
 import ProductUrlDialog from './ProductUrlDialog';
 
 interface ProductCategory {

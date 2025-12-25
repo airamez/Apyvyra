@@ -13,7 +13,7 @@ import {
   CircularProgress
 } from '@mui/material';
 import LoginIcon from '@mui/icons-material/Login';
-import { authService } from '../services/authService';
+import { authService } from '../../services/authService';
 
 interface LoginProps {
   onNavigateToRegister?: () => void;

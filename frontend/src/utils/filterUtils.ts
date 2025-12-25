@@ -1,4 +1,4 @@
-import type { FilterValues, Operator } from '../components/FilterComponent';
+import type { FilterValues, Operator, FilterValue } from '../components/admin/FilterComponent';
 
 /**
  * Converts filter values to URL query parameters for backend API
@@ -18,7 +18,7 @@ import type { FilterValues, Operator } from '../components/FilterComponent';
 export function filtersToQueryParams(filters: FilterValues): URLSearchParams {
   const params = new URLSearchParams();
 
-  filters.forEach(filter => {
+  filters.forEach((filter: FilterValue) => {
     const { field, operator, value, valueTo } = filter;
 
     if (value === undefined || value === null || value === '') {

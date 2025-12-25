@@ -19,6 +19,7 @@ import {
 import SearchIcon from '@mui/icons-material/Search';
 import FilterAltOffIcon from '@mui/icons-material/FilterAltOff';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import { authService } from '../../services/authService';
 
 export type FieldType = 'string' | 'number' | 'date' | 'boolean' | 'dropdown';
 export type Operator = 'eq' | 'ne' | 'lt' | 'lte' | 'gt' | 'gte' | 'contains' | 'startsWith' | 'endsWith' | 'between';
@@ -110,11 +111,15 @@ export default function FilterComponent({
         }));
       } else if (field.dropdownConfig?.endpoint) {
         try {
+          const token = authService.getToken();
           const response = await fetch(field.dropdownConfig.endpoint, {
             headers: {
-              'Authorization': `Bearer ${localStorage.getItem('token')}`,
+              'Authorization': `Bearer ${token}`,
             },
           });
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
           const data = await response.json();
           
           const options = Array.isArray(data) ? data : data.data || [];

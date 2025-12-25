@@ -12,7 +12,7 @@ import {
   Button,
   Grid
 } from '@mui/material';
-import { type UrlType } from '../../services/productService';
+import { type UrlType } from '../../../services/productService';
 
 interface ProductUrlDialogProps {
   open: boolean;

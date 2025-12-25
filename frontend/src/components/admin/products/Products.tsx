@@ -20,10 +20,10 @@ import InventoryIcon from '@mui/icons-material/Inventory';
 import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
-import { productService, type ProductUrl, type CreateProductData, type UrlType } from '../../services/productService';
+import { productService, type ProductUrl, type CreateProductData, type UrlType } from '../../../services/productService';
 import ProductForm from './ProductForm';
 import FilterComponent, { type FilterValues } from '../FilterComponent';
-import { productFilterConfig } from '../../config/filterConfigs';
+import { productFilterConfig } from '../../../config/filterConfigs';
 
 interface Product {
   id: number;

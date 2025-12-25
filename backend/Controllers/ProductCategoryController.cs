@@ -7,6 +7,7 @@ using backend.Models;
 
 namespace backend.Controllers;
 
+[Authorize(Roles = "0,1")] // Admin and Staff only
 [Route("api/product_category")]
 public class ProductCategoryController : BaseApiController
 {

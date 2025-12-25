@@ -4,11 +4,13 @@ import { API_ENDPOINTS } from '../config/api';
 interface User {
   id: number;
   email: string;
+  role: number; // 0: admin, 1: staff, 2: customer
 }
 
 interface LoginResponse {
   id: number;
   email: string;
+  role: number;
   token: string;
   message: string;
 }
@@ -42,6 +44,18 @@ export const authService = {
   getUser(): User | null {
     const userData = localStorage.getItem(USER_KEY);
     return userData ? JSON.parse(userData) : null;
+  },
+
+  // Get user role
+  getUserRole(): number | null {
+    const user = this.getUser();
+    return user ? user.role : null;
+  },
+
+  // Check if user is admin or staff
+  isAdminOrStaff(): boolean {
+    const role = this.getUserRole();
+    return role === 0 || role === 1; // 0: admin, 1: staff
   },
 
   // Check if user is authenticated
@@ -102,7 +116,7 @@ export const authService = {
     
     // Store token and user data
     this.setToken(data.token);
-    this.setUser({ id: data.id, email: data.email });
+    this.setUser({ id: data.id, email: data.email, role: data.role });
     
     return data;
   },

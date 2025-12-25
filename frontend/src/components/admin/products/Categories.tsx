@@ -8,9 +8,9 @@ import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
 import CategoryIcon from '@mui/icons-material/Category';
-import { categoryService } from '../../services/categoryService';
+import { categoryService } from '../../../services/categoryService';
 import FilterComponent, { type FilterValues } from '../FilterComponent';
-import { categoryFilterConfig } from '../../config/filterConfigs';
+import { categoryFilterConfig } from '../../../config/filterConfigs';
 
 interface ProductCategory {
   id: number;

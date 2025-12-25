@@ -47,6 +47,7 @@ public record ProductUrlResponse
     public bool IsPrimary { get; init; }
 }
 
+[Authorize(Roles = "0,1")] // Admin and Staff only
 [Route("api/product")]
 public class ProductController : BaseApiController
 {

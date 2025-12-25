@@ -2,7 +2,7 @@
 import { API_ENDPOINTS } from '../config/api';
 import { authService } from './authService';
 import { apiFetch, apiFetchWithMetadata, type ApiResponse } from '../utils/apiErrorHandler';
-import type { FilterValues } from '../components/FilterComponent';
+import type { FilterValues } from '../components/admin/FilterComponent';
 import { filtersToQueryParams } from '../utils/filterUtils';
 
 export interface Product {

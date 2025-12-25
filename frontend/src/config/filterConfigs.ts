@@ -1,4 +1,4 @@
-import type { FilterConfig, FilterFieldConfig } from '../components/FilterComponent';
+import type { FilterConfig, FilterFieldConfig } from '../components/admin/FilterComponent';
 import { API_ENDPOINTS } from './api';
 
 /**
@@ -49,7 +49,7 @@ export const auditFieldsConfig: FilterFieldConfig[] = [
 /**
  * Filter configuration for Products page
  */
-export const productFilterConfig: Omit<FilterConfig, 'onSearch' | 'onClear'> = {
+export const productFilterConfig: Pick<FilterConfig, 'fields' | 'collapsible' | 'collapsibleSections'> = {
   collapsible: true,
   collapsibleSections: true,
   fields: [
@@ -120,7 +120,7 @@ export const productFilterConfig: Omit<FilterConfig, 'onSearch' | 'onClear'> = {
 /**
  * Filter configuration for Categories page
  */
-export const categoryFilterConfig: Omit<FilterConfig, 'onSearch' | 'onClear'> = {
+export const categoryFilterConfig: Pick<FilterConfig, 'fields' | 'collapsible' | 'collapsibleSections'> = {
   collapsible: true,
   collapsibleSections: true,
   fields: [

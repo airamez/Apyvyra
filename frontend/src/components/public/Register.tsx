@@ -13,7 +13,7 @@ import {
   CircularProgress
 } from '@mui/material';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
-import { userService } from '../services/userService';
+import { userService } from '../../services/userService';
 
 interface RegisterProps {
   onNavigateToLogin?: () => void;
