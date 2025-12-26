@@ -56,7 +56,8 @@ public partial class AppDbContext : DbContext
             entity.Property(e => e.CreatedBy).HasColumnName("created_by");
             entity.Property(e => e.Email)
                 .HasMaxLength(255)
-                .HasColumnName("email");
+                .HasColumnName("email")
+                .HasColumnType("citext");
             entity.Property(e => e.EmailConfirmedAt).HasColumnName("email_confirmed_at");
             entity.Property(e => e.Password)
                 .HasMaxLength(255)
@@ -92,7 +93,8 @@ public partial class AppDbContext : DbContext
             entity.Property(e => e.Id).HasColumnName("id");
             entity.Property(e => e.Brand)
                 .HasMaxLength(255)
-                .HasColumnName("brand");
+                .HasColumnName("brand")
+                .HasColumnType("citext");
             entity.Property(e => e.CategoryId).HasColumnName("category_id");
             entity.Property(e => e.CostPrice)
                 .HasPrecision(19, 4)
@@ -113,10 +115,12 @@ public partial class AppDbContext : DbContext
                 .HasColumnName("low_stock_threshold");
             entity.Property(e => e.Manufacturer)
                 .HasMaxLength(255)
-                .HasColumnName("manufacturer");
+                .HasColumnName("manufacturer")
+                .HasColumnType("citext");
             entity.Property(e => e.Name)
                 .HasMaxLength(500)
-                .HasColumnName("name");
+                .HasColumnName("name")
+                .HasColumnType("citext");
             entity.Property(e => e.Price)
                 .HasPrecision(19, 4)
                 .HasColumnName("price");
@@ -169,7 +173,8 @@ public partial class AppDbContext : DbContext
                 .HasColumnName("is_active");
             entity.Property(e => e.Name)
                 .HasMaxLength(255)
-                .HasColumnName("name");
+                .HasColumnName("name")
+                .HasColumnType("citext");
             entity.Property(e => e.ParentCategoryId).HasColumnName("parent_category_id");
             entity.Property(e => e.UpdatedAt)
                 .HasDefaultValueSql("CURRENT_TIMESTAMP")

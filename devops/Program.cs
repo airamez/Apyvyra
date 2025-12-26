@@ -151,8 +151,8 @@ class Program
 
             // Create admin user directly in database (with temporary created_by value)
             using var createAdminCmd = new NpgsqlCommand(@"
-                INSERT INTO app_user (email, password, user_type, created_by, updated_by) 
-                VALUES (@email, @password, 0, 0, 1)", conn);
+                INSERT INTO app_user (email, password, user_type, status, created_by, updated_by) 
+                VALUES (@email, @password, 0, 1, 0, 1)", conn);
             
             createAdminCmd.Parameters.AddWithValue("@email", email);
             createAdminCmd.Parameters.AddWithValue("@password", BCrypt.Net.BCrypt.HashPassword(password));

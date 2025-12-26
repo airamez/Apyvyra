@@ -35,7 +35,6 @@ public class AppUserController : BaseApiController
     {
         try
         {
-            // Check if email already exists
             if (await _context.AppUsers.AnyAsync(u => u.Email == request.Email))
             {
                 return ConflictWithError("Email already exists");
@@ -139,7 +138,7 @@ public class AppUserController : BaseApiController
     {
         try
         {
-            // Find user by email
+            // Find user by email (case insensitive with citext)
             var user = await _context.AppUsers.FirstOrDefaultAsync(u => u.Email == request.Email);
 
             if (user == null || !BCrypt.Net.BCrypt.Verify(request.Password, user.Password))
@@ -303,6 +302,7 @@ public class AppUserController : BaseApiController
     {
         try
         {
+            // Find user by email (case insensitive with citext)
             var user = await _context.AppUsers.FirstOrDefaultAsync(u => u.Email == request.Email);
             
             if (user == null)

@@ -1,5 +1,8 @@
 -- Database initialization script for Apyvyra
 
+-- Enable citext extension for case-insensitive text (most reliable approach)
+CREATE EXTENSION IF NOT EXISTS citext;
+
 DROP TABLE IF EXISTS product_url CASCADE;
 DROP TABLE IF EXISTS product_image CASCADE;
 DROP TABLE IF EXISTS product CASCADE;
@@ -9,7 +12,7 @@ DROP TABLE IF EXISTS app_user CASCADE;
 -- App User table with auditing and email confirmation
 CREATE TABLE app_user (
     id SERIAL PRIMARY KEY,
-    email VARCHAR(255) NOT NULL UNIQUE,
+    email citext NOT NULL UNIQUE,
     password VARCHAR(255) NOT NULL,
     user_type INTEGER NOT NULL DEFAULT 2 CHECK (user_type IN (0, 1, 2)), -- 0: admin, 1: staff, 2: customer
     status INTEGER NOT NULL DEFAULT 0 CHECK (status IN (0, 1, 2)), -- 0: pending_confirmation, 1: active, 2: inactive
@@ -26,7 +29,7 @@ CREATE INDEX idx_app_user_email ON app_user(email);
 -- Product Category table with auditing
 CREATE TABLE product_category (
     id SERIAL PRIMARY KEY,
-    name VARCHAR(255) NOT NULL,
+    name citext NOT NULL,
     description TEXT,
     parent_category_id INTEGER,
     is_active BOOLEAN DEFAULT true,
@@ -43,15 +46,15 @@ CREATE INDEX idx_product_category_parent ON product_category(parent_category_id)
 CREATE TABLE product (
     id SERIAL PRIMARY KEY,
     sku VARCHAR(100) NOT NULL UNIQUE,
-    name VARCHAR(500) NOT NULL,
+    name citext NOT NULL,
     description TEXT,
     category_id INTEGER REFERENCES product_category(id) ON DELETE SET NULL,
     price DECIMAL(19, 4) NOT NULL,
     cost_price DECIMAL(19, 4),
     stock_quantity INTEGER DEFAULT 0,
     low_stock_threshold INTEGER DEFAULT 10,
-    brand VARCHAR(255),
-    manufacturer VARCHAR(255),
+    brand citext,
+    manufacturer citext,
     weight VARCHAR(255),
     dimensions VARCHAR(255),
     is_active BOOLEAN DEFAULT true,

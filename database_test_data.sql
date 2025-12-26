@@ -2,6 +2,9 @@
 -- This script creates sample categories and products for testing purposes
 -- All product images use public domain images from Unsplash
 
+-- Enable citext extension if not already enabled
+CREATE EXTENSION IF NOT EXISTS citext;
+
 
 DO $$
 DECLARE
@@ -10,17 +13,6 @@ BEGIN
     -- Check if admin user exists
     SELECT id INTO admin_user_id FROM app_user WHERE user_type = 0 LIMIT 1;
     
-    -- If no admin user exists, create a dummy one
-    IF admin_user_id IS NULL THEN
-        INSERT INTO app_user (email, password, user_type, created_by, updated_by) 
-        VALUES ('admin@apyvyra.com', 'dummy_hash', 0, 1, 1);
-        
-        -- Get the newly created admin user ID
-        SELECT id INTO admin_user_id FROM app_user WHERE user_type = 0 LIMIT 1;
-        
-        -- Update the created_by to reference itself
-        UPDATE app_user SET created_by = admin_user_id WHERE id = admin_user_id;
-    END IF;
 
     -- Insert Product Categories
     INSERT INTO product_category (name, description, is_active, created_by, updated_by) VALUES
