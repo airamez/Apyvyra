@@ -28,7 +28,7 @@ public class AppUserController : BaseApiController
     // POST: api/app_user
     [AllowAnonymous]
     [HttpPost]
-    public async Task<ActionResult<AppUser>> CreateUser(CreateUserRequest request)
+    public async Task<ActionResult<AppUser>> Register(RegisterRequest request)
     {
         try
         {
@@ -208,7 +208,7 @@ public class AppUserController : BaseApiController
 }
 
 // DTOs
-public record CreateUserRequest
+public record RegisterRequest
 {
     public string Email { get; init; } = string.Empty;
     public string Password { get; init; } = string.Empty;

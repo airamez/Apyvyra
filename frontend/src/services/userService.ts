@@ -13,7 +13,6 @@ export interface RegisterResponse {
 }
 
 export const userService = {
-  // Register a new user
   async register(email: string, password: string): Promise<RegisterResponse> {
     const response = await fetch(API_ENDPOINTS.APP_USER.REGISTER, {
       method: 'POST',

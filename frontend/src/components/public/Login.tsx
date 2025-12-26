@@ -74,8 +74,6 @@ export default function Login({ onNavigateToRegister, onLoginSuccess }: LoginPro
       setSuccess(true);
       setFormData({ email: '', password: '' });
       
-      console.log('Login successful with JWT token');
-      
       // Trigger parent component's login success handler immediately
       if (onLoginSuccess) {
         onLoginSuccess();
