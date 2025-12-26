@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Confirm Your Email Address</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f4f4f4;
+        }
+        
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 40px 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            color: #ffffff;
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            color: #e0e0e0;
+            font-size: 16px;
+        }
+        
+        .content {
+            padding: 40px 30px;
+        }
+        
+        .welcome-message {
+            margin-bottom: 30px;
+        }
+        
+        .welcome-message h2 {
+            color: #333;
+            font-size: 24px;
+            margin-bottom: 15px;
+        }
+        
+        .welcome-message p {
+            color: #666;
+            font-size: 16px;
+            line-height: 1.6;
+        }
+        
+        .reminder-box {
+            background-color: #fff3cd;
+            border: 1px solid #ffeaa7;
+            padding: 25px;
+            margin: 30px 0;
+            border-radius: 8px;
+            display: none;
+        }
+        
+        .reminder-box.show {
+            display: block;
+        }
+        
+        .reminder-box h2 {
+            color: #856404;
+            font-size: 20px;
+            margin-bottom: 15px;
+        }
+        
+        .reminder-box p {
+            color: #856404;
+            font-size: 16px;
+            line-height: 1.6;
+        }
+        
+        .confirmation-box {
+            background-color: #f8f9fa;
+            border-left: 4px solid #667eea;
+            padding: 25px;
+            margin: 30px 0;
+            border-radius: 8px;
+        }
+        
+        .confirmation-box p {
+            color: #555;
+            font-size: 16px;
+            margin-bottom: 20px;
+        }
+        
+        .confirm-button {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #ffffff;
+            padding: 15px 30px;
+            text-decoration: none;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 16px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        
+        .confirm-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+        }
+        
+        .security-info {
+            background-color: #e3f2fd;
+            border: 1px solid #bbdefb;
+            padding: 20px;
+            margin: 30px 0;
+            border-radius: 8px;
+        }
+        
+        .security-info h3 {
+            color: #1565c0;
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+        
+        .security-info p {
+            color: #1565c0;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        
+        .footer {
+            background-color: #f8f9fa;
+            padding: 30px;
+            text-align: center;
+            border-top: 1px solid #e9ecef;
+        }
+        
+        .footer p {
+            color: #6c757d;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+        
+        .footer .links {
+            margin-top: 15px;
+        }
+        
+        .footer .links a {
+            color: #667eea;
+            text-decoration: none;
+            margin: 0 10px;
+            font-size: 14px;
+        }
+        
+        .footer .links a:hover {
+            text-decoration: underline;
+        }
+        
+        .expiry-info {
+            background-color: #e3f2fd;
+            border: 1px solid #bbdefb;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 8px;
+            font-size: 14px;
+            color: #1565c0;
+        }
+        
+        .expiry-info.warning {
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+        
+        @media only screen and (max-width: 600px) {
+            .container {
+                width: 100%;
+            }
+            
+            .header, .content, .footer {
+                padding: 20px 15px;
+            }
+            
+            .header h1 {
+                font-size: 28px;
+            }
+            
+            .confirm-button {
+                display: block;
+                width: 100%;
+                margin: 10px 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>{{email_type}}</h1>
+            <p>{{email_subtitle}}</p>
+        </div>
+        
+        <div class="content">
+            {{#is_resend}}
+            <div class="reminder-box show">
+                <h2>📋 Still waiting for email confirmation?</h2>
+                <p>We noticed you haven't confirmed your email address yet. Here's a fresh confirmation link to complete your Apyvyra account setup.</p>
+            </div>
+            {{/is_resend}}
+            
+            <div class="welcome-message">
+                <h2>Hi {{user_name}},</h2>
+                <p>{{welcome_message}}</p>
+            </div>
+            
+            <div class="confirmation-box">
+                <p>{{confirmation_instruction}}</p>
+                <a href="{{confirmation_url}}" class="confirm-button">Confirm Email Address</a>
+            </div>
+            
+            <div class="expiry-info {{expiry_class}}">
+                <strong>⏰ {{expiry_title}}:</strong> {{expiry_message}}
+            </div>
+            
+            <div class="security-info">
+                <h3>🔒 {{security_title}}</h3>
+                <p>{{security_message}}</p>
+            </div>
+            
+            <p style="margin-top: 30px; color: #666; font-size: 14px;">
+                If the button above doesn't work, you can copy and paste this link into your browser:<br>
+                <a href="{{confirmation_url}}" style="word-break: break-all; color: #667eea;">{{confirmation_url}}</a>
+            </p>
+        </div>
+        
+        <div class="footer">
+            <p><strong>Apyvyra</strong> - Professional Inventory Management</p>
+            <p>© 2025 Apyvyra. All rights reserved.</p>
+            <div class="links">
+                <a href="#">Privacy Policy</a>
+                <a href="#">Terms of Service</a>
+                <a href="#">Support</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

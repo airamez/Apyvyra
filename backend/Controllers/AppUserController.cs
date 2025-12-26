@@ -7,6 +7,7 @@ using System.Security.Claims;
 using System.Text;
 using backend.Data;
 using backend.Models;
+using backend.Services;
 using BCrypt.Net;
 
 namespace backend.Controllers;
@@ -17,12 +18,14 @@ public class AppUserController : BaseApiController
     private readonly AppDbContext _context;
     private readonly ILogger<AppUserController> _logger;
     private readonly IConfiguration _configuration;
+    private readonly IEmailService _emailService;
 
-    public AppUserController(AppDbContext context, ILogger<AppUserController> logger, IConfiguration configuration)
+    public AppUserController(AppDbContext context, ILogger<AppUserController> logger, IConfiguration configuration, IEmailService emailService)
     {
         _context = context;
         _logger = logger;
         _configuration = configuration;
+        _emailService = emailService;
     }
 
     // POST: api/app_user
@@ -38,11 +41,19 @@ public class AppUserController : BaseApiController
                 return ConflictWithError("Email already exists");
             }
 
+            var confirmationToken = GenerateConfirmationToken();
+            var tokenExpiry = DateTime.UtcNow.AddHours(24);
+
             var user = new AppUser
             {
                 Email = request.Email,
                 Password = BCrypt.Net.BCrypt.HashPassword(request.Password),
-                UserType = request.UserType
+                UserType = request.UserType,
+                Status = 0, // pending_confirmation
+                ConfirmationToken = confirmationToken,
+                ConfirmationTokenExpiresAt = tokenExpiry,
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow
             };
 
             _context.AppUsers.Add(user);
@@ -51,10 +62,24 @@ public class AppUserController : BaseApiController
             // Set created_by and updated_by to the user's own ID (for self-registration)
             user.CreatedBy = user.Id;
             user.UpdatedBy = user.Id;
+            user.UpdatedAt = DateTime.UtcNow;
+            _context.AppUsers.Update(user);
             await _context.SaveChangesAsync();
 
-            // Return JSON with message and id for frontend compatibility
-            return Created(string.Empty, new { message = "Registration successful", id = user.Id });
+            // Send confirmation email
+            try
+            {
+                var confirmationUrl = $"{_configuration["BaseUrl"]}/confirm/{confirmationToken}";
+                await _emailService.SendConfirmationEmailAsync(user.Email, user.Email, confirmationUrl, false);
+            }
+            catch (Exception emailEx)
+            {
+                _logger.LogError(emailEx, "Failed to send confirmation email to {Email}", user.Email);
+                // Don't fail registration if email fails
+            }
+
+            // Return JSON with message indicating email confirmation required
+            return Created(string.Empty, new { message = "Registration successful. Please check your email to confirm your account.", id = user.Id });
         }
         catch (Exception ex)
         {
@@ -120,6 +145,17 @@ public class AppUserController : BaseApiController
             if (user == null || !BCrypt.Net.BCrypt.Verify(request.Password, user.Password))
             {
                 return BadRequestWithErrors("Invalid email or password");
+            }
+
+            // Check user status
+            if (user.Status == 0) // pending_confirmation
+            {
+                return BadRequestWithErrors("Please confirm your email address before logging in. Check your inbox for the confirmation email.");
+            }
+
+            if (user.Status == 2) // inactive
+            {
+                return BadRequestWithErrors("Your account has been deactivated. Please contact support.");
             }
 
             // Generate JWT token
@@ -205,6 +241,104 @@ public class AppUserController : BaseApiController
 
         return new JwtSecurityTokenHandler().WriteToken(token);
     }
+
+    private string GenerateConfirmationToken()
+    {
+        return Guid.NewGuid().ToString("N");
+    }
+
+    // GET: api/app_user/confirm
+    [AllowAnonymous]
+    [HttpGet("confirm")]
+    public async Task<IActionResult> ConfirmEmail([FromQuery] string token)
+    {
+        try
+        {
+            var user = await _context.AppUsers.FirstOrDefaultAsync(u => u.ConfirmationToken == token);
+            
+            if (user == null)
+            {
+                return BadRequestWithErrors("Invalid confirmation token.");
+            }
+
+            if (user.ConfirmationTokenExpiresAt < DateTime.UtcNow)
+            {
+                return BadRequestWithErrors("Confirmation token has expired. Please request a new confirmation email.");
+            }
+
+            if (user.Status == 1) // already active
+            {
+                return Ok(new { message = "Email already confirmed. You can now log in." });
+            }
+
+            // Activate user account
+            user.Status = 1; // active
+            user.EmailConfirmedAt = DateTime.UtcNow;
+            user.ConfirmationToken = null;
+            user.ConfirmationTokenExpiresAt = null;
+            user.UpdatedAt = DateTime.UtcNow;
+            
+            await _context.SaveChangesAsync();
+
+            return Ok(new { message = "Email confirmed successfully! Your account is now active. You can log in." });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error confirming email");
+            return InternalServerErrorWithError("An error occurred while confirming your email.");
+        }
+    }
+
+    // POST: api/app_user/resend-confirmation
+    [AllowAnonymous]
+    [HttpPost("resend-confirmation")]
+    public async Task<IActionResult> ResendConfirmationEmail(ResendConfirmationRequest request)
+    {
+        try
+        {
+            var user = await _context.AppUsers.FirstOrDefaultAsync(u => u.Email == request.Email);
+            
+            if (user == null)
+            {
+                // Don't reveal that email doesn't exist
+                return Ok("If an account with that email exists, a confirmation email has been sent.");
+            }
+
+            if (user.Status == 1) // already active
+            {
+                return Ok("Your email is already confirmed. You can log in.");
+            }
+
+            // Generate new token
+            var confirmationToken = GenerateConfirmationToken();
+            var tokenExpiry = DateTime.UtcNow.AddHours(24);
+
+            user.ConfirmationToken = confirmationToken;
+            user.ConfirmationTokenExpiresAt = tokenExpiry;
+            user.UpdatedAt = DateTime.UtcNow;
+            
+            await _context.SaveChangesAsync();
+
+            // Send confirmation email
+            try
+            {
+                var confirmationUrl = $"{_configuration["BaseUrl"]}/confirm/{confirmationToken}";
+                await _emailService.SendConfirmationEmailAsync(user.Email, user.Email, confirmationUrl, true);
+            }
+            catch (Exception emailEx)
+            {
+                _logger.LogError(emailEx, "Failed to send resend confirmation email to {Email}", user.Email);
+                return StatusCode(500, "Failed to send confirmation email. Please try again later.");
+            }
+
+            return Ok("A new confirmation email has been sent. Please check your inbox.");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error resending confirmation email");
+            return StatusCode(500, "An error occurred while resending the confirmation email.");
+        }
+    }
 }
 
 // DTOs
@@ -241,4 +375,9 @@ public record LoginResponse
     public int Role { get; init; }
     public string Token { get; init; } = string.Empty;
     public string Message { get; init; } = string.Empty;
+}
+
+public record ResendConfirmationRequest
+{
+    public string Email { get; init; } = string.Empty;
 }

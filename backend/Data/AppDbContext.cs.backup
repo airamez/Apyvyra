@@ -25,13 +25,8 @@ public partial class AppDbContext : DbContext
     public virtual DbSet<ProductUrl> ProductUrls { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-    {
-        if (!optionsBuilder.IsConfigured)
-        {
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
-            optionsBuilder.UseNpgsql("Host=localhost;Port=5432;Database=apyvyra;Username=apyvyra;Password=apyvyra");
-        }
-    }
+        => optionsBuilder.UseNpgsql("Host=localhost;Port=5432;Database=apyvyra;Username=apyvyra;Password=apyvyra");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -45,30 +40,11 @@ public partial class AppDbContext : DbContext
 
             entity.HasIndex(e => e.Email, "idx_app_user_email");
 
-            entity.Property(e => e.Id).HasColumnName("id");
-            entity.Property(e => e.ConfirmationToken)
-                .HasMaxLength(255)
-                .HasColumnName("confirmation_token");
-            entity.Property(e => e.ConfirmationTokenExpiresAt).HasColumnName("confirmation_token_expires_at");
-            entity.Property(e => e.CreatedAt)
-                .HasDefaultValueSql("CURRENT_TIMESTAMP")
-                .HasColumnName("created_at");
-            entity.Property(e => e.CreatedBy).HasColumnName("created_by");
-            entity.Property(e => e.Email)
-                .HasMaxLength(255)
-                .HasColumnName("email");
-            entity.Property(e => e.EmailConfirmedAt).HasColumnName("email_confirmed_at");
-            entity.Property(e => e.Password)
-                .HasMaxLength(255)
-                .HasColumnName("password");
-            entity.Property(e => e.Status).HasColumnName("status");
-            entity.Property(e => e.UpdatedAt)
-                .HasDefaultValueSql("CURRENT_TIMESTAMP")
-                .HasColumnName("updated_at");
-            entity.Property(e => e.UpdatedBy).HasColumnName("updated_by");
-            entity.Property(e => e.UserType)
-                .HasDefaultValue(2)
-                .HasColumnName("user_type");
+            // Default values are handled by data annotations in the model
+            entity.Property(e => e.UserType).HasDefaultValue(2);
+            entity.Property(e => e.Status).HasDefaultValue(0);
+            entity.Property(e => e.CreatedAt).HasDefaultValueSql("CURRENT_TIMESTAMP");
+            entity.Property(e => e.UpdatedAt).HasDefaultValueSql("CURRENT_TIMESTAMP");
         });
 
         modelBuilder.Entity<Product>(entity =>
@@ -95,10 +71,11 @@ public partial class AppDbContext : DbContext
                 .HasColumnName("brand");
             entity.Property(e => e.CategoryId).HasColumnName("category_id");
             entity.Property(e => e.CostPrice)
-                .HasPrecision(19, 4)
+                .HasPrecision(18, 2)
                 .HasColumnName("cost_price");
             entity.Property(e => e.CreatedAt)
                 .HasDefaultValueSql("CURRENT_TIMESTAMP")
+                .HasColumnType("timestamp with time zone")
                 .HasColumnName("created_at");
             entity.Property(e => e.CreatedBy).HasColumnName("created_by");
             entity.Property(e => e.Description).HasColumnName("description");
@@ -118,7 +95,7 @@ public partial class AppDbContext : DbContext
                 .HasMaxLength(500)
                 .HasColumnName("name");
             entity.Property(e => e.Price)
-                .HasPrecision(19, 4)
+                .HasPrecision(18, 2)
                 .HasColumnName("price");
             entity.Property(e => e.Sku)
                 .HasMaxLength(100)
@@ -128,6 +105,7 @@ public partial class AppDbContext : DbContext
                 .HasColumnName("stock_quantity");
             entity.Property(e => e.UpdatedAt)
                 .HasDefaultValueSql("CURRENT_TIMESTAMP")
+                .HasColumnType("timestamp with time zone")
                 .HasColumnName("updated_at");
             entity.Property(e => e.UpdatedBy).HasColumnName("updated_by");
             entity.Property(e => e.Weight)
@@ -161,6 +139,7 @@ public partial class AppDbContext : DbContext
             entity.Property(e => e.Id).HasColumnName("id");
             entity.Property(e => e.CreatedAt)
                 .HasDefaultValueSql("CURRENT_TIMESTAMP")
+                .HasColumnType("timestamp with time zone")
                 .HasColumnName("created_at");
             entity.Property(e => e.CreatedBy).HasColumnName("created_by");
             entity.Property(e => e.Description).HasColumnName("description");
@@ -173,12 +152,12 @@ public partial class AppDbContext : DbContext
             entity.Property(e => e.ParentCategoryId).HasColumnName("parent_category_id");
             entity.Property(e => e.UpdatedAt)
                 .HasDefaultValueSql("CURRENT_TIMESTAMP")
+                .HasColumnType("timestamp with time zone")
                 .HasColumnName("updated_at");
             entity.Property(e => e.UpdatedBy).HasColumnName("updated_by");
 
             entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.ProductCategoryCreatedByNavigations)
                 .HasForeignKey(d => d.CreatedBy)
-                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("product_category_created_by_fkey");
 
             entity.HasOne(d => d.ParentCategory).WithMany(p => p.InverseParentCategory)
@@ -209,6 +188,7 @@ public partial class AppDbContext : DbContext
                 .HasColumnName("alt_text");
             entity.Property(e => e.CreatedAt)
                 .HasDefaultValueSql("CURRENT_TIMESTAMP")
+                .HasColumnType("timestamp with time zone")
                 .HasColumnName("created_at");
             entity.Property(e => e.CreatedBy).HasColumnName("created_by");
             entity.Property(e => e.DisplayOrder)
@@ -221,11 +201,11 @@ public partial class AppDbContext : DbContext
             entity.Property(e => e.Url)
                 .HasMaxLength(1000)
                 .HasColumnName("url");
-            entity.Property(e => e.UrlType).HasColumnName("url_type");
+            entity.Property(e => e.UrlType)
+                .HasColumnName("url_type");
 
             entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.ProductUrls)
                 .HasForeignKey(d => d.CreatedBy)
-                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("product_url_created_by_fkey");
 
             entity.HasOne(d => d.Product).WithMany(p => p.ProductUrls)
@@ -236,7 +216,6 @@ public partial class AppDbContext : DbContext
         OnModelCreatingPartial(modelBuilder);
     }
 
-    // Override SaveChanges to maintain the existing timestamp functionality
     public override int SaveChanges()
     {
         UpdateTimestamps();

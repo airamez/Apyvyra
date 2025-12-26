@@ -10,10 +10,15 @@ import {
   Button,
   Alert,
   Link,
-  CircularProgress
+  CircularProgress,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions
 } from '@mui/material';
 import LoginIcon from '@mui/icons-material/Login';
 import { authService } from '../../services/authService';
+import { API_ENDPOINTS } from '../../config/api';
 
 interface LoginProps {
   onNavigateToRegister?: () => void;
@@ -33,6 +38,10 @@ export default function Login({ onNavigateToRegister, onLoginSuccess }: LoginPro
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+  const [showResendDialog, setShowResendDialog] = useState(false);
+  const [resendEmail, setResendEmail] = useState('');
+  const [resendLoading, setResendLoading] = useState(false);
+  const [resendMessage, setResendMessage] = useState<string | null>(null);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -80,10 +89,51 @@ export default function Login({ onNavigateToRegister, onLoginSuccess }: LoginPro
       }
       
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred during login');
+      const errorMessage = err instanceof Error ? err.message : 'An error occurred during login';
+      
+      // Check if this is a pending confirmation error
+      if (errorMessage.includes('confirm your email')) {
+        setError(errorMessage);
+        setResendEmail(formData.email);
+        setShowResendDialog(true);
+      } else {
+        setError(errorMessage);
+      }
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleResendConfirmation = async () => {
+    setResendLoading(true);
+    setResendMessage(null);
+    
+    try {
+      const response = await fetch(API_ENDPOINTS.APP_USER.RESEND_CONFIRMATION, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email: resendEmail }),
+      });
+      
+      const data = await response.text();
+      
+      if (response.ok) {
+        setResendMessage(data);
+      } else {
+        setResendMessage('Failed to resend confirmation email. Please try again.');
+      }
+    } catch (err) {
+      setResendMessage('An error occurred. Please try again later.');
+    } finally {
+      setResendLoading(false);
+    }
+  };
+
+  const handleCloseResendDialog = () => {
+    setShowResendDialog(false);
+    setResendMessage(null);
   };
 
   return (
@@ -167,6 +217,55 @@ export default function Login({ onNavigateToRegister, onLoginSuccess }: LoginPro
                 </Typography>
               </Box>
             </form>
+
+            {/* Resend Confirmation Dialog */}
+            <Dialog open={showResendDialog} onClose={handleCloseResendDialog} maxWidth="sm" fullWidth>
+              <DialogTitle>
+                <Typography variant="h6" component="div">
+                  📧 Email Confirmation Required
+                </Typography>
+              </DialogTitle>
+              <DialogContent>
+                <Typography variant="body1" sx={{ mb: 2 }}>
+                  Please confirm your email address before logging in.
+                </Typography>
+                <Typography variant="body2" sx={{ mb: 2 }}>
+                  Check your inbox for the confirmation email. If you don't see it, you can request a new one below.
+                </Typography>
+                
+                {resendMessage && (
+                  <Alert severity={resendMessage.includes('sent') ? 'success' : 'error'} sx={{ mb: 2 }}>
+                    {resendMessage}
+                  </Alert>
+                )}
+                
+                {!resendMessage && (
+                  <Box>
+                    <Typography variant="body2" sx={{ mb: 1, fontWeight: 'bold' }}>
+                      Resend confirmation email to:
+                    </Typography>
+                    <Typography variant="body2" sx={{ mb: 2, color: 'text.secondary' }}>
+                      {resendEmail}
+                    </Typography>
+                  </Box>
+                )}
+              </DialogContent>
+              <DialogActions sx={{ p: 3 }}>
+                <Button onClick={handleCloseResendDialog} disabled={resendLoading}>
+                  {resendMessage ? 'Close' : 'Cancel'}
+                </Button>
+                {!resendMessage && (
+                  <Button 
+                    onClick={handleResendConfirmation} 
+                    variant="contained" 
+                    disabled={resendLoading}
+                    startIcon={resendLoading ? <CircularProgress size={20} /> : null}
+                  >
+                    {resendLoading ? 'Sending...' : 'Resend Email'}
+                  </Button>
+                )}
+              </DialogActions>
+            </Dialog>
           </CardContent>
         </Card>
       </Box>

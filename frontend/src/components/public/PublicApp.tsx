@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import {
   Typography,
   Box,
@@ -11,9 +10,11 @@ import {
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import Brightness4Icon from '@mui/icons-material/Brightness4';
 import Brightness7Icon from '@mui/icons-material/Brightness7';
+import { BrowserRouter as Router, Routes, Route, useNavigate, useLocation } from 'react-router-dom';
 import Register from './Register';
 import Login from './Login';
 import WelcomePage from './WelcomePage';
+import EmailConfirmation from './EmailConfirmation';
 
 interface PublicAppProps {
   onLoginSuccess: () => void;
@@ -21,30 +22,35 @@ interface PublicAppProps {
   mode: 'light' | 'dark';
 }
 
-export default function PublicApp({ onLoginSuccess, toggleTheme, mode }: PublicAppProps) {
-  const [showRegister, setShowRegister] = useState(false);
-  const [showLogin, setShowLogin] = useState(false);
+function PublicAppContent({ onLoginSuccess, toggleTheme, mode }: PublicAppProps) {
+  const navigate = useNavigate();
+  const location = useLocation();
 
   const handleNavigateToLogin = () => {
-    setShowRegister(false);
-    setShowLogin(true);
+    navigate('/login');
   };
 
   const handleNavigateToRegister = () => {
-    setShowLogin(false);
-    setShowRegister(true);
+    navigate('/register');
   };
 
   const handleLoginSuccessInternal = () => {
     onLoginSuccess();
   };
 
+  const isAuthPage = location.pathname === '/login' || location.pathname === '/register' || location.pathname.startsWith('/confirm');
+
   return (
     <Box sx={{ flexGrow: 1 }}>
       <AppBar position="static">
         <Toolbar>
           <DashboardIcon sx={{ mr: 2 }} />
-          <Typography variant="h6" component="div" sx={{ cursor: 'pointer' }}>
+          <Typography 
+            variant="h6" 
+            component="div" 
+            sx={{ cursor: 'pointer' }}
+            onClick={() => navigate('/')}
+          >
             Apyvyra ERP
           </Typography>
 
@@ -56,24 +62,35 @@ export default function PublicApp({ onLoginSuccess, toggleTheme, mode }: PublicA
             </IconButton>
           </Tooltip>
 
-          {!showRegister && !showLogin && (
-            <Button color="inherit" onClick={() => setShowRegister(true)} sx={{ mr: 1 }}>
-              Sign Up
-            </Button>
-          )}
-          {!showLogin && !showRegister && (
-            <Button color="inherit" onClick={() => setShowLogin(true)}>Login</Button>
+          {!isAuthPage && (
+            <>
+              <Button color="inherit" onClick={handleNavigateToRegister} sx={{ mr: 1 }}>
+                Sign Up
+              </Button>
+              <Button color="inherit" onClick={handleNavigateToLogin}>Login</Button>
+            </>
           )}
         </Toolbar>
       </AppBar>
 
-      {showRegister ? (
-        <Register onNavigateToLogin={handleNavigateToLogin} />
-      ) : showLogin ? (
-        <Login onNavigateToRegister={handleNavigateToRegister} onLoginSuccess={handleLoginSuccessInternal} />
-      ) : (
-        <WelcomePage isAuthenticated={false} />
-      )}
+      <Routes>
+        <Route path="/" element={<WelcomePage isAuthenticated={false} />} />
+        <Route path="/register" element={<Register onNavigateToLogin={handleNavigateToLogin} />} />
+        <Route path="/login" element={<Login onNavigateToRegister={handleNavigateToRegister} onLoginSuccess={handleLoginSuccessInternal} />} />
+        <Route path="/confirm/:token" element={<EmailConfirmation />} />
+      </Routes>
     </Box>
+  );
+}
+
+export default function PublicApp({ onLoginSuccess, toggleTheme, mode }: PublicAppProps) {
+  return (
+    <Router>
+      <PublicAppContent 
+        onLoginSuccess={onLoginSuccess} 
+        toggleTheme={toggleTheme} 
+        mode={mode} 
+      />
+    </Router>
   );
 }

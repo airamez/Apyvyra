@@ -4,12 +4,17 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using backend.Data;
 using backend.Middleware;
+using backend.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
+
+// Configure Email Settings
+builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
+builder.Services.AddTransient<IEmailService, EmailService>();
 
 // Add DbContext
 builder.Services.AddDbContext<AppDbContext>(options =>

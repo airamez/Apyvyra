@@ -11,9 +11,17 @@ public partial class AppUser
 
     public string Password { get; set; } = null!;
 
-    public int UserType { get; set; } = 2; // 0: admin, 1: staff, 2: customer
+    public int UserType { get; set; }
 
-    public DateTime? CreatedAt { get; set; }
+    public int Status { get; set; }
+
+    public string? ConfirmationToken { get; set; }
+
+    public DateTime? ConfirmationTokenExpiresAt { get; set; }
+
+    public DateTime? EmailConfirmedAt { get; set; }
+
+    public DateTime CreatedAt { get; set; }
 
     public int CreatedBy { get; set; }
 

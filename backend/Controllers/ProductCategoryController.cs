@@ -295,7 +295,7 @@ public class ProductCategoryController : BaseApiController
             SubCategories = includeChildren 
                 ? category.InverseParentCategory.Select(sc => MapToResponse(sc, true)).ToList() 
                 : new List<ProductCategoryResponse>(),
-            CreatedAt = category.CreatedAt ?? DateTime.MinValue,
+            CreatedAt = category.CreatedAt,
             UpdatedAt = category.UpdatedAt ?? DateTime.MinValue
         };
     }

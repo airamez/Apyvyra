@@ -13,6 +13,8 @@ export const API_ENDPOINTS = {
     REGISTER: `${API_BASE_URL}/api/app_user`,
     LOGIN: `${API_BASE_URL}/api/app_user/login`,
     ME: `${API_BASE_URL}/api/app_user/me`,
+    CONFIRM_EMAIL: `${API_BASE_URL}/api/app_user/confirm`,
+    RESEND_CONFIRMATION: `${API_BASE_URL}/api/app_user/resend-confirmation`,
   },
   USER: {
     LIST: `${API_BASE_URL}/api/app_user`,

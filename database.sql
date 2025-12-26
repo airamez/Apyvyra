@@ -6,12 +6,16 @@ DROP TABLE IF EXISTS product CASCADE;
 DROP TABLE IF EXISTS product_category CASCADE;
 DROP TABLE IF EXISTS app_user CASCADE;
 
--- App User table with auditing
+-- App User table with auditing and email confirmation
 CREATE TABLE app_user (
     id SERIAL PRIMARY KEY,
     email VARCHAR(255) NOT NULL UNIQUE,
     password VARCHAR(255) NOT NULL,
     user_type INTEGER NOT NULL DEFAULT 2 CHECK (user_type IN (0, 1, 2)), -- 0: admin, 1: staff, 2: customer
+    status INTEGER NOT NULL DEFAULT 0 CHECK (status IN (0, 1, 2)), -- 0: pending_confirmation, 1: active, 2: inactive
+    confirmation_token VARCHAR(255),
+    confirmation_token_expires_at TIMESTAMPTZ,
+    email_confirmed_at TIMESTAMPTZ,
     created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     created_by INTEGER NOT NULL,
     updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,

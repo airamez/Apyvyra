@@ -118,7 +118,13 @@ export default function Register({ onNavigateToLogin }: RegisterProps) {
               <Box sx={{ textAlign: 'center' }}>
                 <Alert severity="success" sx={{ mb: 3 }}>
                   <Typography variant="body1" sx={{ mb: 1 }}>
-                    Registration successful! Your account has been created.
+                    Registration successful! Please check your email to confirm your account.
+                  </Typography>
+                  <Typography variant="body2" sx={{ mb: 2 }}>
+                    We've sent a confirmation link to your email address. Click the link to activate your account.
+                  </Typography>
+                  <Typography variant="body2" sx={{ mb: 2 }}>
+                    If you don't see the email, check your spam folder.
                   </Typography>
                   <Link
                     component="button"
@@ -126,7 +132,7 @@ export default function Register({ onNavigateToLogin }: RegisterProps) {
                     onClick={onNavigateToLogin}
                     sx={{ cursor: 'pointer', fontWeight: 'bold', textDecoration: 'underline' }}
                   >
-                    Click here to log in
+                    After confirming, click here to log in
                   </Link>
                 </Alert>
               </Box>

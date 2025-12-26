@@ -421,7 +421,7 @@ public class ProductController : BaseApiController
             Weight = product.Weight,
             Dimensions = product.Dimensions,
             IsActive = product.IsActive ?? false,
-            CreatedAt = product.CreatedAt ?? DateTime.MinValue,
+            CreatedAt = product.CreatedAt,
             UpdatedAt = product.UpdatedAt ?? DateTime.MinValue
         };
     }

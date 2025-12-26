@@ -15,7 +15,7 @@ public partial class ProductCategory
 
     public bool? IsActive { get; set; }
 
-    public DateTime? CreatedAt { get; set; }
+    public DateTime CreatedAt { get; set; }
 
     public int CreatedBy { get; set; }
 
@@ -23,7 +23,7 @@ public partial class ProductCategory
 
     public int? UpdatedBy { get; set; }
 
-    public virtual AppUser? CreatedByNavigation { get; set; }
+    public virtual AppUser CreatedByNavigation { get; set; } = null!;
 
     public virtual ICollection<ProductCategory> InverseParentCategory { get; set; } = new List<ProductCategory>();
 

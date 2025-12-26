@@ -19,11 +19,11 @@ public partial class ProductUrl
 
     public bool? IsPrimary { get; set; }
 
-    public DateTime? CreatedAt { get; set; }
+    public DateTime CreatedAt { get; set; }
 
     public int CreatedBy { get; set; }
 
-    public virtual AppUser? CreatedByNavigation { get; set; }
+    public virtual AppUser CreatedByNavigation { get; set; } = null!;
 
     public virtual Product Product { get; set; } = null!;
 }
