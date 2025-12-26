@@ -62,31 +62,6 @@
             line-height: 1.6;
         }
         
-        .reminder-box {
-            background-color: #fff3cd;
-            border: 1px solid #ffeaa7;
-            padding: 25px;
-            margin: 30px 0;
-            border-radius: 8px;
-            display: none;
-        }
-        
-        .reminder-box.show {
-            display: block;
-        }
-        
-        .reminder-box h2 {
-            color: #856404;
-            font-size: 20px;
-            margin-bottom: 15px;
-        }
-        
-        .reminder-box p {
-            color: #856404;
-            font-size: 16px;
-            line-height: 1.6;
-        }
-        
         .confirmation-box {
             background-color: #f8f9fa;
             border-left: 4px solid #667eea;
@@ -212,16 +187,10 @@
         </div>
         
         <div class="content">
-            {{#is_resend}}
-            <div class="reminder-box show">
-                <h2>📋 Still waiting for email confirmation?</h2>
-                <p>We noticed you haven't confirmed your email address yet. Here's a fresh confirmation link to complete your Apyvyra account setup.</p>
-            </div>
-            {{/is_resend}}
             
             <div class="welcome-message">
-                <h2>Hi {{user_name}},</h2>
-                <p>{{welcome_message}}</p>
+                <h2>Welcome to Apyvyra!</h2>
+                <p>An account has been created using this email address. To get started with your Apyvyra account, we just need to confirm your email address.</p>
             </div>
             
             <div class="confirmation-box">
@@ -245,7 +214,7 @@
         </div>
         
         <div class="footer">
-            <p><strong>Apyvyra</strong> - Professional Inventory Management</p>
+            <p><strong>Apyvyra</strong></p>
             <p>© 2025 Apyvyra. All rights reserved.</p>
             <div class="links">
                 <a href="#">Privacy Policy</a>

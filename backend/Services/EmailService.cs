@@ -8,7 +8,7 @@ namespace backend.Services;
 
 public interface IEmailService
 {
-    Task SendConfirmationEmailAsync(string toEmail, string userName, string confirmationUrl, bool isResend = false);
+    Task SendConfirmationEmailAsync(string toEmail, string confirmationUrl);
 }
 
 public class EmailService : IEmailService
@@ -22,7 +22,7 @@ public class EmailService : IEmailService
         _logger = logger;
     }
 
-    public async Task SendConfirmationEmailAsync(string toEmail, string userName, string confirmationUrl, bool isResend = false)
+    public async Task SendConfirmationEmailAsync(string toEmail, string confirmationUrl)
     {
         try
         {
@@ -30,43 +30,27 @@ public class EmailService : IEmailService
             _logger.LogInformation("Looking for template at: {TemplatePath}", templatePath);
             var template = await File.ReadAllTextAsync(templatePath);
             
-            // Prepare template variables
+            // Prepare template variables - always use the same template since new token is created
             var emailBody = template
-                .Replace("{{email_type}}", isResend ? "Apyvyra - Reminder" : "Welcome to Apyvyra!")
-                .Replace("{{email_subtitle}}", isResend ? "Complete your registration to get started" : "Your journey to seamless inventory management starts here")
-                .Replace("{{user_name}}", userName)
-                .Replace("{{welcome_message}}", isResend 
-                    ? "Here's a fresh confirmation link to complete your Apyvyra account setup."
-                    : "Thank you for signing up for Apyvyra! We're excited to have you on board. To get started with your account, we just need to confirm your email address.")
+                .Replace("{{email_type}}", "Welcome to Apyvyra!")
+                .Replace("{{email_subtitle}}", "Your journey to seamless inventory management starts here")
                 .Replace("{{confirmation_instruction}}", "Please click the button below to verify your email address and activate your account:")
                 .Replace("{{confirmation_url}}", confirmationUrl)
-                .Replace("{{expiry_class}}", isResend ? "warning" : "")
-                .Replace("{{expiry_title}}", isResend ? "Time Sensitive" : "Important")
-                .Replace("{{expiry_message}}", isResend 
-                    ? "This confirmation link will expire in 24 hours for security reasons."
-                    : "This confirmation link will expire in 24 hours for security reasons. If you don't confirm in time, you'll need to request a new confirmation email.")
-                .Replace("{{security_title}}", isResend ? "Account Security" : "Security Notice")
-                .Replace("{{security_message}}", isResend 
-                    ? "If you didn't request this email or believe this was sent in error, please contact our support team immediately. We're here to help keep your account secure."
-                    : "If you didn't create an account with Apyvyra, please ignore this email or contact our support team. We take security seriously and will never ask for your password via email.");
+                .Replace("{{expiry_class}}", "")
+                .Replace("{{expiry_title}}", "Important")
+                .Replace("{{expiry_message}}", "This confirmation link will expire in 24 hours for security reasons. If you don't confirm in time, you'll need to request a new confirmation email.")
+                .Replace("{{security_title}}", "Security Notice")
+                .Replace("{{security_message}}", "If you didn't create an account with Apyvyra, please ignore this email or contact our support team. We take security seriously and will never ask for your password via email.");
 
-            // Handle conditional resend section
-            if (isResend)
+            // Remove the resend section completely since we always use the same template
+            var startIndex = emailBody.IndexOf("{{#is_resend}}");
+            var endIndex = emailBody.IndexOf("{{/is_resend}}") + "{{/is_resend}}".Length;
+            if (startIndex != -1 && endIndex != -1)
             {
-                emailBody = emailBody.Replace("{{#is_resend}}", "").Replace("{{/is_resend}}", "");
-            }
-            else
-            {
-                // Remove the resend section completely for initial emails
-                var startIndex = emailBody.IndexOf("{{#is_resend}}");
-                var endIndex = emailBody.IndexOf("{{/is_resend}}") + "{{/is_resend}}".Length;
-                if (startIndex != -1 && endIndex != -1)
-                {
-                    emailBody = emailBody.Remove(startIndex, endIndex - startIndex);
-                }
+                emailBody = emailBody.Remove(startIndex, endIndex - startIndex);
             }
 
-            var subject = isResend ? "Reminder: Confirm Your Email Address - Apyvyra" : "Confirm Your Email Address - Apyvyra";
+            var subject = "Confirm Your Email Address - Apyvyra";
             await SendEmailAsync(toEmail, subject, emailBody);
         }
         catch (Exception ex)

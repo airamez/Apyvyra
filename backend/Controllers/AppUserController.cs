@@ -70,7 +70,7 @@ public class AppUserController : BaseApiController
             try
             {
                 var confirmationUrl = $"{_configuration["BaseUrl"]}/confirm/{confirmationToken}";
-                await _emailService.SendConfirmationEmailAsync(user.Email, user.Email, confirmationUrl, false);
+                await _emailService.SendConfirmationEmailAsync(user.Email, confirmationUrl);
             }
             catch (Exception emailEx)
             {
@@ -150,7 +150,14 @@ public class AppUserController : BaseApiController
             // Check user status
             if (user.Status == 0) // pending_confirmation
             {
-                return BadRequestWithErrors("Please confirm your email address before logging in. Check your inbox for the confirmation email.");
+                return Ok(new LoginResponse
+                {
+                    Id = user.Id,
+                    Email = user.Email,
+                    Role = user.UserType,
+                    Token = "",
+                    Message = "Email confirmation required. Please check your inbox for the confirmation email or request a new one."
+                });
             }
 
             if (user.Status == 2) // inactive
@@ -323,7 +330,7 @@ public class AppUserController : BaseApiController
             try
             {
                 var confirmationUrl = $"{_configuration["BaseUrl"]}/confirm/{confirmationToken}";
-                await _emailService.SendConfirmationEmailAsync(user.Email, user.Email, confirmationUrl, true);
+                await _emailService.SendConfirmationEmailAsync(user.Email, confirmationUrl);
             }
             catch (Exception emailEx)
             {
