@@ -59,6 +59,9 @@ public partial class AppDbContext : DbContext
                 .HasColumnName("email")
                 .HasColumnType("citext");
             entity.Property(e => e.EmailConfirmedAt).HasColumnName("email_confirmed_at");
+            entity.Property(e => e.FullName)
+                .HasMaxLength(255)
+                .HasColumnName("full_name");
             entity.Property(e => e.Password)
                 .HasMaxLength(255)
                 .HasColumnName("password");

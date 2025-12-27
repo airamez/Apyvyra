@@ -9,6 +9,7 @@ namespace backend.Services;
 public interface IEmailService
 {
     Task SendConfirmationEmailAsync(string toEmail, string confirmationUrl);
+    Task SendStaffInvitationEmailAsync(string toEmail, string fullName, string setupUrl);
 }
 
 public class EmailService : IEmailService
@@ -56,6 +57,28 @@ public class EmailService : IEmailService
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error sending confirmation email to {Email}", toEmail);
+            throw;
+        }
+    }
+
+    public async Task SendStaffInvitationEmailAsync(string toEmail, string fullName, string setupUrl)
+    {
+        try
+        {
+            var templatePath = "/home/jose/code/Apyvyra/email-templates/staff-invitation.html";
+            _logger.LogInformation("Looking for staff invitation template at: {TemplatePath}", templatePath);
+            var template = await File.ReadAllTextAsync(templatePath);
+            
+            var emailBody = template
+                .Replace("{{full_name}}", fullName)
+                .Replace("{{setup_url}}", setupUrl);
+
+            var subject = "You've Been Invited to Join Apyvyra - Staff Account Setup";
+            await SendEmailAsync(toEmail, subject, emailBody);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error sending staff invitation email to {Email}", toEmail);
             throw;
         }
     }

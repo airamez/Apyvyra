@@ -14,6 +14,7 @@ CREATE TABLE app_user (
     id SERIAL PRIMARY KEY,
     email citext NOT NULL UNIQUE,
     password VARCHAR(255) NOT NULL,
+    full_name citext VARCHAR(255),
     user_type INTEGER NOT NULL DEFAULT 2 CHECK (user_type IN (0, 1, 2)), -- 0: admin, 1: staff, 2: customer
     status INTEGER NOT NULL DEFAULT 0 CHECK (status IN (0, 1, 2)), -- 0: pending_confirmation, 1: active, 2: inactive
     confirmation_token VARCHAR(255),
@@ -25,6 +26,8 @@ CREATE TABLE app_user (
     updated_by INTEGER
 );
 CREATE INDEX idx_app_user_email ON app_user(email);
+CREATE INDEX idx_app_user_full_name ON app_user(full_name);
+CREATE INDEX idx_app_user_user_type ON app_user(user_type);
 
 -- Product Category table with auditing
 CREATE TABLE product_category (

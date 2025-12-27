@@ -19,6 +19,8 @@ import Dashboard from './Dashboard';
 import Products from './products/Products';
 import Categories from './products/Categories';
 import Customers from './Customers';
+import Staff from './Staff';
+import { authService } from '../../services/authService';
 
 interface AdminAppProps {
   onLogout: () => void;
@@ -27,10 +29,10 @@ interface AdminAppProps {
 }
 
 export default function AdminApp({ onLogout, toggleTheme, mode }: AdminAppProps) {
-  const [activeView, setActiveView] = useState<'dashboard' | 'products' | 'categories' | 'customers'>('dashboard');
+  const [activeView, setActiveView] = useState<'dashboard' | 'products' | 'categories' | 'customers' | 'staff'>('dashboard');
   const [productsMenuAnchor, setProductsMenuAnchor] = useState<null | HTMLElement>(null);
 
-  const handleNavigateToView = (view: 'dashboard' | 'products' | 'categories' | 'customers') => {
+  const handleNavigateToView = (view: 'dashboard' | 'products' | 'categories' | 'customers' | 'staff') => {
     setActiveView(view);
   };
 
@@ -44,6 +46,8 @@ export default function AdminApp({ onLogout, toggleTheme, mode }: AdminAppProps)
         return <Categories />;
       case 'customers':
         return <Customers />;
+      case 'staff':
+        return <Staff />;
       default:
         return <Dashboard />;
     }
@@ -110,6 +114,15 @@ export default function AdminApp({ onLogout, toggleTheme, mode }: AdminAppProps)
             >
               Customers
             </Button>
+            {authService.isAdmin() && (
+              <Button
+                color="inherit"
+                variant={activeView === 'staff' ? 'outlined' : 'text'}
+                onClick={() => handleNavigateToView('staff')}
+              >
+                Staff
+              </Button>
+            )}
           </Box>
 
           <Box sx={{ flexGrow: 1 }} />

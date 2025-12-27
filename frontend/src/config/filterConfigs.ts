@@ -159,3 +159,46 @@ export const categoryFilterConfig: Pick<FilterConfig, 'fields' | 'collapsible' |
     ...auditFieldsConfig,
   ],
 };
+
+/**
+ * Filter configuration for Staff page
+ */
+export const staffFilterConfig: Pick<FilterConfig, 'fields' | 'collapsible' | 'collapsibleSections'> = {
+  collapsible: true,
+  collapsibleSections: true,
+  fields: [
+    {
+      name: 'fullName',
+      label: 'Full Name',
+      type: 'string',
+      operators: ['contains', 'eq', 'startsWith'],
+      defaultOperator: 'contains',
+      placeholder: 'Search by name...',
+    },
+    {
+      name: 'email',
+      label: 'Email',
+      type: 'string',
+      operators: ['contains', 'eq', 'startsWith'],
+      defaultOperator: 'contains',
+      placeholder: 'Search by email...',
+    },
+    {
+      name: 'status',
+      label: 'Status',
+      type: 'dropdown',
+      dropdownConfig: {
+        endpoint: '',
+        idField: 'id',
+        nameField: 'name',
+        staticOptions: [
+          { id: 0, name: 'Pending Confirmation' },
+          { id: 1, name: 'Active' },
+          { id: 2, name: 'Inactive' },
+        ],
+      },
+    },
+    // Audit fields
+    ...auditFieldsConfig,
+  ],
+};

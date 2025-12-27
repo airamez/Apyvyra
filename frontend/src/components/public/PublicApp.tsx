@@ -15,6 +15,7 @@ import Register from './Register';
 import Login from './Login';
 import WelcomePage from './WelcomePage';
 import EmailConfirmation from './EmailConfirmation';
+import StaffSetup from './StaffSetup';
 
 interface PublicAppProps {
   onLoginSuccess: () => void;
@@ -38,7 +39,7 @@ function PublicAppContent({ onLoginSuccess, toggleTheme, mode }: PublicAppProps)
     onLoginSuccess();
   };
 
-  const isAuthPage = location.pathname === '/login' || location.pathname === '/register' || location.pathname.startsWith('/confirm');
+  const isAuthPage = location.pathname === '/login' || location.pathname === '/register' || location.pathname.startsWith('/confirm') || location.pathname.startsWith('/staff-setup');
 
   return (
     <Box sx={{ flexGrow: 1 }}>
@@ -78,6 +79,7 @@ function PublicAppContent({ onLoginSuccess, toggleTheme, mode }: PublicAppProps)
         <Route path="/register" element={<Register onNavigateToLogin={handleNavigateToLogin} />} />
         <Route path="/login" element={<Login onNavigateToRegister={handleNavigateToRegister} onLoginSuccess={handleLoginSuccessInternal} />} />
         <Route path="/confirm/:token" element={<EmailConfirmation />} />
+        <Route path="/staff-setup/:token" element={<StaffSetup />} />
       </Routes>
     </Box>
   );

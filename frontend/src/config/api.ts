@@ -19,6 +19,13 @@ export const API_ENDPOINTS = {
   USER: {
     LIST: `${API_BASE_URL}/api/app_user`,
   },
+  STAFF: {
+    LIST: `${API_BASE_URL}/api/app_user/staff`,
+    DETAIL: (id: number) => `${API_BASE_URL}/api/app_user/staff/${id}`,
+    RESEND_INVITATION: (id: number) => `${API_BASE_URL}/api/app_user/staff/resend-invitation/${id}`,
+    SETUP_INFO: (token: string) => `${API_BASE_URL}/api/app_user/staff-setup/${token}`,
+    COMPLETE_SETUP: `${API_BASE_URL}/api/app_user/staff-setup`,
+  },
   PRODUCT: {
     LIST: `${API_BASE_URL}/api/product`,
     DETAIL: (id: number) => `${API_BASE_URL}/api/product/${id}`,

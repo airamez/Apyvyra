@@ -11,6 +11,8 @@ public partial class AppUser
 
     public string Password { get; set; } = null!;
 
+    public string? FullName { get; set; }
+
     public int UserType { get; set; }
 
     public int Status { get; set; }

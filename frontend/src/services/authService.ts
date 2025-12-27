@@ -58,6 +58,12 @@ export const authService = {
     return role === 0 || role === 1; // 0: admin, 1: staff
   },
 
+  // Check if user is admin
+  isAdmin(): boolean {
+    const role = this.getUserRole();
+    return role === 0; // 0: admin
+  },
+
   // Check if user is authenticated
   isAuthenticated(): boolean {
     const token = this.getToken();
