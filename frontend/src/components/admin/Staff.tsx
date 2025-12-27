@@ -121,8 +121,7 @@ export default function Staff() {
       setSuccessMessage('Staff member added successfully. An invitation email has been sent.');
       handleCloseAddDialog();
       await loadStaff();
-      setTimeout(() => setSuccessMessage(null), 5000);
-    } catch (err: any) {
+          } catch (err: any) {
       setError(err.message || 'Failed to add staff member');
     } finally {
       setFormLoading(false);
@@ -156,8 +155,7 @@ export default function Staff() {
       setSuccessMessage('Staff member updated successfully.');
       handleCloseEditDialog();
       await loadStaff();
-      setTimeout(() => setSuccessMessage(null), 5000);
-    } catch (err: any) {
+          } catch (err: any) {
       setError(err.message || 'Failed to update staff member');
     } finally {
       setFormLoading(false);
@@ -184,8 +182,7 @@ export default function Staff() {
       setSuccessMessage('Staff member deleted successfully.');
       handleCloseDeleteDialog();
       await loadStaff();
-      setTimeout(() => setSuccessMessage(null), 5000);
-    } catch (err: any) {
+          } catch (err: any) {
       setError(err.message || 'Failed to delete staff member');
     } finally {
       setFormLoading(false);
@@ -198,8 +195,7 @@ export default function Staff() {
       setError(null);
       await staffService.resendInvitation(staffMember.id);
       setSuccessMessage(`Invitation email resent to ${staffMember.email}`);
-      setTimeout(() => setSuccessMessage(null), 5000);
-    } catch (err: any) {
+          } catch (err: any) {
       setError(err.message || 'Failed to resend invitation');
     }
   };

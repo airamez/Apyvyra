@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, memo } from 'react';
 import {
   Box,
   Card,
@@ -18,8 +18,12 @@ import {
   Badge,
   Snackbar,
   Alert,
+  Collapse,
+  Link,
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
+import ClearIcon from '@mui/icons-material/Clear';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import AddIcon from '@mui/icons-material/Add';
@@ -38,13 +42,18 @@ export default function Store({ onViewCart }: StoreProps) {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<number | ''>('');
+  const [searchBrand, setSearchBrand] = useState('');
+  const [searchManufacturer, setSearchManufacturer] = useState('');
+  const [expandedCards, setExpandedCards] = useState<Record<number, boolean>>({});
   const [cartItemCount, setCartItemCount] = useState(0);
   const [quantities, setQuantities] = useState<Record<number, number>>({});
   const [snackbar, setSnackbar] = useState<{ open: boolean; message: string }>({ open: false, message: '' });
 
   useEffect(() => {
     loadData();
-    updateCartCount();
+    // Set initial cart count directly to avoid extra localStorage read
+    const initialCount = cartService.getItemCount();
+    setCartItemCount(initialCount);
   }, []);
 
   const loadData = async () => {
@@ -63,10 +72,7 @@ export default function Store({ onViewCart }: StoreProps) {
     }
   };
 
-  const updateCartCount = () => {
-    setCartItemCount(cartService.getItemCount());
-  };
-
+  
   const handleSearch = async () => {
     try {
       setLoading(true);
@@ -78,11 +84,34 @@ export default function Store({ onViewCart }: StoreProps) {
       if (selectedCategory) {
         filters.categoryId = selectedCategory;
       }
-
+      if (searchBrand) {
+        filters.brand = searchBrand;
+      }
+      if (searchManufacturer) {
+        filters.manufacturer = searchManufacturer;
+      }
+      
       const response = await productService.getAll(filters);
       setProducts(response.data);
     } catch (error) {
       console.error('Error searching products:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleReset = async () => {
+    try {
+      setLoading(true);
+      setSearchTerm('');
+      setSelectedCategory('');
+      setSearchBrand('');
+      setSearchManufacturer('');
+      
+      const response = await productService.getAll({ isActive: true });
+      setProducts(response.data);
+    } catch (error) {
+      console.error('Error resetting search:', error);
     } finally {
       setLoading(false);
     }
@@ -94,42 +123,171 @@ export default function Store({ onViewCart }: StoreProps) {
     }
   };
 
-  const getQuantity = (productId: number) => quantities[productId] || 1;
+  const toggleExpanded = useCallback((productId: number) => {
+    setExpandedCards(prev => ({
+      ...prev,
+      [productId]: !prev[productId]
+    }));
+  }, []);
 
-  const setQuantity = (productId: number, qty: number) => {
+  const getQuantity = useCallback((productId: number) => quantities[productId] || 1, [quantities]);
+
+  const setQuantity = useCallback((productId: number, qty: number) => {
     if (qty >= 1) {
       setQuantities(prev => ({ ...prev, [productId]: qty }));
     }
-  };
+  }, []);
 
-  const addToCart = (product: Product) => {
-    const qty = getQuantity(product.id);
-    const primaryImage = product.productUrls?.find(u => u.isPrimary && u.urlType === 0);
+  const addToCart = useCallback((product: Product) => {
+    const qty = quantities[product.id] || 1;
     
-    const cartItem: Omit<CartItem, 'quantity'> = {
+    const cartItem = {
       productId: product.id,
       productName: product.name,
       productSku: product.sku,
       price: product.price,
       taxRate: product.taxRate || 0,
-      imageUrl: primaryImage?.url,
+      imageUrl: product.productUrls?.find(u => u.isPrimary && u.urlType === 0)?.url,
     };
 
     cartService.addItem(cartItem, qty);
-    updateCartCount();
+    setCartItemCount(prev => prev + qty);
     setQuantities(prev => ({ ...prev, [product.id]: 1 }));
     setSnackbar({ open: true, message: `Added ${qty} x ${product.name} to cart` });
-  };
+  }, [quantities]);
 
-  const getProductImage = (product: Product) => {
+  const getProductImage = useCallback((product: Product) => {
     const primaryImage = product.productUrls?.find(u => u.isPrimary && u.urlType === 0);
     const anyImage = product.productUrls?.find(u => u.urlType === 0);
     return primaryImage?.url || anyImage?.url || 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjE0MCIgdmlld0JveD0iMCAwIDIwMCAxNDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIyMDAiIGhlaWdodD0iMTQwIiBmaWxsPSIjRjVGNUY1Ii8+CjxwYXRoIGQ9Ik04NSA1MEgxMTVWOTBIOjVWNTBaIiBmaWxsPSIjOTk5OTk5Ii8+CjxjaXJjbGUgY3g9IjEwMCIgY3k9IjM1IiByPSIxNSIgZmlsbD0iIzk5OTk5OSIvPgo8L3N2Zz4K';
-  };
+  }, []);
 
-  const formatPrice = (price: number) => {
+  const formatPrice = useCallback((price: number) => {
     return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(price);
-  };
+  }, []);
+
+  // Memoized ProductCard component to prevent unnecessary re-renders
+  const ProductCard = memo(({ product }: { product: Product }) => {
+    const currentQuantity = quantities[product.id] || 1;
+    return (
+      <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+        <CardMedia
+          component="img"
+          height="140"
+          image={getProductImage(product)}
+          alt={product.name}
+          sx={{ objectFit: 'contain', bgcolor: '#f5f5f5', p: 1 }}
+        />
+        <CardContent sx={{ flexGrow: 1, p: 1.5, '&:last-child': { pb: 1.5 } }}>
+          <Typography variant="subtitle2" noWrap title={product.name}>
+            {product.name}
+          </Typography>
+          
+          {product.category && (
+            <Chip
+              label={product.category.name}
+              size="small"
+              sx={{ mt: 0.5, height: 20, fontSize: '0.7rem' }}
+            />
+          )}
+
+          <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5, fontSize: '0.75rem' }} noWrap>
+            {product.description || 'No description'}
+          </Typography>
+
+          {/* Price, Quantity and Add to Cart */}
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 1 }}>
+            <Typography variant="h6" color="primary" sx={{ fontSize: '1rem', fontWeight: 'bold', minWidth: '80px' }}>
+              {formatPrice(product.price)}
+            </Typography>
+            <Box sx={{ display: 'flex', alignItems: 'center', border: '1px solid #ddd', borderRadius: 1 }}>
+              <IconButton
+                size="small"
+                onClick={() => setQuantity(product.id, currentQuantity - 1)}
+                disabled={currentQuantity <= 1}
+              >
+                <RemoveIcon fontSize="small" />
+              </IconButton>
+              <Typography sx={{ px: 1, minWidth: 24, textAlign: 'center' }}>
+                {currentQuantity}
+              </Typography>
+              <IconButton
+                size="small"
+                onClick={() => setQuantity(product.id, currentQuantity + 1)}
+              >
+                <AddIcon fontSize="small" />
+              </IconButton>
+            </Box>
+            <Button
+              variant="contained"
+              size="small"
+              onClick={() => addToCart(product)}
+              sx={{ minWidth: '60px', fontSize: '0.75rem', px: 1 }}
+            >
+              Add
+            </Button>
+          </Box>
+        </CardContent>
+
+        {/* Product Details Section */}
+        {(product.brand || product.manufacturer || product.weight || product.dimensions) && (
+          <Box sx={{ px: 1.5, pb: 1 }}>
+            {product.brand && (
+              <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.3 }}>
+                <strong>Brand:</strong> {product.brand}
+              </Typography>
+            )}
+            
+            {product.manufacturer && (
+              <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.3 }}>
+                <strong>Manufacturer:</strong> {product.manufacturer}
+              </Typography>
+            )}
+            
+            {product.dimensions && (
+              <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.3 }}>
+                <strong>Dimensions:</strong> {product.dimensions}
+              </Typography>
+            )}
+            
+            {product.weight && (
+              <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.3 }}>
+                <strong>Weight:</strong> {product.weight}
+              </Typography>
+            )}
+          </Box>
+        )}
+
+        {/* Resources Section */}
+        {product.productUrls && product.productUrls.length > 0 && (
+          <Box sx={{ px: 1.5, pb: 1.5, pt: 1, borderTop: '1px solid #eee' }}>
+            <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 'bold', display: 'block', mb: 0.5 }}>
+              Resources:
+            </Typography>
+            {product.productUrls.map((url, index) => (
+              <Box key={url.id} sx={{ mb: 0.3 }}>
+                <Typography variant="caption" color="text.secondary" sx={{ display: 'block' }}>
+                  <strong>{url.urlType === 0 ? 'Image' : url.urlType === 1 ? 'Video' : 'Manual'}:</strong>{' '}
+                  <Link 
+                    href={url.url} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    sx={{ 
+                      color: 'primary.main', 
+                      textDecoration: 'underline',
+                      '&:hover': { color: 'primary.dark' }
+                    }}
+                  >
+                    {url.altText || `Resource ${index + 1}`}
+                  </Link>
+                </Typography>
+              </Box>
+            ))}
+          </Box>
+        )}
+      </Card>
+    );
+  });
 
   return (
     <Box sx={{ p: 2 }}>
@@ -165,6 +323,24 @@ export default function Store({ onViewCart }: StoreProps) {
           </Select>
         </FormControl>
 
+        <TextField
+          size="small"
+          placeholder="Brand..."
+          value={searchBrand}
+          onChange={(e) => setSearchBrand(e.target.value)}
+          onKeyPress={handleKeyPress}
+          sx={{ minWidth: 120, maxWidth: 150 }}
+        />
+
+        <TextField
+          size="small"
+          placeholder="Manufacturer..."
+          value={searchManufacturer}
+          onChange={(e) => setSearchManufacturer(e.target.value)}
+          onKeyPress={handleKeyPress}
+          sx={{ minWidth: 140, maxWidth: 170 }}
+        />
+
         <Button
           variant="contained"
           size="small"
@@ -172,6 +348,15 @@ export default function Store({ onViewCart }: StoreProps) {
           startIcon={<SearchIcon />}
         >
           Search
+        </Button>
+
+        <Button
+          variant="outlined"
+          size="small"
+          onClick={handleReset}
+          startIcon={<ClearIcon />}
+        >
+          Reset
         </Button>
 
         <Box sx={{ flexGrow: 1 }} />
@@ -198,76 +383,7 @@ export default function Store({ onViewCart }: StoreProps) {
         <Grid container spacing={2}>
           {products.map((product) => (
             <Grid size={{ xs: 12, sm: 6, md: 4, lg: 3 }} key={product.id}>
-              <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-                <CardMedia
-                  component="img"
-                  height="140"
-                  image={getProductImage(product)}
-                  alt={product.name}
-                  sx={{ objectFit: 'contain', bgcolor: '#f5f5f5', p: 1 }}
-                />
-                <CardContent sx={{ flexGrow: 1, p: 1.5, '&:last-child': { pb: 1.5 } }}>
-                  <Typography variant="subtitle2" noWrap title={product.name}>
-                    {product.name}
-                  </Typography>
-                  
-                  {product.category && (
-                    <Chip
-                      label={product.category.name}
-                      size="small"
-                      sx={{ mt: 0.5, height: 20, fontSize: '0.7rem' }}
-                    />
-                  )}
-
-                  <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5, fontSize: '0.75rem' }} noWrap>
-                    {product.description || 'No description'}
-                  </Typography>
-
-                  <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mt: 1 }}>
-                    <Box>
-                      <Typography variant="h6" color="primary" sx={{ fontSize: '1rem', fontWeight: 'bold' }}>
-                        {formatPrice(product.price)}
-                      </Typography>
-                      {product.taxRate > 0 && (
-                        <Typography variant="caption" color="text.secondary">
-                          +{product.taxRate}% tax
-                        </Typography>
-                      )}
-                    </Box>
-                  </Box>
-
-                  {/* Quantity and Add to Cart */}
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 1 }}>
-                    <Box sx={{ display: 'flex', alignItems: 'center', border: '1px solid #ddd', borderRadius: 1 }}>
-                      <IconButton
-                        size="small"
-                        onClick={() => setQuantity(product.id, getQuantity(product.id) - 1)}
-                        disabled={getQuantity(product.id) <= 1}
-                      >
-                        <RemoveIcon fontSize="small" />
-                      </IconButton>
-                      <Typography sx={{ px: 1, minWidth: 24, textAlign: 'center' }}>
-                        {getQuantity(product.id)}
-                      </Typography>
-                      <IconButton
-                        size="small"
-                        onClick={() => setQuantity(product.id, getQuantity(product.id) + 1)}
-                      >
-                        <AddIcon fontSize="small" />
-                      </IconButton>
-                    </Box>
-                    <Button
-                      variant="contained"
-                      size="small"
-                      onClick={() => addToCart(product)}
-                      startIcon={<AddShoppingCartIcon />}
-                      sx={{ flex: 1, fontSize: '0.75rem' }}
-                    >
-                      Add
-                    </Button>
-                  </Box>
-                </CardContent>
-              </Card>
+              <ProductCard product={product} />
             </Grid>
           ))}
         </Grid>

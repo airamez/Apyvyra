@@ -16,6 +16,7 @@ export interface CartSummary {
   itemCount: number;
 }
 
+// Local storage cart - persists across browser sessions
 const CART_STORAGE_KEY = 'apyvyra_cart';
 
 export const cartService = {

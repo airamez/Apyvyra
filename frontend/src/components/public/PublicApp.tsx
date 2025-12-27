@@ -37,6 +37,7 @@ function PublicAppContent({ onLoginSuccess, toggleTheme, mode }: PublicAppProps)
 
   const handleLoginSuccessInternal = () => {
     onLoginSuccess();
+    navigate('/'); // Redirect to home/store page after login
   };
 
   const isAuthPage = location.pathname === '/login' || location.pathname === '/register' || location.pathname.startsWith('/confirm') || location.pathname.startsWith('/staff-setup');
