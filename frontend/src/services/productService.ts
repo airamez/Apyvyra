@@ -53,6 +53,7 @@ export interface CreateProductData {
   categoryId?: number;
   price: number | undefined;
   costPrice?: number;
+  taxRate?: number;
   stockQuantity: number | undefined;
   lowStockThreshold: number | undefined;
   brand?: string;

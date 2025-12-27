@@ -89,7 +89,15 @@ export default function Login({ onNavigateToRegister, onLoginSuccess }: LoginPro
       }
       
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'An error occurred during login';
+      let errorMessage = 'An error occurred during login';
+      
+      // Handle ApiError structure
+      if (err && typeof err === 'object' && 'errors' in err) {
+        const apiError = err as { errors: string[] };
+        errorMessage = apiError.errors[0] || errorMessage;
+      } else if (err instanceof Error) {
+        errorMessage = err.message;
+      }
       
       // Check if this is a pending confirmation error
       if (errorMessage.includes('confirm your email')) {

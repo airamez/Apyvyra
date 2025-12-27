@@ -40,6 +40,7 @@ interface Product {
   categoryName?: string;
   price: number;
   costPrice?: number;
+  taxRate?: number;
   stockQuantity: number;
   lowStockThreshold?: number;
   brand?: string;
@@ -66,6 +67,7 @@ export default function ProductForm({ open, editingProduct, onClose, onSubmit }:
     categoryId: undefined,
     price: undefined,
     costPrice: undefined,
+    taxRate: undefined,
     stockQuantity: undefined,
     lowStockThreshold: undefined,
     brand: '',
@@ -105,6 +107,7 @@ export default function ProductForm({ open, editingProduct, onClose, onSubmit }:
         categoryId: editingProduct.categoryId,
         price: editingProduct.price,
         costPrice: editingProduct.costPrice || 0,
+        taxRate: editingProduct.taxRate || 0,
         stockQuantity: editingProduct.stockQuantity,
         lowStockThreshold: editingProduct.lowStockThreshold || 10,
         brand: editingProduct.brand || '',
@@ -124,6 +127,7 @@ export default function ProductForm({ open, editingProduct, onClose, onSubmit }:
         categoryId: undefined,
         price: undefined,
         costPrice: undefined,
+        taxRate: undefined,
         stockQuantity: undefined,
         lowStockThreshold: undefined,
         brand: '',
@@ -370,6 +374,53 @@ export default function ProductForm({ open, editingProduct, onClose, onSubmit }:
               variant="outlined"
               size="small"
               helperText="Max 4 decimal places"
+              slotProps={{
+                inputLabel: {
+                  shrink: true,
+                },
+              }}
+            />
+          </Grid>
+          <Grid size={6}>
+            <TextField
+              label="Tax Rate (%)"
+              fullWidth
+              type="text"
+              value={formData.taxRate ?? ''}
+              onChange={(e) => {
+                const value = e.target.value;
+                if (value === '') {
+                  handleFormChange('taxRate', undefined);
+                  return;
+                }
+                if (!/^\d*\.?\d*$/.test(value)) {
+                  return;
+                }
+                const parts = value.split('.');
+                if (parts.length === 2 && parts[1].length > 2) {
+                  return;
+                }
+                handleFormChange('taxRate', value);
+              }}
+              onBlur={() => {
+                const value = formData.taxRate;
+                if (value !== undefined && value !== null) {
+                  const num = typeof value === 'string' ? parseFloat(value) : value;
+                  if (!isNaN(num)) {
+                    const rounded = Math.round(num * 100) / 100;
+                    handleFormChange('taxRate', rounded);
+                  }
+                }
+              }}
+              inputProps={{
+                inputMode: 'decimal',
+                pattern: '[0-9]*\.?[0-9]{0,2}',
+                min: 0,
+                max: 100
+              }}
+              variant="outlined"
+              size="small"
+              helperText="Tax rate as percentage (e.g., 8.25)"
               slotProps={{
                 inputLabel: {
                   shrink: true,

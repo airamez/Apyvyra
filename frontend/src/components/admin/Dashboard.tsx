@@ -1,10 +1,10 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, memo } from 'react';
 import { Container, Typography, Box, Card, CardContent, Grid } from '@mui/material';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import { userService } from '../../services/userService';
 import { orderService, type OrderStats } from '../../services/orderService';
 
-export default function Dashboard() {
+function Dashboard() {
   const [customerCount, setCustomerCount] = useState<number>(0);
   const [orderStats, setOrderStats] = useState<OrderStats | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
@@ -31,6 +31,20 @@ export default function Dashboard() {
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(amount);
   };
+  if (loading) {
+    return (
+      <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
+          <DashboardIcon sx={{ fontSize: 40, mr: 2, color: 'primary.main' }} />
+          <Typography variant="h4" component="h1">
+            Dashboard
+          </Typography>
+        </Box>
+        <Typography>Loading dashboard data...</Typography>
+      </Container>
+    );
+  }
+
   return (
     <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
       <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
@@ -229,3 +243,5 @@ export default function Dashboard() {
     </Container>
   );
 }
+
+export default memo(Dashboard);

@@ -20,7 +20,9 @@ import Store from './Store';
 import ShoppingCart from './ShoppingCart';
 import Checkout from './Checkout';
 import MyOrders from './MyOrders';
+import UserProfile from '../common/UserProfile';
 import { cartService } from '../../services/cartService';
+import { authService } from '../../services/authService';
 
 interface CustomerAppProps {
   onLogout: () => void;
@@ -31,6 +33,24 @@ interface CustomerAppProps {
 export default function CustomerApp({ onLogout, toggleTheme, mode }: CustomerAppProps) {
   const [activeView, setActiveView] = useState<'store' | 'cart' | 'checkout' | 'orders'>('store');
   const [cartItemCount, setCartItemCount] = useState(0);
+  const [userType, setUserType] = useState<'Admin' | 'Staff' | 'Customer'>('Customer');
+
+  useEffect(() => {
+    const role = authService.getUserRole();
+    switch (role) {
+      case 0:
+        setUserType('Admin');
+        break;
+      case 1:
+        setUserType('Staff');
+        break;
+      case 2:
+        setUserType('Customer');
+        break;
+      default:
+        setUserType('Customer');
+    }
+  }, []);
 
   useEffect(() => {
     updateCartCount();
@@ -59,7 +79,7 @@ export default function CustomerApp({ onLogout, toggleTheme, mode }: CustomerApp
         <Toolbar>
           <StoreIcon sx={{ mr: 2 }} />
           <Typography variant="h6" component="div" sx={{ mr: 4 }}>
-            ApyVyra Web Store
+            ApyVyra Web Store - {userType}
           </Typography>
 
           <Box sx={{ display: 'flex', gap: 1 }}>
@@ -103,6 +123,8 @@ export default function CustomerApp({ onLogout, toggleTheme, mode }: CustomerApp
               {mode === 'dark' ? <Brightness7Icon /> : <Brightness4Icon />}
             </IconButton>
           </Tooltip>
+
+          <UserProfile />
 
           <Button color="inherit" onClick={onLogout} startIcon={<LogoutIcon />}>
             Logout

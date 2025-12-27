@@ -215,12 +215,59 @@ public class AppUserController : BaseApiController
             return new UserResponse
             {
                 Id = user.Id,
-                Email = user.Email
+                Email = user.Email,
+                FullName = user.FullName
             };
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error retrieving current user");
+            return InternalServerErrorWithError("An error occurred");
+        }
+    }
+
+    // PUT: api/users/me
+    [HttpPut("me")]
+    [Authorize]
+    public async Task<ActionResult<UserResponse>> UpdateCurrentUser(UpdateProfileRequest request)
+    {
+        try
+        {
+            // Get user ID from JWT token claims
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            
+            if (userIdClaim == null || !int.TryParse(userIdClaim, out int userId))
+            {
+                return BadRequestWithErrors("Invalid token");
+            }
+
+            var user = await _context.AppUsers.FindAsync(userId);
+
+            if (user == null)
+            {
+                return NotFoundWithError("User not found");
+            }
+
+            // Update user profile
+            if (request.FullName != null)
+            {
+                user.FullName = request.FullName;
+                user.UpdatedAt = DateTime.UtcNow;
+                user.UpdatedBy = userId;
+            }
+
+            await _context.SaveChangesAsync();
+
+            return new UserResponse
+            {
+                Id = user.Id,
+                Email = user.Email,
+                FullName = user.FullName
+            };
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error updating current user");
             return InternalServerErrorWithError("An error occurred");
         }
     }
@@ -835,6 +882,7 @@ public record UserResponse
 {
     public int Id { get; init; }
     public string Email { get; init; } = string.Empty;
+    public string? FullName { get; init; }
 }
 
 public record UserListResponse
@@ -899,4 +947,9 @@ public record StaffSetupInfoResponse
     public string? FullName { get; init; }
     public bool IsValid { get; init; }
     public string? ErrorMessage { get; init; }
+}
+
+public record UpdateProfileRequest
+{
+    public string? FullName { get; init; }
 }

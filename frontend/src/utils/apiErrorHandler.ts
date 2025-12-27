@@ -24,7 +24,7 @@ export interface ApiResponse<T> {
  * @param response - Fetch Response object
  * @returns ApiError object if request failed, null if successful
  */
-export function checkResponseHeaders(response: Response): ApiError | null {
+export async function checkResponseHeaders(response: Response): Promise<ApiError | null> {
   const successHeader = response.headers.get('X-Success');
   const errorsHeader = response.headers.get('X-Errors');
   
@@ -44,7 +44,19 @@ export function checkResponseHeaders(response: Response): ApiError | null {
     
     // If no errors in header, try to extract from response body
     if (errors.length === 0) {
-      errors = ['An error occurred while processing your request'];
+      try {
+        const body = await response.json();
+        if (body.errors && Array.isArray(body.errors)) {
+          errors = body.errors;
+        } else if (body.message) {
+          errors = [body.message];
+        } else {
+          errors = ['An error occurred while processing your request'];
+        }
+      } catch (e) {
+        // If we can't parse the body, use a generic error
+        errors = ['An error occurred while processing your request'];
+      }
     }
     
     return {
@@ -64,7 +76,7 @@ export function checkResponseHeaders(response: Response): ApiError | null {
  * @throws ApiError if request failed
  */
 export async function handleApiResponse(response: Response): Promise<Response> {
-  const error = checkResponseHeaders(response);
+  const error = await checkResponseHeaders(response);
   
   if (error) {
     throw error;

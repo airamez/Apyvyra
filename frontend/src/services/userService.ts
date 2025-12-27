@@ -6,6 +6,7 @@ import { apiFetch, apiFetchWithMetadata, type ApiResponse } from '../utils/apiEr
 export interface User {
   id: number;
   email: string;
+  fullName?: string;
 }
 
 export interface UserList {
@@ -73,7 +74,18 @@ export const userService = {
     return response.metadata.totalCount;
   },
 
+  // Update current user profile
+  async updateProfile(data: { fullName?: string }): Promise<User> {
+    return apiFetch<User>(API_ENDPOINTS.APP_USER.ME, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        ...authService.getAuthHeader(),
+      },
+      body: JSON.stringify(data),
+    });
+  },
+
   // Add more user-related operations here as needed
-  // async updateProfile(data: UpdateProfileData): Promise<User> { ... }
   // async deleteAccount(): Promise<void> { ... }
 };

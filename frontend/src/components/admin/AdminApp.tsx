@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Typography,
   Box,
@@ -20,6 +20,7 @@ import Products from './products/Products';
 import Categories from './products/Categories';
 import Customers from './Customers';
 import Staff from './Staff';
+import UserProfile from '../common/UserProfile';
 import { authService } from '../../services/authService';
 
 interface AdminAppProps {
@@ -31,6 +32,24 @@ interface AdminAppProps {
 export default function AdminApp({ onLogout, toggleTheme, mode }: AdminAppProps) {
   const [activeView, setActiveView] = useState<'dashboard' | 'products' | 'categories' | 'customers' | 'staff'>('dashboard');
   const [productsMenuAnchor, setProductsMenuAnchor] = useState<null | HTMLElement>(null);
+  const [userType, setUserType] = useState<'Admin' | 'Staff' | 'Customer'>('Admin');
+
+  useEffect(() => {
+    const role = authService.getUserRole();
+    switch (role) {
+      case 0:
+        setUserType('Admin');
+        break;
+      case 1:
+        setUserType('Staff');
+        break;
+      case 2:
+        setUserType('Customer');
+        break;
+      default:
+        setUserType('Admin');
+    }
+  }, []);
 
   const handleNavigateToView = (view: 'dashboard' | 'products' | 'categories' | 'customers' | 'staff') => {
     setActiveView(view);
@@ -59,7 +78,7 @@ export default function AdminApp({ onLogout, toggleTheme, mode }: AdminAppProps)
         <Toolbar>
           <DashboardIcon sx={{ mr: 2 }} />
           <Typography variant="h6" component="div" sx={{ mr: 4 }}>
-            Apyvyra ERP - Admin
+            Apyvyra ERP - {userType}
           </Typography>
 
           <Box sx={{ display: 'flex', gap: 2 }}>
@@ -132,6 +151,8 @@ export default function AdminApp({ onLogout, toggleTheme, mode }: AdminAppProps)
               {mode === 'dark' ? <Brightness7Icon /> : <Brightness4Icon />}
             </IconButton>
           </Tooltip>
+
+          <UserProfile />
 
           <Button color="inherit" onClick={onLogout} startIcon={<LogoutIcon />}>
             Logout
