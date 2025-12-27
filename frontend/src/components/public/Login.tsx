@@ -100,7 +100,7 @@ export default function Login({ onNavigateToRegister, onLoginSuccess }: LoginPro
       }
       
       // Check if this is a pending confirmation error
-      if (errorMessage.includes('confirm your email')) {
+      if (errorMessage.includes('confirm your email') || errorMessage.includes('Email confirmation required')) {
         setError(errorMessage);
         setResendEmail(formData.email);
         setShowResendDialog(true);
@@ -234,9 +234,6 @@ export default function Login({ onNavigateToRegister, onLoginSuccess }: LoginPro
                 </Typography>
               </DialogTitle>
               <DialogContent>
-                <Typography variant="body1" sx={{ mb: 2 }}>
-                  Please confirm your email address before logging in.
-                </Typography>
                 <Typography variant="body2" sx={{ mb: 2 }}>
                   Check your inbox for the confirmation email. If you don't see it, you can request a new one below.
                 </Typography>

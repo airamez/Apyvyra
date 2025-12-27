@@ -114,9 +114,14 @@ export const authService = {
       body: JSON.stringify({ email, password }),
     });
     
-    // Store token and user data
-    this.setToken(data.token);
-    this.setUser({ id: data.id, email: data.email, role: data.role });
+    // Only store token and user data if login was successful (has a valid token)
+    if (data.token && data.token.trim() !== '') {
+      this.setToken(data.token);
+      this.setUser({ id: data.id, email: data.email, role: data.role });
+    } else {
+      // If no token, throw an error with the message from the server
+      throw new Error(data.message || 'Login failed');
+    }
     
     return data;
   },
