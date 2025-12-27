@@ -276,6 +276,16 @@ export default function Products() {
                     ),
                   },
                   {
+                    field: 'taxRate',
+                    headerName: 'Tax Rate',
+                    width: 90,
+                    type: 'number',
+                    valueGetter: (value) => value || 0,
+                    renderCell: (params: GridRenderCellParams) => (
+                      <Typography>{params.row.taxRate ? `${params.row.taxRate}%` : '-'}</Typography>
+                    ),
+                  },
+                  {
                     field: 'stockQuantity',
                     headerName: 'Stock',
                     width: 80,

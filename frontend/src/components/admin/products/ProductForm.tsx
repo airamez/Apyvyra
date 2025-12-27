@@ -15,7 +15,8 @@ import {
   Grid,
   IconButton,
   Typography,
-  Box
+  Box,
+  Tooltip
 } from '@mui/material';
 import { DataGrid, type GridRenderCellParams } from '@mui/x-data-grid';
 import AddIcon from '@mui/icons-material/Add';
@@ -197,10 +198,25 @@ export default function ProductForm({ open, editingProduct, onClose, onSubmit }:
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
-      <DialogTitle>{editingProduct ? 'Edit Product' : 'Add New Product'}</DialogTitle>
+      <DialogTitle>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <Typography>{editingProduct ? 'Edit Product' : 'Add New Product'}</Typography>
+            {editingProduct && (
+              <FormControlLabel
+                control={
+                  <Switch
+                    checked={formData.isActive}
+                    onChange={(e) => handleFormChange('isActive', e.target.checked)}
+                  />
+                }
+                label="Active"
+              />
+            )}
+          </Box>
+        </DialogTitle>
       <DialogContent>
         <Grid container spacing={2} sx={{ mt: 1 }}>
-          <Grid size={6}>
+                    <Grid size={3}>
             <TextField
               label="SKU"
               fullWidth
@@ -211,7 +227,7 @@ export default function ProductForm({ open, editingProduct, onClose, onSubmit }:
               size="small"
             />
           </Grid>
-          <Grid size={6}>
+          <Grid size={9}>
             <TextField
               label="Product Name"
               fullWidth
@@ -222,7 +238,37 @@ export default function ProductForm({ open, editingProduct, onClose, onSubmit }:
               size="small"
             />
           </Grid>
-          <Grid size={6}>
+          <Grid size={4}>
+            <TextField
+              label="Brand"
+              fullWidth
+              value={formData.brand}
+              onChange={(e) => handleFormChange('brand', e.target.value)}
+              variant="outlined"
+              size="small"
+              slotProps={{
+                inputLabel: {
+                  shrink: true,
+                },
+              }}
+            />
+          </Grid>
+          <Grid size={4}>
+            <TextField
+              label="Manufacturer"
+              fullWidth
+              value={formData.manufacturer}
+              onChange={(e) => handleFormChange('manufacturer', e.target.value)}
+              variant="outlined"
+              size="small"
+              slotProps={{
+                inputLabel: {
+                  shrink: true,
+                },
+              }}
+            />
+          </Grid>
+          <Grid size={4}>
             <FormControl fullWidth size="small">
               <InputLabel id="category-label">Category</InputLabel>
               <Select
@@ -260,177 +306,150 @@ export default function ProductForm({ open, editingProduct, onClose, onSubmit }:
               }}
             />
           </Grid>
-          <Grid size={6}>
-            <TextField
-              label="Brand"
-              fullWidth
-              value={formData.brand}
-              onChange={(e) => handleFormChange('brand', e.target.value)}
-              variant="outlined"
-              size="small"
-              slotProps={{
-                inputLabel: {
-                  shrink: true,
-                },
-              }}
-            />
-          </Grid>
-          <Grid size={6}>
-            <TextField
-              label="Manufacturer"
-              fullWidth
-              value={formData.manufacturer}
-              onChange={(e) => handleFormChange('manufacturer', e.target.value)}
-              variant="outlined"
-              size="small"
-              slotProps={{
-                inputLabel: {
-                  shrink: true,
-                },
-              }}
-            />
-          </Grid>
-          <Grid size={6}>
-            <TextField
-              label="Price"
-              fullWidth
-              required
-              type="text"
-              value={formData.price ?? ''}
-              onChange={(e) => {
-                const value = e.target.value;
-                if (value === '') {
-                  handleFormChange('price', undefined);
-                  return;
-                }
-                if (!/^\d*\.?\d*$/.test(value)) {
-                  return;
-                }
-                const parts = value.split('.');
-                if (parts.length === 2 && parts[1].length > 4) {
-                  return;
-                }
-                handleFormChange('price', value);
-              }}
-              onBlur={() => {
-                const value = formData.price;
-                if (value !== undefined && value !== null) {
-                  const num = typeof value === 'string' ? parseFloat(value) : value;
-                  if (!isNaN(num)) {
-                    const rounded = Math.round(num * 10000) / 10000;
-                    handleFormChange('price', rounded);
+                    <Grid size={4}>
+            <Tooltip title="Maximum 4 decimal places supported">
+              <TextField
+                label="Price"
+                fullWidth
+                required
+                type="text"
+                value={formData.price ?? ''}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  if (value === '') {
+                    handleFormChange('price', undefined);
+                    return;
                   }
-                }
-              }}
-              inputProps={{
-                inputMode: 'decimal',
-                pattern: '[0-9]*\.?[0-9]{0,4}'
-              }}
-              variant="outlined"
-              size="small"
-              helperText="Max 4 decimal places"
-              slotProps={{
-                inputLabel: {
-                  shrink: true,
-                },
-              }}
-            />
-          </Grid>
-          <Grid size={6}>
-            <TextField
-              label="Cost Price"
-              fullWidth
-              type="text"
-              value={formData.costPrice ?? ''}
-              onChange={(e) => {
-                const value = e.target.value;
-                if (value === '') {
-                  handleFormChange('costPrice', undefined);
-                  return;
-                }
-                if (!/^\d*\.?\d*$/.test(value)) {
-                  return;
-                }
-                const parts = value.split('.');
-                if (parts.length === 2 && parts[1].length > 4) {
-                  return;
-                }
-                handleFormChange('costPrice', value);
-              }}
-              onBlur={() => {
-                const value = formData.costPrice;
-                if (value !== undefined && value !== null) {
-                  const num = typeof value === 'string' ? parseFloat(value) : value;
-                  if (!isNaN(num)) {
-                    const rounded = Math.round(num * 10000) / 10000;
-                    handleFormChange('costPrice', rounded);
+                  if (!/^\d*\.?\d*$/.test(value)) {
+                    return;
                   }
-                }
-              }}
-              inputProps={{
-                inputMode: 'decimal',
-                pattern: '[0-9]*\.?[0-9]{0,4}'
-              }}
-              variant="outlined"
-              size="small"
-              helperText="Max 4 decimal places"
-              slotProps={{
-                inputLabel: {
-                  shrink: true,
-                },
-              }}
-            />
-          </Grid>
-          <Grid size={6}>
-            <TextField
-              label="Tax Rate (%)"
-              fullWidth
-              type="text"
-              value={formData.taxRate ?? ''}
-              onChange={(e) => {
-                const value = e.target.value;
-                if (value === '') {
-                  handleFormChange('taxRate', undefined);
-                  return;
-                }
-                if (!/^\d*\.?\d*$/.test(value)) {
-                  return;
-                }
-                const parts = value.split('.');
-                if (parts.length === 2 && parts[1].length > 2) {
-                  return;
-                }
-                handleFormChange('taxRate', value);
-              }}
-              onBlur={() => {
-                const value = formData.taxRate;
-                if (value !== undefined && value !== null) {
-                  const num = typeof value === 'string' ? parseFloat(value) : value;
-                  if (!isNaN(num)) {
-                    const rounded = Math.round(num * 100) / 100;
-                    handleFormChange('taxRate', rounded);
+                  const parts = value.split('.');
+                  if (parts.length === 2 && parts[1].length > 4) {
+                    return;
                   }
-                }
-              }}
-              inputProps={{
-                inputMode: 'decimal',
-                pattern: '[0-9]*\.?[0-9]{0,2}',
-                min: 0,
-                max: 100
-              }}
-              variant="outlined"
-              size="small"
-              helperText="Tax rate as percentage (e.g., 8.25)"
-              slotProps={{
-                inputLabel: {
-                  shrink: true,
-                },
-              }}
-            />
+                  handleFormChange('price', value);
+                }}
+                onBlur={() => {
+                  const value = formData.price;
+                  if (value !== undefined && value !== null) {
+                    const num = typeof value === 'string' ? parseFloat(value) : value;
+                    if (!isNaN(num)) {
+                      const rounded = Math.round(num * 10000) / 10000;
+                      handleFormChange('price', rounded);
+                    }
+                  }
+                }}
+                inputProps={{
+                  inputMode: 'decimal',
+                  pattern: '[0-9]*\.?[0-9]{0,4]'
+                }}
+                variant="outlined"
+                size="small"
+                slotProps={{
+                  inputLabel: {
+                    shrink: true,
+                  },
+                }}
+              />
+            </Tooltip>
           </Grid>
-          <Grid size={6}>
+          <Grid size={4}>
+            <Tooltip title="Maximum 4 decimal places supported">
+              <TextField
+                label="Cost Price"
+                fullWidth
+                type="text"
+                value={formData.costPrice ?? ''}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  if (value === '') {
+                    handleFormChange('costPrice', undefined);
+                    return;
+                  }
+                  if (!/^\d*\.?\d*$/.test(value)) {
+                    return;
+                  }
+                  const parts = value.split('.');
+                  if (parts.length === 2 && parts[1].length > 4) {
+                    return;
+                  }
+                  handleFormChange('costPrice', value);
+                }}
+                onBlur={() => {
+                  const value = formData.costPrice;
+                  if (value !== undefined && value !== null) {
+                    const num = typeof value === 'string' ? parseFloat(value) : value;
+                    if (!isNaN(num)) {
+                      const rounded = Math.round(num * 10000) / 10000;
+                      handleFormChange('costPrice', rounded);
+                    }
+                  }
+                }}
+                inputProps={{
+                  inputMode: 'decimal',
+                  pattern: '[0-9]*\.?[0-9]{0,4]'
+                }}
+                variant="outlined"
+                size="small"
+                slotProps={{
+                  inputLabel: {
+                    shrink: true,
+                  },
+                }}
+              />
+            </Tooltip>
+          </Grid>
+          <Grid size={4}>
+            <Tooltip title="Tax rate as percentage (e.g., 8.25)">
+              <TextField
+                label="Tax Rate (%)"
+                fullWidth
+                type="text"
+                value={formData.taxRate ?? ''}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  if (value === '') {
+                    handleFormChange('taxRate', undefined);
+                    return;
+                  }
+                  if (!/^\d*\.?\d*$/.test(value)) {
+                    return;
+                  }
+                  const parts = value.split('.');
+                  if (parts.length === 2 && parts[1].length > 2) {
+                    return;
+                  }
+                  handleFormChange('taxRate', value);
+                }}
+                onBlur={() => {
+                  const value = formData.taxRate;
+                  if (value !== undefined && value !== null) {
+                    const num = typeof value === 'string' ? parseFloat(value) : value;
+                    if (!isNaN(num)) {
+                      const rounded = Math.round(num * 100) / 100;
+                      handleFormChange('taxRate', rounded);
+                    }
+                  }
+                }}
+                inputProps={{
+                  inputMode: 'decimal',
+                  pattern: '[0-9]*\.?[0-9]{0,2}',
+                  min: 0,
+                  max: 100
+                }}
+                variant="outlined"
+                size="small"
+                slotProps={{
+                  inputLabel: {
+                    shrink: true,
+                  },
+                }}
+              />
+            </Tooltip>
+          </Grid>
+                    <Grid size={3}>
             <TextField
-              label="Stock Quantity"
+              label="Stock"
               fullWidth
               required
               type="number"
@@ -453,7 +472,7 @@ export default function ProductForm({ open, editingProduct, onClose, onSubmit }:
               }}
             />
           </Grid>
-          <Grid size={6}>
+          <Grid size={3}>
             <TextField
               label="Low Stock Threshold"
               fullWidth
@@ -477,7 +496,7 @@ export default function ProductForm({ open, editingProduct, onClose, onSubmit }:
               }}
             />
           </Grid>
-          <Grid size={6}>
+          <Grid size={3}>
             <TextField
               label="Weight"
               fullWidth
@@ -492,7 +511,7 @@ export default function ProductForm({ open, editingProduct, onClose, onSubmit }:
               }}
             />
           </Grid>
-          <Grid size={6}>
+          <Grid size={3}>
             <TextField
               label="Dimensions"
               fullWidth
@@ -505,17 +524,6 @@ export default function ProductForm({ open, editingProduct, onClose, onSubmit }:
                   shrink: true,
                 },
               }}
-            />
-          </Grid>
-          <Grid size={6}>
-            <FormControlLabel
-              control={
-                <Switch
-                  checked={formData.isActive}
-                  onChange={(e) => handleFormChange('isActive', e.target.checked)}
-                />
-              }
-              label="Active"
             />
           </Grid>
 
