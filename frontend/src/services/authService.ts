@@ -1,5 +1,6 @@
 // Auth service for handling JWT tokens and authentication
 import { API_ENDPOINTS } from '../config/api';
+import { apiFetch } from '../utils/apiErrorHandler';
 
 interface User {
   id: number;
@@ -105,20 +106,13 @@ export const authService = {
 
   // Login user
   async login(email: string, password: string): Promise<LoginResponse> {
-    const response = await fetch(API_ENDPOINTS.APP_USER.LOGIN, {
+    const data = await apiFetch<LoginResponse>(API_ENDPOINTS.APP_USER.LOGIN, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({ email, password }),
     });
-
-    if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.message || 'Login failed');
-    }
-
-    const data: LoginResponse = await response.json();
     
     // Store token and user data
     this.setToken(data.token);

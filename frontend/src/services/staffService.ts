@@ -1,6 +1,6 @@
 import { API_ENDPOINTS } from '../config/api';
 import { authService } from './authService';
-import { apiFetchWithMetadata, type ApiResponse } from '../utils/apiErrorHandler';
+import { apiFetch, apiFetchWithMetadata, type ApiResponse } from '../utils/apiErrorHandler';
 
 export interface Staff {
   id: number;
@@ -65,24 +65,17 @@ export const staffService = {
   },
 
   async getById(id: number): Promise<Staff> {
-    const response = await fetch(API_ENDPOINTS.STAFF.DETAIL(id), {
+    return apiFetch<Staff>(API_ENDPOINTS.STAFF.DETAIL(id), {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
         ...authService.getAuthHeader(),
       },
     });
-
-    if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.message || 'Failed to fetch staff member');
-    }
-
-    return response.json();
   },
 
   async create(data: CreateStaffData): Promise<Staff> {
-    const response = await fetch(API_ENDPOINTS.STAFF.LIST, {
+    return apiFetch<Staff>(API_ENDPOINTS.STAFF.LIST, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -90,17 +83,10 @@ export const staffService = {
       },
       body: JSON.stringify(data),
     });
-
-    if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.message || 'Failed to create staff member');
-    }
-
-    return response.json();
   },
 
   async update(id: number, data: UpdateStaffData): Promise<Staff> {
-    const response = await fetch(API_ENDPOINTS.STAFF.DETAIL(id), {
+    return apiFetch<Staff>(API_ENDPOINTS.STAFF.DETAIL(id), {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
@@ -108,77 +94,44 @@ export const staffService = {
       },
       body: JSON.stringify(data),
     });
-
-    if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.message || 'Failed to update staff member');
-    }
-
-    return response.json();
   },
 
   async delete(id: number): Promise<void> {
-    const response = await fetch(API_ENDPOINTS.STAFF.DETAIL(id), {
+    return apiFetch<void>(API_ENDPOINTS.STAFF.DETAIL(id), {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/json',
         ...authService.getAuthHeader(),
       },
     });
-
-    if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.message || 'Failed to delete staff member');
-    }
   },
 
   async resendInvitation(id: number): Promise<{ message: string }> {
-    const response = await fetch(API_ENDPOINTS.STAFF.RESEND_INVITATION(id), {
+    return apiFetch<{ message: string }>(API_ENDPOINTS.STAFF.RESEND_INVITATION(id), {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         ...authService.getAuthHeader(),
       },
     });
-
-    if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.message || 'Failed to resend invitation');
-    }
-
-    return response.json();
   },
 
   async getSetupInfo(token: string): Promise<StaffSetupInfo> {
-    const response = await fetch(API_ENDPOINTS.STAFF.SETUP_INFO(token), {
+    return apiFetch<StaffSetupInfo>(API_ENDPOINTS.STAFF.SETUP_INFO(token), {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
       },
     });
-
-    if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.message || 'Failed to get setup info');
-    }
-
-    return response.json();
   },
 
   async completeSetup(data: StaffSetupData): Promise<{ message: string }> {
-    const response = await fetch(API_ENDPOINTS.STAFF.COMPLETE_SETUP, {
+    return apiFetch<{ message: string }>(API_ENDPOINTS.STAFF.COMPLETE_SETUP, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(data),
     });
-
-    if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.message || 'Failed to complete setup');
-    }
-
-    return response.json();
   },
 };

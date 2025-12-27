@@ -1,6 +1,7 @@
 // User service for handling user-related operations
 import { API_ENDPOINTS } from '../config/api';
 import { authService } from './authService';
+import { apiFetch } from '../utils/apiErrorHandler';
 
 export interface User {
   id: number;
@@ -14,37 +15,24 @@ export interface RegisterResponse {
 
 export const userService = {
   async register(email: string, password: string): Promise<RegisterResponse> {
-    const response = await fetch(API_ENDPOINTS.APP_USER.REGISTER, {
+    return apiFetch<RegisterResponse>(API_ENDPOINTS.APP_USER.REGISTER, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({ email, password }),
     });
-
-    if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.message || 'Registration failed');
-    }
-
-    return await response.json();
   },
 
   // Get current user profile (requires authentication)
   async getCurrentUser(): Promise<User> {
-    const response = await fetch(API_ENDPOINTS.APP_USER.ME, {
+    return apiFetch<User>(API_ENDPOINTS.APP_USER.ME, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
         ...authService.getAuthHeader(),
       },
     });
-
-    if (!response.ok) {
-      throw new Error('Failed to fetch user data');
-    }
-
-    return await response.json();
   },
 
   // Add more user-related operations here as needed
