@@ -1,11 +1,12 @@
 # Backend (ASP.NET Core Web API)
 
-The backend is a RESTful Web API built with **ASP.NET Core 10.0**, using **Entity Framework Core** for data access and **PostgreSQL** as the database.
+> **Note**: We will always be using the latest stable versions of all packages and frameworks.
+
+The backend is a RESTful Web API built with **ASP.NET Core**, using **Entity Framework Core** for data access and **PostgreSQL** as the database.
 
 ## Architecture Overview
 
 ### ASP.NET Core Web API
-- **Framework**: .NET 10.0 (latest LTS)
 - **API Style**: RESTful with conventional routing (`/api/[controller]`)
 - **Authentication**: JWT Bearer tokens
 - **Serialization**: JSON with camelCase naming (configured in `Program.cs`)
@@ -13,8 +14,7 @@ The backend is a RESTful Web API built with **ASP.NET Core 10.0**, using **Entit
 - **CORS**: Configured to allow frontend communication with custom headers
 
 ### Entity Framework Core (Database-First Approach)
-- **ORM**: Entity Framework Core 10.0
-- **Provider**: Npgsql.EntityFrameworkCore.PostgreSQL 10.0
+- **Provider**: Npgsql.EntityFrameworkCore.PostgreSQL
 - **Approach**: **Database-First** - Schema defined in SQL, models scaffolded from database
 - **DbContext**: `AppDbContext` manages all database entities
 - **Models**: Auto-generated partial classes from database schema
@@ -30,7 +30,7 @@ The backend is a RESTful Web API built with **ASP.NET Core 10.0**, using **Entit
 
 ## Prerequisites
 
-- .NET SDK 10.0 or later
+- .NET SDK (latest stable version)
 - PostgreSQL database (via Docker or local installation)
 
 ## Setup
