@@ -37,6 +37,12 @@ export const API_ENDPOINTS = {
     LIST: `${API_BASE_URL}/api/product_category`,
     DETAIL: (id: number) => `${API_BASE_URL}/api/product_category/${id}`,
   },
+  ORDER: {
+    LIST: `${API_BASE_URL}/api/order`,
+    DETAIL: (id: number) => `${API_BASE_URL}/api/order/${id}`,
+    UPDATE_STATUS: (id: number) => `${API_BASE_URL}/api/order/${id}/status`,
+    STATS: `${API_BASE_URL}/api/order/stats`,
+  },
   // Add more domain endpoints as needed
   // CUSTOMERS: {
   //   LIST: `${API_BASE_URL}/api/customers`,

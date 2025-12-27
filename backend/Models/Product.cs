@@ -19,6 +19,8 @@ public partial class Product
 
     public decimal? CostPrice { get; set; }
 
+    public decimal TaxRate { get; set; }
+
     public int? StockQuantity { get; set; }
 
     public int? LowStockThreshold { get; set; }

@@ -47,7 +47,6 @@ public record ProductUrlResponse
     public bool IsPrimary { get; init; }
 }
 
-[Authorize(Roles = "0,1")] // Admin and Staff only
 [Route("api/product")]
 public class ProductController : BaseApiController
 {
@@ -147,6 +146,7 @@ public class ProductController : BaseApiController
                 CategoryId = request.CategoryId,
                 Price = request.Price,
                 CostPrice = request.CostPrice,
+                TaxRate = request.TaxRate,
                 StockQuantity = request.StockQuantity,
                 LowStockThreshold = request.LowStockThreshold,
                 Brand = request.Brand,
@@ -214,6 +214,7 @@ public class ProductController : BaseApiController
             product.CategoryId = request.CategoryId;
             product.Price = request.Price;
             product.CostPrice = request.CostPrice;
+            product.TaxRate = request.TaxRate;
             product.StockQuantity = request.StockQuantity;
             product.LowStockThreshold = request.LowStockThreshold;
             product.Brand = request.Brand;
@@ -414,6 +415,7 @@ public class ProductController : BaseApiController
             CategoryName = product.Category?.Name,
             Price = product.Price,
             CostPrice = product.CostPrice,
+            TaxRate = product.TaxRate,
             StockQuantity = product.StockQuantity ?? 0,
             LowStockThreshold = product.LowStockThreshold ?? 10,
             Brand = product.Brand,
@@ -435,6 +437,7 @@ public record CreateProductRequest(
     int? CategoryId,
     decimal Price,
     decimal? CostPrice,
+    decimal TaxRate,
     int StockQuantity,
     int LowStockThreshold,
     string? Brand,
@@ -451,6 +454,7 @@ public record UpdateProductRequest(
     int? CategoryId,
     decimal Price,
     decimal? CostPrice,
+    decimal TaxRate,
     int StockQuantity,
     int LowStockThreshold,
     string? Brand,
@@ -471,6 +475,7 @@ public record ProductResponse
     public string? CategoryName { get; init; }
     public decimal Price { get; init; }
     public decimal? CostPrice { get; init; }
+    public decimal TaxRate { get; init; }
     public int StockQuantity { get; init; }
     public int LowStockThreshold { get; init; }
     public string? Brand { get; init; }

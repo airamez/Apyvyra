@@ -88,7 +88,7 @@ public class AppUserController : BaseApiController
     }
 
     // GET: api/app_user
-    [Authorize(Roles = "0")] // Admin only
+    [Authorize(Roles = "0,1")] // Admin and Staff
     [HttpGet]
     public async Task<ActionResult<IEnumerable<UserListResponse>>> GetUsers()
     {

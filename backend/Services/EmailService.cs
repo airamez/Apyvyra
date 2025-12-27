@@ -10,6 +10,7 @@ public interface IEmailService
 {
     Task SendConfirmationEmailAsync(string toEmail, string confirmationUrl);
     Task SendStaffInvitationEmailAsync(string toEmail, string fullName, string setupUrl);
+    Task SendOrderConfirmationEmailAsync(string toEmail, string customerName, backend.Models.CustomerOrder order, List<backend.Models.OrderItem> items);
 }
 
 public class EmailService : IEmailService
@@ -79,6 +80,47 @@ public class EmailService : IEmailService
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error sending staff invitation email to {Email}", toEmail);
+            throw;
+        }
+    }
+
+    public async Task SendOrderConfirmationEmailAsync(string toEmail, string customerName, backend.Models.CustomerOrder order, List<backend.Models.OrderItem> items)
+    {
+        try
+        {
+            var templatePath = "/home/jose/code/Apyvyra/email-templates/order-confirmation.html";
+            _logger.LogInformation("Looking for order confirmation template at: {TemplatePath}", templatePath);
+            var template = await File.ReadAllTextAsync(templatePath);
+
+            // Build order items HTML
+            var itemsHtml = new StringBuilder();
+            foreach (var item in items)
+            {
+                itemsHtml.Append($@"
+                <tr>
+                    <td style=""padding: 12px; border-bottom: 1px solid #e5e7eb;"">{item.ProductName}</td>
+                    <td style=""padding: 12px; border-bottom: 1px solid #e5e7eb; text-align: center;"">{item.Quantity}</td>
+                    <td style=""padding: 12px; border-bottom: 1px solid #e5e7eb; text-align: right;"">${item.UnitPrice:F2}</td>
+                    <td style=""padding: 12px; border-bottom: 1px solid #e5e7eb; text-align: right;"">${item.LineTotal:F2}</td>
+                </tr>");
+            }
+
+            var emailBody = template
+                .Replace("{{customer_name}}", customerName)
+                .Replace("{{order_number}}", order.OrderNumber)
+                .Replace("{{order_date}}", order.OrderDate.ToString("MMMM dd, yyyy"))
+                .Replace("{{order_items}}", itemsHtml.ToString())
+                .Replace("{{subtotal}}", order.Subtotal.ToString("F2"))
+                .Replace("{{tax_amount}}", order.TaxAmount.ToString("F2"))
+                .Replace("{{total_amount}}", order.TotalAmount.ToString("F2"))
+                .Replace("{{shipping_address}}", order.ShippingAddress.Replace("\n", "<br>"));
+
+            var subject = $"Order Confirmation - {order.OrderNumber} - Apyvyra";
+            await SendEmailAsync(toEmail, subject, emailBody);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error sending order confirmation email to {Email}", toEmail);
             throw;
         }
     }

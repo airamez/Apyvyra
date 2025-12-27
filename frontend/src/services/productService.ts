@@ -5,6 +5,11 @@ import { apiFetch, apiFetchWithMetadata, type ApiResponse } from '../utils/apiEr
 import type { FilterValues } from '../components/admin/FilterComponent';
 import { filtersToQueryParams } from '../utils/filterUtils';
 
+export interface ProductCategory {
+  id: number;
+  name: string;
+}
+
 export interface Product {
   id: number;
   sku: string;
@@ -12,8 +17,10 @@ export interface Product {
   description?: string;
   categoryId?: number;
   categoryName?: string;
+  category?: ProductCategory;
   price: number;
   costPrice?: number;
+  taxRate: number;
   stockQuantity: number;
   lowStockThreshold: number;
   brand?: string;
@@ -22,6 +29,7 @@ export interface Product {
   dimensions?: string;
   isActive: boolean;
   urls?: ProductUrl[];
+  productUrls?: ProductUrl[];
   createdAt: string;
   updatedAt: string;
 }
@@ -57,12 +65,24 @@ export interface CreateProductData {
 
 export const productService = {
   // Get all products with query metadata and optional filters
-  async getAll(filters?: FilterValues): Promise<ApiResponse<Product[]>> {
+  async getAll(filters?: FilterValues | Record<string, unknown>): Promise<ApiResponse<Product[]>> {
     let url = API_ENDPOINTS.PRODUCT.LIST;
     
-    if (filters && filters.length > 0) {
-      const params = filtersToQueryParams(filters);
-      url = `${url}?${params.toString()}`;
+    if (filters) {
+      if (Array.isArray(filters) && filters.length > 0) {
+        const params = filtersToQueryParams(filters);
+        url = `${url}?${params.toString()}`;
+      } else if (!Array.isArray(filters)) {
+        const params = new URLSearchParams();
+        Object.entries(filters).forEach(([key, value]) => {
+          if (value !== undefined && value !== null && value !== '') {
+            params.append(key, String(value));
+          }
+        });
+        if (params.toString()) {
+          url = `${url}?${params.toString()}`;
+        }
+      }
     }
     
     return apiFetchWithMetadata<Product[]>(url, {

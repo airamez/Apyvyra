@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Confirmation - Apyvyra</title>
+</head>
+<body style="margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f3f4f6;">
+    <table role="presentation" style="width: 100%; border-collapse: collapse;">
+        <tr>
+            <td align="center" style="padding: 40px 20px;">
+                <table role="presentation" style="width: 100%; max-width: 600px; border-collapse: collapse; background-color: #ffffff; border-radius: 12px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+                    <!-- Header -->
+                    <tr>
+                        <td style="padding: 40px 40px 20px; text-align: center; background: linear-gradient(135deg, #10b981 0%, #059669 100%); border-radius: 12px 12px 0 0;">
+                            <h1 style="margin: 0; color: #ffffff; font-size: 28px; font-weight: 700;">Order Confirmed!</h1>
+                            <p style="margin: 10px 0 0; color: #d1fae5; font-size: 16px;">Thank you for your purchase</p>
+                        </td>
+                    </tr>
+
+                    <!-- Content -->
+                    <tr>
+                        <td style="padding: 40px;">
+                            <p style="margin: 0 0 20px; color: #374151; font-size: 16px; line-height: 1.6;">
+                                Hello <strong>{{customer_name}}</strong>,
+                            </p>
+                            <p style="margin: 0 0 30px; color: #374151; font-size: 16px; line-height: 1.6;">
+                                We've received your order and it's being processed. Here are your order details:
+                            </p>
+
+                            <!-- Order Info Box -->
+                            <table role="presentation" style="width: 100%; border-collapse: collapse; background-color: #f9fafb; border-radius: 8px; margin-bottom: 30px;">
+                                <tr>
+                                    <td style="padding: 20px;">
+                                        <table role="presentation" style="width: 100%; border-collapse: collapse;">
+                                            <tr>
+                                                <td style="padding: 5px 0;">
+                                                    <span style="color: #6b7280; font-size: 14px;">Order Number:</span>
+                                                    <strong style="color: #111827; font-size: 14px; float: right;">{{order_number}}</strong>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td style="padding: 5px 0;">
+                                                    <span style="color: #6b7280; font-size: 14px;">Order Date:</span>
+                                                    <span style="color: #111827; font-size: 14px; float: right;">{{order_date}}</span>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                </tr>
+                            </table>
+
+                            <!-- Order Items -->
+                            <h3 style="margin: 0 0 15px; color: #111827; font-size: 18px; font-weight: 600;">Order Items</h3>
+                            <table role="presentation" style="width: 100%; border-collapse: collapse; margin-bottom: 30px;">
+                                <thead>
+                                    <tr style="background-color: #f3f4f6;">
+                                        <th style="padding: 12px; text-align: left; color: #374151; font-size: 14px; font-weight: 600; border-bottom: 2px solid #e5e7eb;">Product</th>
+                                        <th style="padding: 12px; text-align: center; color: #374151; font-size: 14px; font-weight: 600; border-bottom: 2px solid #e5e7eb;">Qty</th>
+                                        <th style="padding: 12px; text-align: right; color: #374151; font-size: 14px; font-weight: 600; border-bottom: 2px solid #e5e7eb;">Price</th>
+                                        <th style="padding: 12px; text-align: right; color: #374151; font-size: 14px; font-weight: 600; border-bottom: 2px solid #e5e7eb;">Total</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {{order_items}}
+                                </tbody>
+                            </table>
+
+                            <!-- Order Totals -->
+                            <table role="presentation" style="width: 100%; border-collapse: collapse; margin-bottom: 30px;">
+                                <tr>
+                                    <td style="padding: 8px 0; color: #6b7280; font-size: 14px;">Subtotal:</td>
+                                    <td style="padding: 8px 0; text-align: right; color: #111827; font-size: 14px;">${{subtotal}}</td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 8px 0; color: #6b7280; font-size: 14px;">Tax:</td>
+                                    <td style="padding: 8px 0; text-align: right; color: #111827; font-size: 14px;">${{tax_amount}}</td>
+                                </tr>
+                                <tr style="border-top: 2px solid #e5e7eb;">
+                                    <td style="padding: 12px 0; color: #111827; font-size: 18px; font-weight: 700;">Total:</td>
+                                    <td style="padding: 12px 0; text-align: right; color: #10b981; font-size: 18px; font-weight: 700;">${{total_amount}}</td>
+                                </tr>
+                            </table>
+
+                            <!-- Shipping Address -->
+                            <h3 style="margin: 0 0 15px; color: #111827; font-size: 18px; font-weight: 600;">Shipping Address</h3>
+                            <div style="background-color: #f9fafb; border-radius: 8px; padding: 20px; margin-bottom: 30px;">
+                                <p style="margin: 0; color: #374151; font-size: 14px; line-height: 1.6;">
+                                    {{shipping_address}}
+                                </p>
+                            </div>
+
+                            <!-- Status Info -->
+                            <div style="background-color: #fef3c7; border-radius: 8px; padding: 20px; margin-bottom: 20px;">
+                                <p style="margin: 0; color: #92400e; font-size: 14px; line-height: 1.6;">
+                                    <strong>What's Next?</strong><br>
+                                    We'll send you another email when your order ships. You can also check your order status anytime by logging into your account.
+                                </p>
+                            </div>
+                        </td>
+                    </tr>
+
+                    <!-- Footer -->
+                    <tr>
+                        <td style="padding: 30px 40px; background-color: #f9fafb; border-radius: 0 0 12px 12px; text-align: center;">
+                            <p style="margin: 0 0 10px; color: #6b7280; font-size: 14px;">
+                                Questions about your order? Contact us at support@apyvyra.com
+                            </p>
+                            <p style="margin: 0; color: #9ca3af; font-size: 12px;">
+                                &copy; 2025 Apyvyra. All rights reserved.
+                            </p>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>

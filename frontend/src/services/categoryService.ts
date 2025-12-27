@@ -19,12 +19,24 @@ export interface ProductCategory {
 
 export const categoryService = {
   // Get all categories with query metadata and optional filters
-  async getAll(filters?: FilterValues): Promise<ApiResponse<ProductCategory[]>> {
+  async getAll(filters?: FilterValues | Record<string, unknown>): Promise<ApiResponse<ProductCategory[]>> {
     let url = API_ENDPOINTS.PRODUCT_CATEGORY.LIST;
     
-    if (filters && filters.length > 0) {
-      const params = filtersToQueryParams(filters);
-      url = `${url}?${params.toString()}`;
+    if (filters) {
+      if (Array.isArray(filters) && filters.length > 0) {
+        const params = filtersToQueryParams(filters);
+        url = `${url}?${params.toString()}`;
+      } else if (!Array.isArray(filters)) {
+        const params = new URLSearchParams();
+        Object.entries(filters).forEach(([key, value]) => {
+          if (value !== undefined && value !== null && value !== '') {
+            params.append(key, String(value));
+          }
+        });
+        if (params.toString()) {
+          url = `${url}?${params.toString()}`;
+        }
+      }
     }
     
     return apiFetchWithMetadata<ProductCategory[]>(url, {
