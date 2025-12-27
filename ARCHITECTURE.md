@@ -1,305 +1,84 @@
 
 
-# Architecture Guide
+# Apyvyra Architecture Guide
 
-## Project Architecture Overview
+## Overview
 
-Apyvyra is a full-stack ERP application built with modern web technologies. The architecture follows a layered approach with clear separation of concerns:
+Apyvyra is a modern full-stack ERP application with a clean layered architecture:
 
-- **Frontend**: React SPA with TypeScript, Material-UI, and Vite
-- **Backend**: ASP.NET Core Web API with C#, Entity Framework Core
-- **Database**: PostgreSQL with proper schema design
-- **DevOps**: Docker containerization and automated database tools
+- **Frontend**: React + TypeScript + Material-UI + Vite
+- **Backend**: ASP.NET Core + Entity Framework Core + PostgreSQL
+- **Database**: PostgreSQL with proper indexing and audit trails
+- **Authentication**: JWT-based with role-based access control
+- **Error Handling**: Centralized header-based error system
+- **Filtering**: Server-side filtering with query limits
 
-The application uses RESTful APIs for communication, JWT for authentication, and follows modern development practices including audit trails, error handling, and responsive design.
+>Note: We will try keep everything on the latest version.
 
-## Technology Stack Versions & Best Practices
+## Technology Stack
 
-> **CRITICAL: Always Use Latest Versions** - This project uses the latest stable versions of all technologies and APIs. When making changes or adding features, always verify and use the most current versions available. AI agents and developers often default to outdated versions without checking current project dependencies.
+### Backend (.NET)
+- ASP.NET Core, Entity Framework Core
+- PostgreSQL with Npgsql provider
+- JWT Authentication, BCrypt password hashing
+- OpenAPI/Swagger documentation
 
-### Current Technology Versions (as of December 2025)
+### Frontend (React)
+- React + TypeScript + Vite
+- Material-UI for components
+- ESLint for code quality
 
-#### Backend (.NET)
-- **Framework**: .NET 10.0 (latest LTS)
-- **ASP.NET Core**: 10.0.0
-- **Entity Framework Core**: 10.0.0
-- **Npgsql**: 10.0.1 (PostgreSQL provider)
-- **JWT Authentication**: 10.0.0
-- **OpenAPI/Swagger**: 10.0.0
-- **BCrypt**: 4.0.3
+### Database
+- PostgreSQL with TIMESTAMPTZ for all timestamps
+- DECIMAL(19,4) for monetary values
+- Audit fields on all tables (created_at, created_by, updated_at, updated_by)
 
-#### Frontend (React/TypeScript)
-- **React**: 19.2.0 (latest stable)
-- **TypeScript**: 5.9.3
-- **Vite**: 7.2.4 (build tool)
-- **Material-UI**: 7.3.6 (latest major version)
-- **ESLint**: 9.39.1
-- **Node.js**: 24.10.1 (via @types/node)
-
-#### Database
-- **PostgreSQL**: Latest stable version (via Docker)
-- **Npgsql.EntityFrameworkCore.PostgreSQL**: 10.0.0
-
-#### DevOps & Tools
-- **Docker**: Latest stable
-- **Docker Compose**: Latest stable
-- **.NET Console App**: .NET 10.0
-
-### Version Update Guidelines
-
-#### Before Making Changes:
-1. **Check Current Versions**: Review `package.json`, `.csproj` files, and `package-lock.json`
-2. **Verify Compatibility**: Ensure all packages work together
-3. **Test Updates**: Run full test suite after version updates
-4. **Update Documentation**: Reflect version changes in this document
-
-#### Package Update Commands:
-```bash
-# Frontend
-cd frontend
-npm update
-npm audit fix
-
-# Backend (update packages in .csproj files)
-dotnet restore
-dotnet build
-
-# Check for outdated packages
-npm outdated
-dotnet list package --outdated
-```
-
-### API Version Management
-
-#### REST API Versioning:
-- Use URL versioning: `/api/v1/products`
-- Header versioning: `Accept: application/vnd.apyvyra.v1+json`
-- Document all API changes in OpenAPI/Swagger
-
-#### Database Schema Versioning:
-- Use EF Core migrations for schema changes
-- Never modify existing migration files
-- Test migrations on staging environment first
-
-### Dependency Management Best Practices
-
-#### Security First:
-```bash
-# Regular security audits
-npm audit
-dotnet list package --vulnerable
-
-# Update vulnerable packages immediately
-npm audit fix
-```
-
-#### Performance Considerations:
-- Monitor bundle size with `npm run build`
-- Use tree shaking and code splitting
-- Optimize Docker image sizes
-
-#### Development Workflow:
-1. **Pull latest changes**: `git pull`
-2. **Update dependencies**: `npm install` / `dotnet restore`
-3. **Run tests**: `npm test` / `dotnet test`
-4. **Build locally**: `npm run build` / `dotnet build`
-5. **Test in containers**: `docker-compose up`
-
-> **Best Practice:** As the ERP project grows (including backend, frontend, and DevOps tooling), always follow best software architecture principles:
-> - Use proper modularization: separate logic into methods, classes, and files by responsibility.
-> - Keep code maintainable, testable, and clear.
-> - Document architectural decisions and patterns.
-> - Refactor and organize code as new features are added.
+### Development
+- Docker & Docker Compose
+- Always use latest stable versions
+- Regular security audits with `npm audit`
 
 
-## SQL Table Naming Convention
+## Database Design
 
-All SQL table names in this project are **singular** (e.g., `product`, `user`, `product_url`).
+### Table Conventions
+- **Singular names**: `product`, `app_user`, `product_category`
+- **Audit fields**: `created_at`, `created_by`, `updated_at`, `updated_by` on all tables
+- **Timestamps**: All use `TIMESTAMPTZ` (UTC with timezone info)
+- **Money fields**: Use `DECIMAL(19,4)` for precise financial calculations
 
-Each table includes standard audit fields:
+### Key Tables
+- `app_user` - Users with roles (0=admin, 1=staff, 2=customer)
+- `product` - Products with pricing, inventory, categories
+- `product_category` - Hierarchical categories
+- `product_url` - Product images, videos, manuals
 
-- `created_at` (timestamp)
-- `created_by` (user reference)
-- `updated_at` (timestamp)
-- `updated_by` (user reference)
+### User Roles & Permissions
+- **Admin (0)**: Full access to all features including staff management
+- **Staff (1)**: Can manage products, categories, customers
+- **Customer (2)**: Can view products and place orders
 
-This ensures consistency and traceability across the database schema.
+## Filtering & Query Limits
 
-## Database Field Types
+### Server-Side Filtering
+- **No traditional pagination** - uses filtering with query limits instead
+- **Max records**: 100 records per query (`MAX_RECORDS_QUERIES_COUNT`)
+- **Response headers**: `X-Total-Count` and `X-Has-More-Records`
+- **Dynamic operators**: eq, ne, lt, lte, gt, gte, contains, startsWith, endsWith, between
 
-### Date/Time Fields
-
-All date/time columns use `TIMESTAMPTZ` (timestamp with time zone) instead of `TIMESTAMP` (timestamp without time zone):
-
-**Rationale:**
-- **UTC Consistency**: Ensures all timestamps are stored in UTC, preventing timezone-related bugs
-- **Npgsql Compatibility**: Avoids .NET PostgreSQL provider issues with `DateTimeKind.Unspecified` values
-- **Global ERP Support**: Proper handling of international users across different time zones
-- **Future-Proofing**: Aligns with modern web standards and cloud-native applications
-
-**Industry Best Practices:**
-Big tech companies (Google, Amazon, Facebook, Stripe, etc.) universally use UTC timestamps with timezone information:
-
-- **PostgreSQL**: `TIMESTAMPTZ` is the standard for all temporal data
-- **MySQL**: `TIMESTAMP` or `DATETIME` with UTC conversion
-- **MongoDB**: ISODate with UTC
-- **Cloud Services**: All major cloud providers (AWS, GCP, Azure) store timestamps in UTC
-
-**Implementation:**
-- Backend: All `DateTime` properties use `DateTimeKind.Utc`
-- Database: `created_at`, `updated_at` columns use `TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP`
-- API: Return timestamps in ISO 8601 format with 'Z' suffix (e.g., `2025-12-20T10:30:00.000Z`)
-
-**Why TIMESTAMPTZ is Recommended:**
-- **Ambiguity Elimination**: No confusion about whether a timestamp represents local time or UTC
-- **Timezone Safety**: Applications can convert to user timezones without data loss
-- **Compliance**: Meets requirements for financial systems, audit trails, and international standards
-- **Performance**: PostgreSQL optimizes `TIMESTAMPTZ` queries efficiently
-
-### Currency/Monetary Fields
-
-Price and cost fields use `DECIMAL(19, 4)` precision:
-
-**Rationale:**
-- **Calculation Accuracy**: 4 decimal places prevent rounding errors in tax calculations, discounts, and currency conversions
-- **Industry Standard**: Matches practices used by major e-commerce platforms (Stripe, Shopify, Amazon)
-- **Financial Compliance**: Supports precise monetary arithmetic required for ERP systems
-- **Storage Efficiency**: DECIMAL provides exact decimal representation without floating-point precision issues
-
-**Fields Using DECIMAL(19, 4):**
-- `price` - Product selling price
-- `cost_price` - Product cost/purchase price
-
-**Benefits:**
-- Eliminates floating-point arithmetic errors (e.g., 0.1 + 0.2 = 0.3 exactly)
-- Supports micro-payments and complex pricing rules
-- Enables accurate financial reporting and reconciliation
-
-## Query Limiting and Modern Filtering Approach
-
-Following the guidelines from `paging_vs_filtering.md`, the backend implements a modern filtering approach instead of traditional server-side pagination.
-
-### Configuration
-
-**Setting**: `MAX_RECORDS_QUERIES_COUNT` in `appsettings.json`
-```json
-{
-  "QuerySettings": {
-    "MAX_RECORDS_QUERIES_COUNT": 100
-  }
-}
-```
-
-This setting defines the maximum number of records returned from any backend query. Default value: **100 records**.
-
-### Response Headers
-
-All list endpoints automatically include these headers:
-
-- **`X-Total-Count`**: Total number of records matching the filter (before limiting)
-- **`X-Has-More-Records`**: `true` if there are more records than MAX_RECORDS_QUERIES_COUNT, `false` otherwise
+### FilterComponent
+- **Reusable** filtering component for all admin pages
+- **Field types**: string, number, date, boolean, dropdown
+- **Dynamic dropdowns** load from backend endpoints
+- **Inline warnings** when more records exist
+- **Grid filtering disabled** - all filtering through custom form
 
 ### Backend Implementation
-
-#### BaseApiController Helper Method
-
-All controllers inherit from `BaseApiController` which provides the `ExecuteLimitedQueryAsync<T>()` method:
-
 ```csharp
-// Automatically limits results and sets headers
+// BaseApiController provides ExecuteLimitedQueryAsync()
 var products = await ExecuteLimitedQueryAsync(query);
+// Automatically limits results and sets headers
 ```
-
-This method:
-1. Counts total matching records
-2. Returns only up to MAX_RECORDS_QUERIES_COUNT results
-3. Sets `X-Total-Count` header with total count
-4. Sets `X-Has-More-Records` header if more records exist
-
-#### Example Controller Usage
-
-```csharp
-[HttpGet]
-public async Task<ActionResult<IEnumerable<ProductResponse>>> GetProducts(
-    [FromQuery] int? categoryId,
-    [FromQuery] string? brand)
-{
-    var query = _context.Products
-        .Include(p => p.Category)
-        .AsQueryable();
-
-    // Apply filters
-    if (categoryId.HasValue)
-        query = query.Where(p => p.CategoryId == categoryId);
-
-    if (!string.IsNullOrEmpty(brand))
-        query = query.Where(p => p.Brand == brand);
-
-    // Limit results automatically
-    var products = await ExecuteLimitedQueryAsync(query);
-    
-    return Ok(products.Select(p => MapToResponse(p)));
-}
-```
-
-### Reusable FilterComponent
-
-The application uses a **configurable, reusable FilterComponent** for all filtering needs. This component supports:
-
-- **Multiple field types**: string, number, date, boolean, dropdown
-- **Flexible operators**: eq, ne, lt, lte, gt, gte, contains, startsWith, endsWith, between
-- **Dynamic dropdowns**: Load options from backend endpoints or use static options
-- **Automatic query building**: Converts filters to backend-compatible query parameters
-- **Inline warnings**: Shows alert when more records exist
-- **Keyboard support**: Press Enter to search
-- **Always visible labels**: Field labels remain visible even when fields are empty (using `InputLabelProps={{ shrink: true }}`)
-
-**Configuration Example**:
-```typescript
-// Define filter configuration in src/config/filterConfigs.ts
-import { auditFieldsConfig } from './filterConfigs';
-
-export const productFilterConfig = {
-  fields: [
-    {
-      name: 'name',
-      label: 'Product Name',
-      type: 'string',
-      operators: ['contains', 'eq', 'startsWith'],
-      defaultOperator: 'contains',
-    },
-    {
-      name: 'categoryId',
-      label: 'Category',
-      type: 'dropdown',
-      dropdownConfig: {
-        endpoint: API_ENDPOINTS.PRODUCT_CATEGORY.LIST,
-        idField: 'id',
-        nameField: 'name',
-      },
-    },
-    {
-      name: 'price',
-      label: 'Price',
-      type: 'number',
-      operators: ['eq', 'lt', 'lte', 'gt', 'gte', 'between'],
-      defaultOperator: 'between',
-    },
-    // Include standard audit fields (createdAt, createdBy, updatedAt, updatedBy)
-    ...auditFieldsConfig,
-  ],
-};
-
-// Use in component
-<FilterComponent
-  config={{ ...productFilterConfig, onSearch: loadProducts }}
-  hasMoreRecords={hasMoreRecords}
-  totalCount={totalCount}
-  currentCount={products.length}
-/>
-```
-
-See `frontend/FILTER_COMPONENT_USAGE.md` for complete documentation.
 
 ### Server-Side Filtering
 
