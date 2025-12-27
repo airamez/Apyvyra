@@ -292,8 +292,20 @@ public class OrderController : BaseApiController
             var deliveredOrders = await _context.CustomerOrders.CountAsync(o => o.Status == 4);
             var cancelledOrders = await _context.CustomerOrders.CountAsync(o => o.Status == 5);
 
-            var totalRevenue = await _context.CustomerOrders
-                .Where(o => o.Status != 5) // Exclude cancelled
+            var pendingRevenue = await _context.CustomerOrders
+                .Where(o => o.Status == 0)
+                .SumAsync(o => o.TotalAmount);
+            var confirmedRevenue = await _context.CustomerOrders
+                .Where(o => o.Status == 1)
+                .SumAsync(o => o.TotalAmount);
+            var processingRevenue = await _context.CustomerOrders
+                .Where(o => o.Status == 2)
+                .SumAsync(o => o.TotalAmount);
+            var shippedRevenue = await _context.CustomerOrders
+                .Where(o => o.Status == 3)
+                .SumAsync(o => o.TotalAmount);
+            var deliveredRevenue = await _context.CustomerOrders
+                .Where(o => o.Status == 4)
                 .SumAsync(o => o.TotalAmount);
 
             return Ok(new OrderStatsResponse
@@ -305,7 +317,12 @@ public class OrderController : BaseApiController
                 ShippedOrders = shippedOrders,
                 DeliveredOrders = deliveredOrders,
                 CancelledOrders = cancelledOrders,
-                TotalRevenue = totalRevenue
+                TotalRevenue = deliveredRevenue, // Only delivered orders contribute to total revenue
+                PendingRevenue = pendingRevenue,
+                ConfirmedRevenue = confirmedRevenue,
+                ProcessingRevenue = processingRevenue,
+                ShippedRevenue = shippedRevenue,
+                DeliveredRevenue = deliveredRevenue
             });
         }
         catch (Exception ex)
@@ -437,4 +454,9 @@ public record OrderStatsResponse
     public int DeliveredOrders { get; init; }
     public int CancelledOrders { get; init; }
     public decimal TotalRevenue { get; init; }
+    public decimal PendingRevenue { get; init; }
+    public decimal ConfirmedRevenue { get; init; }
+    public decimal ProcessingRevenue { get; init; }
+    public decimal ShippedRevenue { get; init; }
+    public decimal DeliveredRevenue { get; init; }
 }

@@ -42,130 +42,186 @@ export default function Dashboard() {
 
       <Grid container spacing={3}>
         <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-          <Card>
-            <CardContent>
-              <Typography variant="h6" color="primary" gutterBottom>
-                Total Revenue
-              </Typography>
-              <Typography variant="h4">
-                {loading ? '...' : formatCurrency(orderStats?.totalRevenue || 0)}
-              </Typography>
-              <Typography variant="body2" color="text.secondary">
-                All completed orders
-              </Typography>
+          <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+            <CardContent sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+              <Box>
+                <Typography variant="h6" color="primary" gutterBottom>
+                  Total Revenue
+                </Typography>
+                <Typography variant="h4">
+                  {loading ? '...' : formatCurrency(orderStats?.totalRevenue || 0)}
+                </Typography>
+              </Box>
+              <Box>
+                <Typography variant="body2" color="text.secondary">
+                  All completed orders
+                </Typography>
+                <Typography variant="caption" color="text.secondary">
+                  &nbsp;
+                </Typography>
+              </Box>
             </CardContent>
           </Card>
         </Grid>
 
         <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-          <Card>
-            <CardContent>
-              <Typography variant="h6" color="primary" gutterBottom>
-                Total Orders
-              </Typography>
-              <Typography variant="h4">
-                {loading ? '...' : orderStats?.totalOrders || 0}
-              </Typography>
-              <Typography variant="body2" color="text.secondary">
-                All time orders
-              </Typography>
+          <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+            <CardContent sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+              <Box>
+                <Typography variant="h6" color="primary" gutterBottom>
+                  Total Orders
+                </Typography>
+                <Typography variant="h4">
+                  {loading ? '...' : orderStats?.totalOrders || 0}
+                </Typography>
+              </Box>
+              <Box>
+                <Typography variant="body2" color="text.secondary">
+                  All time orders
+                </Typography>
+                <Typography variant="caption" color="text.secondary">
+                  &nbsp;
+                </Typography>
+              </Box>
             </CardContent>
           </Card>
         </Grid>
 
         <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-          <Card>
-            <CardContent>
-              <Typography variant="h6" color="warning.main" gutterBottom>
-                Pending Orders
-              </Typography>
-              <Typography variant="h4">
-                {loading ? '...' : orderStats?.pendingOrders || 0}
-              </Typography>
-              <Typography variant="body2" color="text.secondary">
-                Awaiting confirmation
-              </Typography>
+          <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+            <CardContent sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+              <Box>
+                <Typography variant="h6" color="warning.main" gutterBottom>
+                  Pending Orders
+                </Typography>
+                <Typography variant="h4">
+                  {loading ? '...' : orderStats?.pendingOrders || 0}
+                </Typography>
+              </Box>
+              <Box>
+                <Typography variant="body2" color="text.secondary">
+                  Awaiting confirmation
+                </Typography>
+                <Typography variant="caption" color="text.secondary">
+                  Revenue: {formatCurrency(orderStats?.pendingRevenue || 0)}
+                </Typography>
+              </Box>
             </CardContent>
           </Card>
         </Grid>
 
         <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-          <Card>
-            <CardContent>
-              <Typography variant="h6" color="primary" gutterBottom>
-                Total Customers
-              </Typography>
-              <Typography variant="h4">
-                {loading ? '...' : customerCount}
-              </Typography>
-              <Typography variant="body2" color="text.secondary">
-                Registered customers
-              </Typography>
+          <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+            <CardContent sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+              <Box>
+                <Typography variant="h6" color="primary" gutterBottom>
+                  Total Customers
+                </Typography>
+                <Typography variant="h4">
+                  {loading ? '...' : customerCount}
+                </Typography>
+              </Box>
+              <Box>
+                <Typography variant="body2" color="text.secondary">
+                  Registered customers
+                </Typography>
+                <Typography variant="caption" color="text.secondary">
+                  &nbsp;
+                </Typography>
+              </Box>
             </CardContent>
           </Card>
         </Grid>
 
-        {/* Order Status Breakdown */}
+        {/* Order Status Breakdown with Revenue */}
         <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-          <Card>
-            <CardContent>
-              <Typography variant="h6" color="info.main" gutterBottom>
-                Confirmed
-              </Typography>
-              <Typography variant="h4">
-                {loading ? '...' : orderStats?.confirmedOrders || 0}
-              </Typography>
-              <Typography variant="body2" color="text.secondary">
-                Ready to process
-              </Typography>
-            </CardContent>
-          </Card>
-        </Grid>
-
-        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-          <Card>
-            <CardContent>
-              <Typography variant="h6" color="secondary.main" gutterBottom>
-                Processing
-              </Typography>
-              <Typography variant="h4">
-                {loading ? '...' : orderStats?.processingOrders || 0}
-              </Typography>
-              <Typography variant="body2" color="text.secondary">
-                Being prepared
-              </Typography>
-            </CardContent>
-          </Card>
-        </Grid>
-
-        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-          <Card>
-            <CardContent>
-              <Typography variant="h6" color="primary.main" gutterBottom>
-                Shipped
-              </Typography>
-              <Typography variant="h4">
-                {loading ? '...' : orderStats?.shippedOrders || 0}
-              </Typography>
-              <Typography variant="body2" color="text.secondary">
-                In transit
-              </Typography>
+          <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+            <CardContent sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+              <Box>
+                <Typography variant="h6" color="info.main" gutterBottom>
+                  Confirmed
+                </Typography>
+                <Typography variant="h4">
+                  {loading ? '...' : orderStats?.confirmedOrders || 0}
+                </Typography>
+              </Box>
+              <Box>
+                <Typography variant="body2" color="text.secondary">
+                  Ready to process
+                </Typography>
+                <Typography variant="caption" color="text.secondary">
+                  Revenue: {formatCurrency(orderStats?.confirmedRevenue || 0)}
+                </Typography>
+              </Box>
             </CardContent>
           </Card>
         </Grid>
 
         <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-          <Card>
-            <CardContent>
-              <Typography variant="h6" color="success.main" gutterBottom>
-                Delivered
-              </Typography>
-              <Typography variant="h4">
-                {loading ? '...' : orderStats?.deliveredOrders || 0}
-              </Typography>
-              <Typography variant="body2" color="text.secondary">
-                Completed orders
-              </Typography>
+          <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+            <CardContent sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+              <Box>
+                <Typography variant="h6" color="secondary.main" gutterBottom>
+                  Processing
+                </Typography>
+                <Typography variant="h4">
+                  {loading ? '...' : orderStats?.processingOrders || 0}
+                </Typography>
+              </Box>
+              <Box>
+                <Typography variant="body2" color="text.secondary">
+                  Being prepared
+                </Typography>
+                <Typography variant="caption" color="text.secondary">
+                  Revenue: {formatCurrency(orderStats?.processingRevenue || 0)}
+                </Typography>
+              </Box>
+            </CardContent>
+          </Card>
+        </Grid>
+
+        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+          <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+            <CardContent sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+              <Box>
+                <Typography variant="h6" color="primary.main" gutterBottom>
+                  Shipped
+                </Typography>
+                <Typography variant="h4">
+                  {loading ? '...' : orderStats?.shippedOrders || 0}
+                </Typography>
+              </Box>
+              <Box>
+                <Typography variant="body2" color="text.secondary">
+                  In transit
+                </Typography>
+                <Typography variant="caption" color="text.secondary">
+                  Revenue: {formatCurrency(orderStats?.shippedRevenue || 0)}
+                </Typography>
+              </Box>
+            </CardContent>
+          </Card>
+        </Grid>
+
+        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+          <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+            <CardContent sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+              <Box>
+                <Typography variant="h6" color="success.main" gutterBottom>
+                  Delivered
+                </Typography>
+                <Typography variant="h4">
+                  {loading ? '...' : orderStats?.deliveredOrders || 0}
+                </Typography>
+              </Box>
+              <Box>
+                <Typography variant="body2" color="text.secondary">
+                  Completed orders
+                </Typography>
+                <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 'bold' }}>
+                  Revenue: {formatCurrency(orderStats?.deliveredRevenue || 0)}
+                </Typography>
+              </Box>
             </CardContent>
           </Card>
         </Grid>

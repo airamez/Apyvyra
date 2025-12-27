@@ -55,6 +55,11 @@ export interface OrderStats {
   deliveredOrders: number;
   cancelledOrders: number;
   totalRevenue: number;
+  pendingRevenue: number;
+  confirmedRevenue: number;
+  processingRevenue: number;
+  shippedRevenue: number;
+  deliveredRevenue: number;
 }
 
 export const ORDER_STATUS = {
