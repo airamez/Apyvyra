@@ -1,7 +1,26 @@
+import { useState, useEffect } from 'react';
 import { Container, Typography, Box, Card, CardContent, Grid } from '@mui/material';
 import DashboardIcon from '@mui/icons-material/Dashboard';
+import { userService } from '../../services/userService';
 
 export default function Dashboard() {
+  const [customerCount, setCustomerCount] = useState<number>(0);
+  const [loading, setLoading] = useState<boolean>(true);
+
+  useEffect(() => {
+    const loadCustomerCount = async () => {
+      try {
+        const count = await userService.getCustomerCount();
+        setCustomerCount(count);
+      } catch (error) {
+        console.error('Error loading customer count:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadCustomerCount();
+  }, []);
   return (
     <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
       <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
@@ -46,9 +65,11 @@ export default function Dashboard() {
               <Typography variant="h6" color="primary" gutterBottom>
                 Total Customers
               </Typography>
-              <Typography variant="h3">0</Typography>
+              <Typography variant="h3">
+                {loading ? '...' : customerCount}
+              </Typography>
               <Typography variant="body2" color="text.secondary">
-                Registered users (app_user)
+                Registered customers (user_type = 2)
               </Typography>
             </CardContent>
           </Card>

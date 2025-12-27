@@ -94,14 +94,20 @@ public class AppUserController : BaseApiController
     {
         try
         {
-            var users = await _context.AppUsers
+            var query = _context.AppUsers
                 .Select(u => new UserListResponse
                 {
                     Id = u.Id,
                     Username = u.Email,
-                    Email = u.Email
+                    Email = u.Email,
+                    UserType = u.UserType
                 })
-                .ToListAsync();
+                .AsQueryable();
+
+            // Apply filters from query parameters
+            query = Helpers.QueryFilterHelper.ApplyQueryFilters(query, Request.Query);
+
+            var users = await ExecuteLimitedQueryAsync(query);
 
             return Ok(users);
         }
@@ -836,6 +842,7 @@ public record UserListResponse
     public int Id { get; init; }
     public string Username { get; init; } = string.Empty;
     public string Email { get; init; } = string.Empty;
+    public int UserType { get; init; }
 }
 
 public record LoginResponse
