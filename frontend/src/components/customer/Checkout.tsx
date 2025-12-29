@@ -19,6 +19,7 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { cartService, type CartSummary } from '../../services/cartService';
 import { orderService, type CreateOrderRequest, type Order } from '../../services/orderService';
 import Payment from './Payment';
+import { getErrorMessages } from '../../utils/apiErrorHandler';
 
 interface CheckoutProps {
   onBackToCart: () => void;
@@ -70,7 +71,8 @@ export default function Checkout({ onBackToCart, onOrderComplete }: CheckoutProp
       setCreatedOrder(order);
       setShowPayment(true);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to create order. Please try again.');
+      const errorMessages = getErrorMessages(err);
+      setError(errorMessages[0] || 'Failed to create order. Please try again.');
     } finally {
       setLoading(false);
     }

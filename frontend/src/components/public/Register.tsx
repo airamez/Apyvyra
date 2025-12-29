@@ -14,6 +14,7 @@ import {
 } from '@mui/material';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import { userService } from '../../services/userService';
+import { getErrorMessages } from '../../utils/apiErrorHandler';
 
 interface RegisterProps {
   onNavigateToLogin?: () => void;
@@ -90,7 +91,8 @@ export default function Register({ onNavigateToLogin }: RegisterProps) {
 
       // Remove automatic redirect - user will click the link to navigate to login
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred during registration');
+      const errorMessages = getErrorMessages(err);
+      setError(errorMessages[0] || 'An error occurred during registration');
     } finally {
       setLoading(false);
     }

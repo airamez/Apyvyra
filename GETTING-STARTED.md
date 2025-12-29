@@ -137,7 +137,56 @@ For production or advanced testing, configure webhooks:
    - `charge.refunded`
 5. Copy the **Signing secret** (starts with `whsec_`) to your configuration
 
-### 6. Going Live
+### 6. Local Development Without Stripe
+
+Apyvyra supports a mock mode for local development and demos without requiring a Stripe account.
+
+#### Mock Mode Configuration
+
+Set `MockStripe: true` in your configuration to enable payment simulation:
+
+```json
+{
+  "Stripe": {
+    "SecretKey": "sk_test_YOUR_STRIPE_TEST_SECRET_KEY",
+    "PublishableKey": "pk_test_YOUR_STRIPE_TEST_PUBLISHABLE_KEY",
+    "WebhookSecret": "whsec_your_webhook_secret_here",
+    "TestMode": true,
+    "MockStripe": true
+  }
+}
+```
+
+**In Mock Mode:**
+- No Stripe account or valid API keys required
+- No external network calls to Stripe
+- Shows a simplified payment UI
+- Payments are automatically approved with one click
+- Perfect for demos, testing, and offline development
+
+#### Stripe Test Mode (Real Stripe with Test Keys)
+
+For integration testing with real Stripe (requires internet and Stripe account):
+
+```json
+{
+  "Stripe": {
+    "SecretKey": "sk_test_YOUR_REAL_TEST_KEY",
+    "PublishableKey": "pk_test_YOUR_REAL_TEST_KEY",
+    "WebhookSecret": "whsec_your_webhook_secret",
+    "TestMode": true,
+    "MockStripe": false
+  }
+}
+```
+
+**In Test Mode:**
+- Uses real Stripe.js and Stripe API
+- No real charges are made
+- Use test card `4242 4242 4242 4242` with any future expiry and CVC
+- Full Stripe payment UI experience
+
+### 7. Going Live
 
 When ready for production:
 
@@ -145,7 +194,7 @@ When ready for production:
 2. Toggle off **Test mode** in Stripe Dashboard
 3. Get your live API keys (start with `pk_live_` and `sk_live_`)
 4. Update your configuration with live keys
-5. Set `"TestMode": false` in appsettings.json
+5. Set `"TestMode": false` and `"MockStripe": false`
 
 > **Important**: Never commit API keys to version control. Use environment variables or secrets management in production.
 
@@ -183,7 +232,10 @@ When ready for production:
     "SecretKey": "sk_test_your_stripe_secret_key_here",
     "PublishableKey": "pk_test_your_stripe_publishable_key_here",
     "WebhookSecret": "whsec_your_webhook_secret_here",
-    "TestMode": true
+    "TestMode": true,
+    "MockMode": false,
+    "MockServerUrl": "http://localhost:12111",
+    "BypassPayment": false
   },
   "BaseUrl": "http://localhost:5000",
   "QuerySettings": {

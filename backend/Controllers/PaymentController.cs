@@ -42,11 +42,13 @@ public class PaymentController : BaseApiController
     {
         var publishableKey = _configuration["Stripe:PublishableKey"];
         var testMode = _configuration.GetValue<bool>("Stripe:TestMode", true);
+        var mockStripe = _stripeService.IsMockStripe;
 
         return Ok(new PaymentConfigResponse
         {
             PublishableKey = publishableKey ?? "",
-            TestMode = testMode
+            TestMode = testMode,
+            MockStripe = mockStripe
         });
     }
 
@@ -146,6 +148,28 @@ public class PaymentController : BaseApiController
             if (string.IsNullOrEmpty(order.StripePaymentIntentId))
             {
                 return BadRequestWithErrors("No payment intent found for this order");
+            }
+
+            // In MockStripe mode, simulate successful payment
+            if (_stripeService.IsMockStripe)
+            {
+                _logger.LogInformation("MockStripe: Simulating successful payment for order {OrderId}", orderId);
+                
+                // Update order status
+                order.PaymentStatus = 1; // Succeeded
+                order.Status = 1; // Paid
+                order.PaidAt = DateTime.UtcNow;
+                order.UpdatedBy = userId;
+                await _context.SaveChangesAsync();
+
+                return Ok(new PaymentConfirmResponse
+                {
+                    Success = true,
+                    OrderId = order.Id,
+                    OrderNumber = order.OrderNumber,
+                    PaymentStatus = "succeeded",
+                    Message = "Payment completed successfully (mock mode)"
+                });
             }
 
             var paymentIntent = await _stripeService.GetPaymentIntentAsync(order.StripePaymentIntentId);
@@ -340,6 +364,7 @@ public record PaymentConfigResponse
 {
     public string PublishableKey { get; init; } = string.Empty;
     public bool TestMode { get; init; }
+    public bool MockStripe { get; init; }
 }
 
 public record PaymentIntentResponse

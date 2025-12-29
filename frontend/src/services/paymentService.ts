@@ -5,6 +5,7 @@ import { apiFetch } from '../utils/apiErrorHandler';
 export interface PaymentConfig {
   publishableKey: string;
   testMode: boolean;
+  mockStripe: boolean;
 }
 
 export interface PaymentIntent {
