@@ -350,11 +350,14 @@ public class OrderController : BaseApiController
             CustomerName = order.Customer?.FullName ?? order.Customer?.Email ?? "",
             Status = order.Status,
             StatusName = GetStatusName(order.Status),
+            PaymentStatus = order.PaymentStatus,
+            PaymentStatusName = GetPaymentStatusName(order.PaymentStatus),
             ShippingAddress = order.ShippingAddress,
             Subtotal = order.Subtotal,
             TaxAmount = order.TaxAmount,
             TotalAmount = order.TotalAmount,
             Notes = order.Notes,
+            PaidAt = order.PaidAt,
             OrderDate = order.OrderDate,
             ConfirmedAt = order.ConfirmedAt,
             ShippedAt = order.ShippedAt,
@@ -379,12 +382,24 @@ public class OrderController : BaseApiController
     {
         return status switch
         {
-            0 => "Pending",
-            1 => "Confirmed",
+            0 => "Pending Payment",
+            1 => "Paid",
             2 => "Processing",
             3 => "Shipped",
             4 => "Delivered",
             5 => "Cancelled",
+            _ => "Unknown"
+        };
+    }
+
+    private static string GetPaymentStatusName(int paymentStatus)
+    {
+        return paymentStatus switch
+        {
+            0 => "Pending",
+            1 => "Succeeded",
+            2 => "Failed",
+            3 => "Refunded",
             _ => "Unknown"
         };
     }
@@ -418,11 +433,14 @@ public record OrderResponse
     public string CustomerName { get; init; } = string.Empty;
     public int Status { get; init; }
     public string StatusName { get; init; } = string.Empty;
+    public int PaymentStatus { get; init; }
+    public string PaymentStatusName { get; init; } = string.Empty;
     public string ShippingAddress { get; init; } = string.Empty;
     public decimal Subtotal { get; init; }
     public decimal TaxAmount { get; init; }
     public decimal TotalAmount { get; init; }
     public string? Notes { get; init; }
+    public DateTime? PaidAt { get; init; }
     public DateTime OrderDate { get; init; }
     public DateTime? ConfirmedAt { get; init; }
     public DateTime? ShippedAt { get; init; }

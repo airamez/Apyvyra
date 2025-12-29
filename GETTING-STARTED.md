@@ -47,7 +47,7 @@
    # Or run manually (see below)
    ```
 
-## Run THe application manually (for development)
+## Run the application manually (for development)
 
 - **Database**: 
   ```bash
@@ -77,6 +77,77 @@
 ## Email Configuration
 
 For email confirmation setup and SMTP configuration, see: [Email Confirmation Setup Guide](EMAIL_CONFIRMATION_SETUP.md)
+
+## Stripe Payment Configuration
+
+Apyvyra integrates with **Stripe** for payment processing. Stripe provides a robust test mode that allows you to fully test payments without processing real transactions.
+
+### 1. Create a Stripe Account
+
+1. Go to [https://dashboard.stripe.com/register](https://dashboard.stripe.com/register)
+2. Create a free account (no credit card required for test mode)
+3. Verify your email address
+
+### 2. Get Your API Keys
+
+1. Log in to your Stripe Dashboard
+2. Make sure **Test mode** is enabled (toggle in the top-right corner)
+3. Go to **Developers** → **API keys**
+4. Copy your keys:
+   - **Publishable key**: Starts with `pk_test_`
+   - **Secret key**: Starts with `sk_test_`
+
+### 3. Configure Backend
+
+Update `backend/appsettings.json` with your Stripe keys:
+
+```json
+{
+  "Stripe": {
+    "SecretKey": "sk_test_your_stripe_secret_key_here",
+    "PublishableKey": "pk_test_your_stripe_publishable_key_here",
+    "WebhookSecret": "whsec_your_webhook_secret_here",
+    "TestMode": true
+  }
+}
+```
+
+### 4. Test Card Numbers
+
+In test mode, use these card numbers for testing:
+
+| Card Number | Description |
+|-------------|-------------|
+| `4242 4242 4242 4242` | Successful payment |
+| `4000 0000 0000 3220` | 3D Secure authentication required |
+| `4000 0000 0000 9995` | Payment declined |
+
+Use any future expiration date (e.g., `12/34`) and any 3-digit CVC.
+
+### 5. Webhook Configuration (Optional)
+
+For production or advanced testing, configure webhooks:
+
+1. Go to **Developers** → **Webhooks** in Stripe Dashboard
+2. Click **Add endpoint**
+3. Enter your webhook URL: `https://your-domain.com/api/payment/webhook`
+4. Select events to listen for:
+   - `payment_intent.succeeded`
+   - `payment_intent.payment_failed`
+   - `charge.refunded`
+5. Copy the **Signing secret** (starts with `whsec_`) to your configuration
+
+### 6. Going Live
+
+When ready for production:
+
+1. Complete your Stripe account verification
+2. Toggle off **Test mode** in Stripe Dashboard
+3. Get your live API keys (start with `pk_live_` and `sk_live_`)
+4. Update your configuration with live keys
+5. Set `"TestMode": false` in appsettings.json
+
+> **Important**: Never commit API keys to version control. Use environment variables or secrets management in production.
 
 ## Application Configuration
 
@@ -108,6 +179,12 @@ For email confirmation setup and SMTP configuration, see: [Email Confirmation Se
     "FromName": "Apyvyra",
     "EnableSsl": true
   },
+  "Stripe": {
+    "SecretKey": "sk_test_your_stripe_secret_key_here",
+    "PublishableKey": "pk_test_your_stripe_publishable_key_here",
+    "WebhookSecret": "whsec_your_webhook_secret_here",
+    "TestMode": true
+  },
   "BaseUrl": "http://localhost:5000",
   "QuerySettings": {
     "MAX_RECORDS_QUERIES_COUNT": 100
@@ -132,10 +209,30 @@ VITE_API_URL=http://localhost:5000
 - **Customer (user_type = 2)**: Can view products and place orders
 
 ### Database Schema
-- **Tables**: `app_user`, `product`, `product_category`, `product_url`
+- **Tables**: `app_user`, `product`, `product_category`, `product_url`, `customer_order`, `order_item`
 - **Audit Fields**: All tables include `created_at`, `created_by`, `updated_at`, `updated_by`
 - **Timestamps**: All use `TIMESTAMPTZ` (UTC with timezone info)
 - **Money Fields**: Use `DECIMAL(19,4)` for precise financial calculations
+
+### Order Status Workflow
+Orders follow this status progression:
+
+| Status | Name | Description |
+|--------|------|-------------|
+| 0 | Pending Payment | Order created, awaiting payment |
+| 1 | Paid | Payment successful, ready for processing |
+| 2 | Processing | Order being prepared |
+| 3 | Shipped | Order shipped to customer |
+| 4 | Delivered | Order delivered |
+| 5 | Cancelled | Order cancelled |
+
+### Payment Status
+| Status | Name | Description |
+|--------|------|-------------|
+| 0 | Pending | Payment not yet attempted |
+| 1 | Succeeded | Payment completed successfully |
+| 2 | Failed | Payment failed |
+| 3 | Refunded | Payment refunded |
 
 ## Documentation
 - [Main README](README.md)

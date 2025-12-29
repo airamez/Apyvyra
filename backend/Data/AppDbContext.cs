@@ -269,6 +269,9 @@ public partial class AppDbContext : DbContext
             entity.Property(e => e.Status)
                 .HasDefaultValue(0)
                 .HasColumnName("status");
+            entity.Property(e => e.PaymentStatus)
+                .HasDefaultValue(0)
+                .HasColumnName("payment_status");
             entity.Property(e => e.ShippingAddress).HasColumnName("shipping_address");
             entity.Property(e => e.Subtotal)
                 .HasPrecision(19, 4)
@@ -280,6 +283,13 @@ public partial class AppDbContext : DbContext
                 .HasPrecision(19, 4)
                 .HasColumnName("total_amount");
             entity.Property(e => e.Notes).HasColumnName("notes");
+            entity.Property(e => e.StripePaymentIntentId)
+                .HasMaxLength(255)
+                .HasColumnName("stripe_payment_intent_id");
+            entity.Property(e => e.StripeClientSecret)
+                .HasMaxLength(255)
+                .HasColumnName("stripe_client_secret");
+            entity.Property(e => e.PaidAt).HasColumnName("paid_at");
             entity.Property(e => e.OrderDate)
                 .HasDefaultValueSql("CURRENT_TIMESTAMP")
                 .HasColumnName("order_date");

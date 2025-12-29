@@ -22,11 +22,14 @@ export interface Order {
   customerName: string;
   status: number;
   statusName: string;
+  paymentStatus: number;
+  paymentStatusName: string;
   shippingAddress: string;
   subtotal: number;
   taxAmount: number;
   totalAmount: number;
   notes?: string;
+  paidAt?: string;
   orderDate: string;
   confirmedAt?: string;
   shippedAt?: string;
@@ -63,8 +66,8 @@ export interface OrderStats {
 }
 
 export const ORDER_STATUS = {
-  PENDING: 0,
-  CONFIRMED: 1,
+  PENDING_PAYMENT: 0,
+  PAID: 1,
   PROCESSING: 2,
   SHIPPED: 3,
   DELIVERED: 4,
@@ -72,12 +75,26 @@ export const ORDER_STATUS = {
 } as const;
 
 export const ORDER_STATUS_NAMES: Record<number, string> = {
-  0: 'Pending',
-  1: 'Confirmed',
+  0: 'Pending Payment',
+  1: 'Paid',
   2: 'Processing',
   3: 'Shipped',
   4: 'Delivered',
   5: 'Cancelled',
+};
+
+export const PAYMENT_STATUS = {
+  PENDING: 0,
+  SUCCEEDED: 1,
+  FAILED: 2,
+  REFUNDED: 3,
+} as const;
+
+export const PAYMENT_STATUS_NAMES: Record<number, string> = {
+  0: 'Pending',
+  1: 'Succeeded',
+  2: 'Failed',
+  3: 'Refunded',
 };
 
 export const orderService = {

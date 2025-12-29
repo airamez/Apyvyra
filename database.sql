@@ -92,17 +92,22 @@ CREATE INDEX idx_product_url_type ON product_url(url_type);
 CREATE INDEX idx_product_url_primary ON product_url(is_primary);
 
 -- Customer Order table
--- Order Status: 0=pending, 1=confirmed, 2=processing, 3=shipped, 4=delivered, 5=cancelled
+-- Order Status: 0=pending_payment, 1=paid, 2=processing, 3=shipped, 4=delivered, 5=cancelled
+-- Payment Status: 0=pending, 1=succeeded, 2=failed, 3=refunded
 CREATE TABLE customer_order (
     id SERIAL PRIMARY KEY,
     order_number VARCHAR(50) NOT NULL UNIQUE,
     customer_id INTEGER NOT NULL REFERENCES app_user(id),
     status INTEGER NOT NULL DEFAULT 0 CHECK (status IN (0, 1, 2, 3, 4, 5)),
+    payment_status INTEGER NOT NULL DEFAULT 0 CHECK (payment_status IN (0, 1, 2, 3)),
     shipping_address TEXT NOT NULL,
     subtotal DECIMAL(19, 4) NOT NULL,
     tax_amount DECIMAL(19, 4) NOT NULL,
     total_amount DECIMAL(19, 4) NOT NULL,
     notes TEXT,
+    stripe_payment_intent_id VARCHAR(255),
+    stripe_client_secret VARCHAR(255),
+    paid_at TIMESTAMPTZ,
     order_date TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     confirmed_at TIMESTAMPTZ,
     shipped_at TIMESTAMPTZ,
@@ -116,7 +121,9 @@ CREATE TABLE customer_order (
 CREATE INDEX idx_customer_order_number ON customer_order(order_number);
 CREATE INDEX idx_customer_order_customer ON customer_order(customer_id);
 CREATE INDEX idx_customer_order_status ON customer_order(status);
+CREATE INDEX idx_customer_order_payment_status ON customer_order(payment_status);
 CREATE INDEX idx_customer_order_date ON customer_order(order_date);
+CREATE INDEX idx_customer_order_stripe_payment_intent ON customer_order(stripe_payment_intent_id);
 
 -- Order Item table
 CREATE TABLE order_item (

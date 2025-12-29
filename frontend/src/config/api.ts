@@ -43,6 +43,12 @@ export const API_ENDPOINTS = {
     UPDATE_STATUS: (id: number) => `${API_BASE_URL}/api/order/${id}/status`,
     STATS: `${API_BASE_URL}/api/order/stats`,
   },
+  PAYMENT: {
+    CONFIG: `${API_BASE_URL}/api/payment/config`,
+    CREATE_INTENT: (orderId: number) => `${API_BASE_URL}/api/payment/create-intent/${orderId}`,
+    CONFIRM: (orderId: number) => `${API_BASE_URL}/api/payment/confirm/${orderId}`,
+    REFUND: (orderId: number) => `${API_BASE_URL}/api/payment/refund/${orderId}`,
+  },
   // Add more domain endpoints as needed
   // CUSTOMERS: {
   //   LIST: `${API_BASE_URL}/api/customers`,

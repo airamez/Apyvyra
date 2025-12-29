@@ -13,6 +13,8 @@ public partial class CustomerOrder
 
     public int Status { get; set; }
 
+    public int PaymentStatus { get; set; }
+
     public string ShippingAddress { get; set; } = null!;
 
     public decimal Subtotal { get; set; }
@@ -22,6 +24,12 @@ public partial class CustomerOrder
     public decimal TotalAmount { get; set; }
 
     public string? Notes { get; set; }
+
+    public string? StripePaymentIntentId { get; set; }
+
+    public string? StripeClientSecret { get; set; }
+
+    public DateTime? PaidAt { get; set; }
 
     public DateTime OrderDate { get; set; }
 

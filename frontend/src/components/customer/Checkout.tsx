@@ -16,9 +16,9 @@ import {
   CircularProgress,
 } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import { cartService, type CartSummary } from '../../services/cartService';
-import { orderService, type CreateOrderRequest } from '../../services/orderService';
+import { orderService, type CreateOrderRequest, type Order } from '../../services/orderService';
+import Payment from './Payment';
 
 interface CheckoutProps {
   onBackToCart: () => void;
@@ -31,20 +31,19 @@ export default function Checkout({ onBackToCart, onOrderComplete }: CheckoutProp
   const [notes, setNotes] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [orderPlaced, setOrderPlaced] = useState(false);
-  const [orderId, setOrderId] = useState<number | null>(null);
-  const [orderNumber, setOrderNumber] = useState<string>('');
+  const [showPayment, setShowPayment] = useState(false);
+  const [createdOrder, setCreatedOrder] = useState<Order | null>(null);
 
   useEffect(() => {
     const summary = cartService.getCartSummary();
     setCartSummary(summary);
     
-    if (summary.items.length === 0) {
+    if (summary.items.length === 0 && !showPayment) {
       onBackToCart();
     }
-  }, [onBackToCart]);
+  }, [onBackToCart, showPayment]);
 
-  const handlePlaceOrder = async () => {
+  const handleProceedToPayment = async () => {
     if (!shippingAddress.trim()) {
       setError('Please enter a shipping address');
       return;
@@ -65,17 +64,21 @@ export default function Checkout({ onBackToCart, onOrderComplete }: CheckoutProp
 
       const order = await orderService.create(request);
       
-      // Clear the cart after successful order
+      // Clear the cart after successful order creation
       cartService.clearCart();
       
-      setOrderId(order.id);
-      setOrderNumber(order.orderNumber);
-      setOrderPlaced(true);
+      setCreatedOrder(order);
+      setShowPayment(true);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to place order. Please try again.');
+      setError(err instanceof Error ? err.message : 'Failed to create order. Please try again.');
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleBackToCheckout = () => {
+    setShowPayment(false);
+    setCreatedOrder(null);
   };
 
   const formatPrice = (price: number) => {
@@ -84,28 +87,14 @@ export default function Checkout({ onBackToCart, onOrderComplete }: CheckoutProp
 
   const { items, subtotal, taxAmount, total } = cartSummary;
 
-  // Order Success View
-  if (orderPlaced && orderId) {
+  // Payment View
+  if (showPayment && createdOrder) {
     return (
-      <Box sx={{ p: 2, textAlign: 'center', maxWidth: 500, mx: 'auto' }}>
-        <CheckCircleIcon sx={{ fontSize: 80, color: 'success.main', mb: 2 }} />
-        <Typography variant="h4" gutterBottom>
-          Order Placed Successfully!
-        </Typography>
-        <Typography variant="h6" color="text.secondary" gutterBottom>
-          Order Number: {orderNumber}
-        </Typography>
-        <Typography color="text.secondary" sx={{ mb: 3 }}>
-          Thank you for your purchase! You will receive a confirmation email shortly with your order details.
-        </Typography>
-        <Button
-          variant="contained"
-          size="large"
-          onClick={() => onOrderComplete(orderId)}
-        >
-          View My Orders
-        </Button>
-      </Box>
+      <Payment
+        order={createdOrder}
+        onBackToCheckout={handleBackToCheckout}
+        onPaymentComplete={onOrderComplete}
+      />
     );
   }
 
@@ -235,13 +224,13 @@ export default function Checkout({ onBackToCart, onOrderComplete }: CheckoutProp
             variant="contained"
             fullWidth
             size="large"
-            onClick={handlePlaceOrder}
+            onClick={handleProceedToPayment}
             disabled={loading || !shippingAddress.trim()}
           >
             {loading ? (
               <CircularProgress size={24} color="inherit" />
             ) : (
-              'Place Order'
+              'Proceed to Payment'
             )}
           </Button>
         </Paper>
