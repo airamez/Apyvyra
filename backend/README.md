@@ -32,6 +32,7 @@ The backend is a RESTful Web API built with **ASP.NET Core**, using **Entity Fra
 
 - .NET SDK (latest stable version)
 - PostgreSQL database (via Docker or local installation)
+- Stripe account (for payment processing - see Stripe Configuration below)
 
 ## Setup
 
@@ -74,6 +75,31 @@ The backend is a RESTful Web API built with **ASP.NET Core**, using **Entity Fra
        }
      }
      ```
+   - Email settings in `appsettings.json`:
+     ```json
+     {
+       "EmailSettings": {
+         "SmtpHost": "smtp.gmail.com",
+         "SmtpPort": 587,
+         "SmtpUser": "your-email@gmail.com",
+         "SmtpPass": "your-app-password",
+         "FromEmail": "noreply@apyvyra.com",
+         "FromName": "Apyvyra",
+         "DevelopmentMode": true
+       }
+     }
+     ```
+   - Stripe settings in `appsettings.json`:
+     ```json
+     {
+       "Stripe": {
+         "PublishableKey": "pk_test_...",
+         "SecretKey": "sk_test_...",
+         "WebhookSecret": "whsec_...",
+         "MockStripe": false
+       }
+     }
+     ```
 
 ## Running
 
@@ -87,6 +113,101 @@ dotnet watch run
 
 The API will be available at `http://localhost:5000` (configured in `Properties/launchSettings.json`).
 
+## Stripe Configuration
+
+### Setting Up Stripe for Testing
+
+1. **Create a Stripe Account**
+   - Sign up at [stripe.com](https://stripe.com)
+   - Verify your email and complete the basic setup
+   - Enable test mode (toggle in the dashboard)
+
+2. **Get Test API Keys**
+   - In Stripe Dashboard → Developers → API Keys
+   - Copy the **Publishable key** (starts with `pk_test_`)
+   - Copy the **Secret key** (starts with `sk_test_`)
+   - Create a webhook endpoint and copy the **Signing secret** (starts with `whsec_`)
+
+3. **Configure Webhook**
+   - Go to Developers → Webhooks
+   - Add endpoint: `https://your-domain.com/api/payment/webhook`
+   - Select events: `payment_intent.succeeded`, `payment_intent.payment_failed`
+   - Copy the webhook signing secret
+
+4. **Update appsettings.json**
+   ```json
+   {
+     "Stripe": {
+       "PublishableKey": "pk_test_your_publishable_key_here",
+       "SecretKey": "sk_test_your_secret_key_here", 
+       "WebhookSecret": "whsec_your_webhook_secret_here",
+       "MockStripe": false
+     }
+   }
+   ```
+
+### Payment Testing Options
+
+#### Option 1: Mock Stripe (Development/Testing)
+Set `"MockStripe": true` in `appsettings.json` to bypass Stripe entirely:
+- Simulates successful payments without real charges
+- No Stripe account required for basic testing
+- Perfect for development and demo purposes
+- Payment flow works normally but uses mock responses
+
+#### Option 2: Stripe Test Mode (Real Testing)
+Set `"MockStripe": false` and use test keys:
+- Uses real Stripe test environment
+- No actual charges to real cards
+- Test with Stripe's test card numbers
+- Full payment workflow with real Stripe processing
+
+### Test Card Numbers (Stripe Test Mode)
+Use these card numbers in the payment form:
+- **Success**: `4242 4242 4242 4242` (Visa)
+- **Success**: `4000 0000 0000 0002` (Card declined)
+- **Success**: `4000 0000 0000 9995` (Insufficient funds)
+- Any future expiry date, any CVC, any 5-digit ZIP code
+
+### Email Templates
+
+The backend includes email templates for customer communications:
+
+```
+backend/email-templates/
+├── confirmation.html      # Email confirmation for user registration
+├── staff-invitation.html  # Staff account invitation
+├── order-confirmation.html # Order confirmation to customers
+└── order-shipped.html     # Shipping notification to customers
+```
+
+#### Template Variables
+Each template uses placeholder variables that are dynamically replaced:
+- `{{customer_name}}` - Customer's full name
+- `{{order_number}}` - Order identifier
+- `{{order_items}}` - HTML table of ordered products
+- `{{total_amount}}` - Order total with formatting
+- `{{shipping_address}}` - Customer's delivery address
+- `{{shipping_details}}` - Tracking info and delivery details
+
+#### Email Configuration
+Configure SMTP settings in `appsettings.json`:
+```json
+{
+  "EmailSettings": {
+    "SmtpHost": "smtp.gmail.com",
+    "SmtpPort": 587,
+    "SmtpUser": "your-email@gmail.com",
+    "SmtpPass": "your-app-password",
+    "FromEmail": "noreply@apyvyra.com",
+    "FromName": "Apyvyra",
+    "DevelopmentMode": true
+  }
+}
+```
+
+**Development Mode**: When `true`, emails are logged to console instead of being sent. Check the backend console for email logs.
+
 ## Project Structure
 
 ```
@@ -95,26 +216,42 @@ backend/
 │   ├── BaseApiController.cs       # Base controller with error handling helpers
 │   ├── AppUserController.cs       # User registration, login, authentication
 │   ├── ProductController.cs       # Product CRUD operations
-│   └── ProductCategoryController.cs # Category management
+│   ├── ProductCategoryController.cs # Category management
+│   ├── OrderController.cs         # Order management and processing
+│   └── PaymentController.cs        # Payment processing with Stripe
 ├── Models/              # Entity Framework models (auto-generated from DB)
 │   ├── AppUser.cs
 │   ├── Product.cs
 │   ├── ProductCategory.cs
-│   └── ProductUrl.cs
+│   ├── ProductUrl.cs
+│   ├── CustomerOrder.cs
+│   ├── OrderItem.cs
+│   └── Payment.cs
 ├── Data/               # Entity Framework DbContext
 │   └── AppDbContext.cs            # Database context with entity configurations
+├── Services/           # Business logic layer
+│   └── EmailService.cs            # Email sending with templates
 ├── Middleware/         # Custom middleware
 │   └── ResponseHeadersMiddleware.cs # Adds X-Success and X-Errors headers
-├── Services/           # Business logic layer (currently empty)
+├── Enums/              # Application enums
+│   ├── OrderStatus.cs              # Order status constants and helpers
+│   └── PaymentStatus.cs           # Payment status constants and helpers
+├── Helpers/            # Utility classes
+│   └── QueryFilterHelper.cs        # Dynamic query filtering
+├── email-templates/    # Email templates for customer communications
+│   ├── confirmation.html           # User registration confirmation
+│   ├── staff-invitation.html       # Staff account invitation
+│   ├── order-confirmation.html     # Order confirmation to customers
+│   └── order-shipped.html          # Shipping notification to customers
 ├── Program.cs          # Application entry point and service configuration
-└── appsettings.json    # Configuration (connection strings, JWT, etc.)
+└── appsettings.json    # Configuration (connection strings, JWT, Stripe, Email)
 ```
 
 ## Key Features
 
 ### 1. **Entity Framework Core Integration**
 - **DbContext**: `AppDbContext` manages all database entities
-- **DbSets**: `AppUsers`, `Products`, `ProductCategories`, `ProductUrls`
+- **DbSets**: `AppUsers`, `Products`, `ProductCategories`, `ProductUrls`, `CustomerOrders`, `OrderItems`, `Payments`
 - **Relationships**: Configured via Fluent API in `OnModelCreating`
 - **Connection**: Npgsql provider for PostgreSQL
 - **Configuration**: Registered in `Program.cs` with dependency injection
@@ -218,20 +355,34 @@ public async Task<ActionResult<IEnumerable<ProductResponse>>> GetProducts()
 - `POST /api/app_user` - Register new user
 - `POST /api/app_user/login` - Login and receive JWT token
 - `GET /api/app_user/me` - Get current user info (requires auth)
+- `GET /api/app_user` - List all users (Admin/Staff only)
 
 ### Products
-- `GET /api/product` - List all products
+- `GET /api/product` - List all products (with filtering)
 - `GET /api/product/{id}` - Get product by ID
 - `POST /api/product` - Create new product (requires auth)
 - `PUT /api/product/{id}` - Update product (requires auth)
 - `DELETE /api/product/{id}` - Delete product (requires auth)
 
 ### Product Categories
-- `GET /api/product_category` - List all categories
+- `GET /api/product_category` - List all categories (with filtering)
 - `GET /api/product_category/{id}` - Get category by ID
 - `POST /api/product_category` - Create category (requires auth)
 - `PUT /api/product_category/{id}` - Update category (requires auth)
 - `DELETE /api/product_category/{id}` - Delete category (requires auth)
+
+### Orders
+- `GET /api/order` - List all orders (Admin/Staff only, with filtering)
+- `GET /api/order/{id}` - Get order by ID
+- `POST /api/order` - Create new order (requires auth)
+- `PUT /api/order/{id}/status` - Update order status (Admin/Staff only)
+- `GET /api/order/stats` - Get order statistics (Admin/Staff only)
+
+### Payments
+- `POST /api/payment/create-intent` - Create Stripe payment intent
+- `POST /api/payment/confirm` - Confirm payment
+- `POST /api/payment/webhook` - Stripe webhook handler
+- `GET /api/payment/config` - Get payment configuration
 
 ## NuGet Packages
 
@@ -241,8 +392,32 @@ public async Task<ActionResult<IEnumerable<ProductResponse>>> GetProducts()
 <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.0" />
 <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.0" />
 <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.0" />
+<PackageReference Include="Stripe.net" Version="45.8.0" />
 <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.2.1" />
 ```
+
+## Key Features Added
+
+### 9. **Order Management System**
+- **Order Statuses**: Complete workflow from pending to completed
+- **Status Transitions**: Logical validation for status changes
+- **Order Filtering**: Dynamic filtering by customer, date, status
+- **Email Notifications**: Automatic shipping confirmation emails
+- **Order Statistics**: Comprehensive order analytics
+
+### 10. **Payment Processing with Stripe**
+- **Mock Mode**: Development-friendly payment simulation
+- **Test Mode**: Real Stripe test environment integration
+- **Webhooks**: Secure payment event handling
+- **Payment Intents**: Modern Stripe payment flow
+- **Error Handling**: Comprehensive payment error management
+
+### 11. **Email Service with Templates**
+- **Template System**: HTML email templates with variable substitution
+- **Development Mode**: Console logging for development
+- **SMTP Integration**: Configurable email delivery
+- **Order Emails**: Confirmation and shipping notifications
+- **User Emails**: Registration and staff invitations
 
 ## Development Workflow
 
