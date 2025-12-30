@@ -10,6 +10,10 @@ namespace DevOpsTool;
 
 class Program
 {
+    private static readonly IConfiguration Configuration = new ConfigurationBuilder()
+        .SetBasePath(Directory.GetCurrentDirectory())
+        .AddJsonFile("appsettings.json", optional: false, reloadOnChange: false)
+        .Build();
 
     static string ReadPassword()
     {
@@ -67,8 +71,21 @@ class Program
     /// </summary>
     static async Task<int> InitializeDatabase(bool force)
     {
+        var connectionString = GetDefaultConnectionString();
+        if (string.IsNullOrWhiteSpace(connectionString))
+        {
+            Console.WriteLine("Could not find a valid connection string in devops appsettings.json");
+            return 1;
+        }
+
+        // Parse database information for confirmation
+        var connStringBuilder = new NpgsqlConnectionStringBuilder(connectionString);
+        var dbServer = connStringBuilder.Host ?? "unknown";
+        var dbName = connStringBuilder.Database ?? "unknown";
+
         if (!force)
         {
+            Console.WriteLine($"Target database: {dbServer} -> {dbName}");
             Console.WriteLine("WARNING: This operation will DELETE and RE-CREATE ALL TABLES in the database. ALL DATA WILL BE LOST.");
             Console.Write("Are you sure you want to continue? Type 'yes' to proceed: ");
             var confirmation = Console.ReadLine();
@@ -77,38 +94,6 @@ class Program
                 Console.WriteLine("Operation cancelled.");
                 return 1;
             }
-        }
-
-        var apiBaseUrl = GetApiBaseUrl();
-        if (string.IsNullOrWhiteSpace(apiBaseUrl))
-        {
-            Console.WriteLine("Could not find API base URL in frontend/.env");
-            return 1;
-        }
-
-        Console.WriteLine($"WARNING: The backend service must be running on {apiBaseUrl} for this to work.");
-
-        // Prompt for admin credentials first
-        Console.Write("Enter admin email: ");
-        var email = Console.ReadLine()?.Trim();
-        if (string.IsNullOrEmpty(email))
-        {
-            Console.WriteLine("Email cannot be empty. Aborting.");
-            return 1;
-        }
-        Console.Write("Enter admin password: ");
-        var password = ReadPassword();
-        if (string.IsNullOrEmpty(password))
-        {
-            Console.WriteLine("Password cannot be empty. Aborting.");
-            return 1;
-        }
-
-        var connectionString = GetDefaultConnectionString();
-        if (string.IsNullOrWhiteSpace(connectionString))
-        {
-            Console.WriteLine("Could not find a valid connection string in backend/appsettings.json");
-            return 1;
         }
 
         var sqlFilePath = "../database.sql";
@@ -189,8 +174,21 @@ class Program
     /// </summary>
     static async Task<int> LoadTestData(bool force)
     {
+        var connectionString = GetDefaultConnectionString();
+        if (string.IsNullOrWhiteSpace(connectionString))
+        {
+            Console.WriteLine("Could not find a valid connection string in devops appsettings.json");
+            return 1;
+        }
+
+        // Parse database information for confirmation
+        var connStringBuilder = new NpgsqlConnectionStringBuilder(connectionString);
+        var dbServer = connStringBuilder.Host ?? "unknown";
+        var dbName = connStringBuilder.Database ?? "unknown";
+
         if (!force)
         {
+            Console.WriteLine($"Target database: {dbServer} -> {dbName}");
             Console.WriteLine("This operation will load test data into the database.");
             Console.Write("Are you sure you want to continue? Type 'yes' to proceed: ");
             var confirmation = Console.ReadLine();
@@ -199,13 +197,6 @@ class Program
                 Console.WriteLine("Operation cancelled.");
                 return 1;
             }
-        }
-
-        var connectionString = GetDefaultConnectionString();
-        if (string.IsNullOrWhiteSpace(connectionString))
-        {
-            Console.WriteLine("Could not find a valid connection string in backend/appsettings.json");
-            return 1;
         }
 
         var sqlFilePath = "../database_test_data.sql";
@@ -241,30 +232,6 @@ class Program
 
         static string? GetDefaultConnectionString()
         {
-            var configPath = Path.GetFullPath("../backend/appsettings.json");
-            if (!File.Exists(configPath))
-                return null;
-
-            var config = new ConfigurationBuilder()
-                .AddJsonFile(configPath, optional: false, reloadOnChange: false)
-                .Build();
-            return config.GetConnectionString("DefaultConnection");
-        }
-
-        static string? GetApiBaseUrl()
-        {
-            var envPath = Path.GetFullPath("../frontend/.env");
-            if (!File.Exists(envPath))
-                return null;
-
-            var lines = File.ReadAllLines(envPath);
-            foreach (var line in lines)
-            {
-                if (line.StartsWith("VITE_API_URL="))
-                {
-                    return line.Substring("VITE_API_URL=".Length).Trim();
-                }
-            }
-            return null;
+            return Configuration.GetConnectionString("DefaultConnection");
         }
 }
