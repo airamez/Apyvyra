@@ -52,17 +52,22 @@ export interface CreateOrderRequest {
 export interface OrderStats {
   totalOrders: number;
   pendingOrders: number;
+  paidOrders: number;
   confirmedOrders: number;
   processingOrders: number;
   shippedOrders: number;
-  deliveredOrders: number;
+  completedOrders: number;
   cancelledOrders: number;
+  onHoldOrders: number;
   totalRevenue: number;
   pendingRevenue: number;
+  paidRevenue: number;
   confirmedRevenue: number;
   processingRevenue: number;
   shippedRevenue: number;
-  deliveredRevenue: number;
+  completedRevenue: number;
+  cancelledRevenue: number;
+  onHoldRevenue: number;
 }
 
 export const ORDER_STATUS = {
