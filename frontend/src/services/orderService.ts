@@ -68,19 +68,23 @@ export interface OrderStats {
 export const ORDER_STATUS = {
   PENDING_PAYMENT: 0,
   PAID: 1,
-  PROCESSING: 2,
-  SHIPPED: 3,
-  DELIVERED: 4,
-  CANCELLED: 5,
+  CONFIRMED: 2,
+  PROCESSING: 3,
+  SHIPPED: 4,
+  COMPLETED: 5,
+  CANCELLED: 6,
+  ON_HOLD: 7,
 } as const;
 
 export const ORDER_STATUS_NAMES: Record<number, string> = {
   0: 'Pending Payment',
   1: 'Paid',
-  2: 'Processing',
-  3: 'Shipped',
-  4: 'Delivered',
-  5: 'Cancelled',
+  2: 'Confirmed',
+  3: 'Processing',
+  4: 'Shipped',
+  5: 'Completed',
+  6: 'Cancelled',
+  7: 'On Hold',
 };
 
 export const PAYMENT_STATUS = {

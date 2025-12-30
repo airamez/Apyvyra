@@ -1,9 +1,10 @@
+using backend.Models;
+using backend.Services;
+using backend.Enums;
+using backend.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using backend.Data;
-using backend.Models;
-using backend.Services;
 using System.Security.Claims;
 using Stripe;
 
@@ -70,12 +71,12 @@ public class PaymentController : BaseApiController
                 return NotFoundWithError("Order not found");
             }
 
-            if (order.PaymentStatus == 1)
+            if (order.PaymentStatus == PaymentStatus.Succeeded)
             {
                 return BadRequestWithErrors("Order has already been paid");
             }
 
-            if (order.Status == 5)
+            if (order.Status == OrderStatus.Cancelled)
             {
                 return BadRequestWithErrors("Order has been cancelled");
             }
@@ -156,8 +157,8 @@ public class PaymentController : BaseApiController
                 _logger.LogInformation("MockStripe: Simulating successful payment for order {OrderId}", orderId);
                 
                 // Update order status
-                order.PaymentStatus = 1; // Succeeded
-                order.Status = 1; // Paid
+                order.PaymentStatus = PaymentStatus.Succeeded;
+                order.Status = OrderStatus.Paid;
                 order.PaidAt = DateTime.UtcNow;
                 order.UpdatedBy = userId;
                 await _context.SaveChangesAsync();
@@ -177,8 +178,8 @@ public class PaymentController : BaseApiController
             if (paymentIntent.Status == "succeeded")
             {
                 // Update order status
-                order.PaymentStatus = 1; // Succeeded
-                order.Status = 1; // Paid
+                order.PaymentStatus = PaymentStatus.Succeeded;
+                order.Status = OrderStatus.Paid;
                 order.PaidAt = DateTime.UtcNow;
                 order.UpdatedBy = userId;
                 await _context.SaveChangesAsync();
@@ -257,10 +258,10 @@ public class PaymentController : BaseApiController
         var order = await _context.CustomerOrders
             .FirstOrDefaultAsync(o => o.StripePaymentIntentId == paymentIntent.Id);
 
-        if (order != null && order.PaymentStatus != 1)
+        if (order != null && order.PaymentStatus != PaymentStatus.Succeeded)
         {
-            order.PaymentStatus = 1; // Succeeded
-            order.Status = 1; // Paid
+            order.PaymentStatus = PaymentStatus.Succeeded;
+            order.Status = OrderStatus.Paid;
             order.PaidAt = DateTime.UtcNow;
             await _context.SaveChangesAsync();
 
@@ -278,7 +279,7 @@ public class PaymentController : BaseApiController
 
         if (order != null)
         {
-            order.PaymentStatus = 2; // Failed
+            order.PaymentStatus = PaymentStatus.Failed;
             await _context.SaveChangesAsync();
 
             _logger.LogWarning("Payment failed for order {OrderNumber}", order.OrderNumber);
@@ -295,7 +296,7 @@ public class PaymentController : BaseApiController
 
         if (order != null)
         {
-            order.PaymentStatus = 3; // Refunded
+            order.PaymentStatus = PaymentStatus.Refunded;
             await _context.SaveChangesAsync();
 
             _logger.LogInformation("Payment refunded for order {OrderNumber}", order.OrderNumber);
@@ -331,8 +332,8 @@ public class PaymentController : BaseApiController
 
             var refund = await _stripeService.RefundPaymentAsync(order.StripePaymentIntentId);
 
-            order.PaymentStatus = 3; // Refunded
-            order.Status = 5; // Cancelled
+            order.PaymentStatus = PaymentStatus.Refunded;
+            order.Status = OrderStatus.Cancelled;
             order.CancelledAt = DateTime.UtcNow;
             order.UpdatedBy = userId;
             await _context.SaveChangesAsync();

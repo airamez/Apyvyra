@@ -42,12 +42,14 @@ function OrderRow({ order }: OrderRowProps) {
 
   const getStatusColor = (status: number): 'default' | 'warning' | 'info' | 'primary' | 'success' | 'error' => {
     switch (status) {
-      case ORDER_STATUS.PENDING: return 'warning';
+      case ORDER_STATUS.PENDING_PAYMENT: return 'warning';
+      case ORDER_STATUS.PAID: return 'info';
       case ORDER_STATUS.CONFIRMED: return 'info';
       case ORDER_STATUS.PROCESSING: return 'primary';
       case ORDER_STATUS.SHIPPED: return 'primary';
-      case ORDER_STATUS.DELIVERED: return 'success';
+      case ORDER_STATUS.COMPLETED: return 'success';
       case ORDER_STATUS.CANCELLED: return 'error';
+      case ORDER_STATUS.ON_HOLD: return 'warning';
       default: return 'default';
     }
   };

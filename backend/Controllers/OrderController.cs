@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using backend.Data;
 using backend.Models;
 using backend.Services;
+using backend.Enums;
 using System.Security.Claims;
 
 namespace backend.Controllers;
@@ -241,7 +242,7 @@ public class OrderController : BaseApiController
                 return NotFoundWithError("Order not found");
             }
 
-            if (request.Status < 0 || request.Status > 5)
+            if (request.Status < 0 || request.Status > OrderStatus.OnHold)
             {
                 return BadRequestWithErrors("Invalid order status");
             }
@@ -252,16 +253,16 @@ public class OrderController : BaseApiController
             // Update status timestamps
             switch (request.Status)
             {
-                case 1: // Confirmed
+                case OrderStatus.Confirmed:
                     order.ConfirmedAt = DateTime.UtcNow;
                     break;
-                case 3: // Shipped
+                case OrderStatus.Shipped:
                     order.ShippedAt = DateTime.UtcNow;
                     break;
-                case 4: // Delivered
+                case OrderStatus.Completed:
                     order.DeliveredAt = DateTime.UtcNow;
                     break;
-                case 5: // Cancelled
+                case OrderStatus.Cancelled:
                     order.CancelledAt = DateTime.UtcNow;
                     break;
             }
@@ -380,28 +381,12 @@ public class OrderController : BaseApiController
 
     private static string GetStatusName(int status)
     {
-        return status switch
-        {
-            0 => "Pending Payment",
-            1 => "Paid",
-            2 => "Processing",
-            3 => "Shipped",
-            4 => "Delivered",
-            5 => "Cancelled",
-            _ => "Unknown"
-        };
+        return OrderStatus.GetName(status);
     }
 
     private static string GetPaymentStatusName(int paymentStatus)
     {
-        return paymentStatus switch
-        {
-            0 => "Pending",
-            1 => "Succeeded",
-            2 => "Failed",
-            3 => "Refunded",
-            _ => "Unknown"
-        };
+        return PaymentStatus.GetName(paymentStatus);
     }
 }
 

@@ -92,13 +92,13 @@ CREATE INDEX idx_product_url_type ON product_url(url_type);
 CREATE INDEX idx_product_url_primary ON product_url(is_primary);
 
 -- Customer Order table
--- Order Status: 0=pending_payment, 1=paid, 2=processing, 3=shipped, 4=delivered, 5=cancelled
+-- Order Status: 0=pending_payment, 1=paid, 2=confirmed, 3=processing, 4=shipped, 5=completed, 6=cancelled, 7=on_hold
 -- Payment Status: 0=pending, 1=succeeded, 2=failed, 3=refunded
 CREATE TABLE customer_order (
     id SERIAL PRIMARY KEY,
     order_number VARCHAR(50) NOT NULL UNIQUE,
     customer_id INTEGER NOT NULL REFERENCES app_user(id),
-    status INTEGER NOT NULL DEFAULT 0 CHECK (status IN (0, 1, 2, 3, 4, 5)),
+    status INTEGER NOT NULL DEFAULT 0 CHECK (status IN (0, 1, 2, 3, 4, 5, 6, 7)),
     payment_status INTEGER NOT NULL DEFAULT 0 CHECK (payment_status IN (0, 1, 2, 3)),
     shipping_address TEXT NOT NULL,
     subtotal DECIMAL(19, 4) NOT NULL,
