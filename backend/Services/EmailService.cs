@@ -29,7 +29,7 @@ public class EmailService : IEmailService
     {
         try
         {
-            var templatePath = "/home/jose/code/Apyvyra/email-templates/confirmation.html";
+            var templatePath = "email-templates/confirmation.html";
             _logger.LogInformation("Looking for template at: {TemplatePath}", templatePath);
             var template = await File.ReadAllTextAsync(templatePath);
             
@@ -67,7 +67,7 @@ public class EmailService : IEmailService
     {
         try
         {
-            var templatePath = "/home/jose/code/Apyvyra/email-templates/staff-invitation.html";
+            var templatePath = "email-templates/staff-invitation.html";
             _logger.LogInformation("Looking for staff invitation template at: {TemplatePath}", templatePath);
             var template = await File.ReadAllTextAsync(templatePath);
             
@@ -89,7 +89,7 @@ public class EmailService : IEmailService
     {
         try
         {
-            var templatePath = "/home/jose/code/Apyvyra/email-templates/order-confirmation.html";
+            var templatePath = "email-templates/order-confirmation.html";
             _logger.LogInformation("Looking for order confirmation template at: {TemplatePath}", templatePath);
             var template = await File.ReadAllTextAsync(templatePath);
 
@@ -130,7 +130,7 @@ public class EmailService : IEmailService
     {
         try
         {
-            var templatePath = "/home/jose/code/Apyvyra/email-templates/order-shipped.html";
+            var templatePath = "email-templates/order-shipped.html";
             _logger.LogInformation("Looking for order shipped template at: {TemplatePath}", templatePath);
             var template = await File.ReadAllTextAsync(templatePath);
 
