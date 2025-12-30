@@ -152,14 +152,14 @@ export const orderService = {
     });
   },
 
-  async updateStatus(id: number, status: number): Promise<Order> {
+  async updateStatus(id: number, status: number, shippingDetails?: string): Promise<Order> {
     return apiFetch<Order>(API_ENDPOINTS.ORDER.UPDATE_STATUS(id), {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
         ...authService.getAuthHeader(),
       },
-      body: JSON.stringify({ status }),
+      body: JSON.stringify({ status, shippingDetails }),
     });
   },
 

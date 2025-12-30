@@ -20,6 +20,7 @@ import Products from './products/Products';
 import Categories from './products/Categories';
 import Customers from './Customers';
 import Staff from './Staff';
+import OrderManagement from './orders/OrderManagement';
 import UserProfile from '../common/UserProfile';
 import { authService } from '../../services/authService';
 
@@ -30,7 +31,7 @@ interface AdminAppProps {
 }
 
 export default function AdminApp({ onLogout, toggleTheme, mode }: AdminAppProps) {
-  const [activeView, setActiveView] = useState<'dashboard' | 'products' | 'categories' | 'customers' | 'staff'>('dashboard');
+  const [activeView, setActiveView] = useState<'dashboard' | 'products' | 'categories' | 'customers' | 'staff' | 'orders'>('dashboard');
   const [productsMenuAnchor, setProductsMenuAnchor] = useState<null | HTMLElement>(null);
   const [userType, setUserType] = useState<'Admin' | 'Staff' | 'Customer'>('Admin');
 
@@ -51,7 +52,7 @@ export default function AdminApp({ onLogout, toggleTheme, mode }: AdminAppProps)
     }
   }, []);
 
-  const handleNavigateToView = (view: 'dashboard' | 'products' | 'categories' | 'customers' | 'staff') => {
+  const handleNavigateToView = (view: 'dashboard' | 'products' | 'categories' | 'customers' | 'staff' | 'orders') => {
     setActiveView(view);
   };
 
@@ -67,6 +68,8 @@ export default function AdminApp({ onLogout, toggleTheme, mode }: AdminAppProps)
         return <Customers />;
       case 'staff':
         return <Staff />;
+      case 'orders':
+        return <OrderManagement />;
       default:
         return <Dashboard />;
     }
@@ -141,6 +144,13 @@ export default function AdminApp({ onLogout, toggleTheme, mode }: AdminAppProps)
               onClick={() => handleNavigateToView('customers')}
             >
               Customers
+            </Button>
+            <Button
+              color="inherit"
+              variant={activeView === 'orders' ? 'outlined' : 'text'}
+              onClick={() => handleNavigateToView('orders')}
+            >
+              Orders
             </Button>
           </Box>
 

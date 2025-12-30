@@ -269,6 +269,24 @@ public class OrderController : BaseApiController
 
             await _context.SaveChangesAsync();
 
+            // Send shipping notification email when status changes to Shipped
+            if (request.Status == OrderStatus.Shipped && order.Customer != null)
+            {
+                try
+                {
+                    await _emailService.SendOrderShippedEmailAsync(
+                        order.Customer.Email,
+                        order.Customer.FullName ?? order.Customer.Email,
+                        order,
+                        order.OrderItems.ToList(),
+                        request.ShippingDetails ?? "");
+                }
+                catch (Exception emailEx)
+                {
+                    _logger.LogError(emailEx, "Failed to send shipping notification email for order {OrderNumber}", order.OrderNumber);
+                }
+            }
+
             return Ok(MapToOrderResponse(order));
         }
         catch (Exception ex)
@@ -286,44 +304,60 @@ public class OrderController : BaseApiController
         try
         {
             var totalOrders = await _context.CustomerOrders.CountAsync();
-            var pendingOrders = await _context.CustomerOrders.CountAsync(o => o.Status == 0);
-            var confirmedOrders = await _context.CustomerOrders.CountAsync(o => o.Status == 1);
-            var processingOrders = await _context.CustomerOrders.CountAsync(o => o.Status == 2);
-            var shippedOrders = await _context.CustomerOrders.CountAsync(o => o.Status == 3);
-            var deliveredOrders = await _context.CustomerOrders.CountAsync(o => o.Status == 4);
-            var cancelledOrders = await _context.CustomerOrders.CountAsync(o => o.Status == 5);
+            var pendingOrders = await _context.CustomerOrders.CountAsync(o => o.Status == OrderStatus.PendingPayment);
+            var paidOrders = await _context.CustomerOrders.CountAsync(o => o.Status == OrderStatus.Paid);
+            var confirmedOrders = await _context.CustomerOrders.CountAsync(o => o.Status == OrderStatus.Confirmed);
+            var processingOrders = await _context.CustomerOrders.CountAsync(o => o.Status == OrderStatus.Processing);
+            var shippedOrders = await _context.CustomerOrders.CountAsync(o => o.Status == OrderStatus.Shipped);
+            var completedOrders = await _context.CustomerOrders.CountAsync(o => o.Status == OrderStatus.Completed);
+            var cancelledOrders = await _context.CustomerOrders.CountAsync(o => o.Status == OrderStatus.Cancelled);
+            var onHoldOrders = await _context.CustomerOrders.CountAsync(o => o.Status == OrderStatus.OnHold);
 
             var pendingRevenue = await _context.CustomerOrders
-                .Where(o => o.Status == 0)
+                .Where(o => o.Status == OrderStatus.PendingPayment)
+                .SumAsync(o => o.TotalAmount);
+            var paidRevenue = await _context.CustomerOrders
+                .Where(o => o.Status == OrderStatus.Paid)
                 .SumAsync(o => o.TotalAmount);
             var confirmedRevenue = await _context.CustomerOrders
-                .Where(o => o.Status == 1)
+                .Where(o => o.Status == OrderStatus.Confirmed)
                 .SumAsync(o => o.TotalAmount);
             var processingRevenue = await _context.CustomerOrders
-                .Where(o => o.Status == 2)
+                .Where(o => o.Status == OrderStatus.Processing)
                 .SumAsync(o => o.TotalAmount);
             var shippedRevenue = await _context.CustomerOrders
-                .Where(o => o.Status == 3)
+                .Where(o => o.Status == OrderStatus.Shipped)
                 .SumAsync(o => o.TotalAmount);
-            var deliveredRevenue = await _context.CustomerOrders
-                .Where(o => o.Status == 4)
+            var completedRevenue = await _context.CustomerOrders
+                .Where(o => o.Status == OrderStatus.Completed)
+                .SumAsync(o => o.TotalAmount);
+            var cancelledRevenue = await _context.CustomerOrders
+                .Where(o => o.Status == OrderStatus.Cancelled)
+                .SumAsync(o => o.TotalAmount);
+            var onHoldRevenue = await _context.CustomerOrders
+                .Where(o => o.Status == OrderStatus.OnHold)
                 .SumAsync(o => o.TotalAmount);
 
             return Ok(new OrderStatsResponse
             {
                 TotalOrders = totalOrders,
                 PendingOrders = pendingOrders,
+                PaidOrders = paidOrders,
                 ConfirmedOrders = confirmedOrders,
                 ProcessingOrders = processingOrders,
                 ShippedOrders = shippedOrders,
-                DeliveredOrders = deliveredOrders,
+                CompletedOrders = completedOrders,
                 CancelledOrders = cancelledOrders,
-                TotalRevenue = deliveredRevenue, // Only delivered orders contribute to total revenue
+                OnHoldOrders = onHoldOrders,
+                TotalRevenue = completedRevenue, // Only completed orders contribute to total revenue
                 PendingRevenue = pendingRevenue,
+                PaidRevenue = paidRevenue,
                 ConfirmedRevenue = confirmedRevenue,
                 ProcessingRevenue = processingRevenue,
                 ShippedRevenue = shippedRevenue,
-                DeliveredRevenue = deliveredRevenue
+                CompletedRevenue = completedRevenue,
+                CancelledRevenue = cancelledRevenue,
+                OnHoldRevenue = onHoldRevenue
             });
         }
         catch (Exception ex)
@@ -407,6 +441,7 @@ public record CreateOrderItemRequest
 public record UpdateOrderStatusRequest
 {
     public int Status { get; init; }
+    public string? ShippingDetails { get; init; }
 }
 
 public record OrderResponse
@@ -451,15 +486,20 @@ public record OrderStatsResponse
 {
     public int TotalOrders { get; init; }
     public int PendingOrders { get; init; }
+    public int PaidOrders { get; init; }
     public int ConfirmedOrders { get; init; }
     public int ProcessingOrders { get; init; }
     public int ShippedOrders { get; init; }
-    public int DeliveredOrders { get; init; }
+    public int CompletedOrders { get; init; }
     public int CancelledOrders { get; init; }
+    public int OnHoldOrders { get; init; }
     public decimal TotalRevenue { get; init; }
     public decimal PendingRevenue { get; init; }
+    public decimal PaidRevenue { get; init; }
     public decimal ConfirmedRevenue { get; init; }
     public decimal ProcessingRevenue { get; init; }
     public decimal ShippedRevenue { get; init; }
-    public decimal DeliveredRevenue { get; init; }
+    public decimal CompletedRevenue { get; init; }
+    public decimal CancelledRevenue { get; init; }
+    public decimal OnHoldRevenue { get; init; }
 }
