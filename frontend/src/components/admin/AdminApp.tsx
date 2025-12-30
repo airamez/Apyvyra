@@ -89,6 +89,15 @@ export default function AdminApp({ onLogout, toggleTheme, mode }: AdminAppProps)
             >
               Dashboard
             </Button>
+            {authService.isAdmin() && (
+              <Button
+                color="inherit"
+                variant={activeView === 'staff' ? 'outlined' : 'text'}
+                onClick={() => handleNavigateToView('staff')}
+              >
+                Staff
+              </Button>
+            )}
             <Box>
               <Button
                 color="inherit"
@@ -133,15 +142,6 @@ export default function AdminApp({ onLogout, toggleTheme, mode }: AdminAppProps)
             >
               Customers
             </Button>
-            {authService.isAdmin() && (
-              <Button
-                color="inherit"
-                variant={activeView === 'staff' ? 'outlined' : 'text'}
-                onClick={() => handleNavigateToView('staff')}
-              >
-                Staff
-              </Button>
-            )}
           </Box>
 
           <Box sx={{ flexGrow: 1 }} />
