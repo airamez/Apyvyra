@@ -1,10 +1,30 @@
 # DevOps Console Tool
 
-This is a .NET console application for DevOps operations in the Apyvyra project.
+A .NET console application for database management and DevOps operations in the Apyvyra project.
+
+## Prerequisites
+
+- [.NET 10.0 SDK](https://dotnet.microsoft.com/download/dotnet/10.0) or later
+- PostgreSQL database running and accessible
+- Database user with permissions to create/drop tables
+
+## Configuration
+
+The tool uses its own `appsettings.json` file for configuration:
+
+```json
+{
+  "ConnectionStrings": {
+    "DefaultConnection": "Host=localhost;Port=5432;Database=apyvyra;Username=apyvyra;Password=apyvyra"
+  }
+}
+```
+
+Update the connection string to match your database setup before running any commands.
 
 ## Usage
 
-Build the project:
+### Build the project
 
 ```bash
 cd devops
@@ -13,72 +33,102 @@ dotnet build
 
 ### Commands
 
-#### `db-init` — Re-create the database schema
+#### `db-init` — Initialize Database Schema
 
-Re-creates the database using the SQL file at `/home/jose/code/Apyvyra/database.sql`.
+Re-creates the database schema using the SQL file at `../database.sql`.
 
-Example:
-
+**Example:**
 ```bash
 cd devops
 dotnet run -- db-init
 ```
 
-This command connects to the database using the default connection string from `backend/appsettings.json` and executes all SQL statements from `../database.sql`.
-
-**Note:** After confirming the operation, a warning will be displayed that the backend service must be running on `http://localhost:5000`. You will then be prompted to enter the required admin user credentials. The password will be masked during input.
+**What it does:**
+- Shows the target database server and name for confirmation
+- Drops existing tables with CASCADE to handle foreign key dependencies
+- Executes the complete SQL schema from `../database.sql`
+- Creates an admin user directly in the database (bypasses API for reliability)
+- Prompts for admin email and password during setup
 
 **Options:**
-- `-force` — Skip the confirmation prompt (useful for automated scripts)
+- `-force` — Skip confirmation prompts (useful for automated scripts)
 
-**What it does:**
-- Drops existing tables (with CASCADE to handle foreign key dependencies)
-- Re-creates all tables from the SQL schema
-- Sets up proper field types (`TIMESTAMPTZ` for dates, `DECIMAL(19,4)` for prices)
-- Creates indexes for performance
-- Initializes foreign key relationships
-- Creates an admin user via the backend API (requires backend service to be running)
+**Important Notes:**
+- **This operation will DELETE all existing data** in the target database
+- Requires interactive input for admin credentials
+- Password input is masked for security
+- Safe to run multiple times (idempotent operations)
 
-#### `db-load-test-data` — Load test data
+#### `db-load-test-data` — Load Test Data
 
-Loads test data into the database using the SQL file at `/home/jose/code/Apyvyra/database_test_data.sql`.
+Populates the database with realistic test data using `../database_test_data.sql`.
 
-Example:
-
+**Example:**
 ```bash
 cd devops
 dotnet run -- db-load-test-data
 ```
 
-This command loads realistic test data into an existing database schema.
+**What it does:**
+- Shows the target database server and name for confirmation
+- Inserts 5 product categories (Electronics, Home & Kitchen, Sports & Outdoors, Books & Media, Clothing & Accessories)
+- Creates 100 realistic products with complete details (SKU, name, description, pricing, stock, etc.)
+- Adds product images using public domain images from Unsplash
+- Each product includes appropriate image URLs
 
 **Options:**
-- `-force` — Skip the confirmation prompt (useful for automated scripts)
+- `-force` — Skip confirmation prompts (useful for automated scripts)
 
-**What it does:**
-- Uses the admin user account created during db-init for audit fields
-- Inserts 5 product categories (Electronics, Home & Kitchen, Sports & Outdoors, Books & Media, Clothing & Accessories)
-- Inserts 100 realistic products with complete details (SKU, name, description, pricing, stock, etc.)
-- Adds product images using public domain images from Unsplash
-- Each product includes appropriate URLs for product images
+**Important Notes:**
+- Must be run **after** `db-init` to populate an existing schema
+- Uses significant database resources for large data insertion
+- Includes timeout handling for long-running operations
 
-**Note:** This command should be run AFTER `db-init` to populate the database with test data.
+## Architecture & Design
 
-## Extra Documentation
+- **Direct Database Access**: Uses ADO.NET (Npgsql) for maximum flexibility and performance
+- **No Entity Framework**: Avoids ORM dependencies for simpler deployment
+- **Idempotent Operations**: Safe to run commands multiple times
+- **Interactive Safety**: Confirmation prompts prevent accidental data loss
+- **Error Handling**: Comprehensive error reporting with detailed messages
+- **Configuration Isolation**: Self-contained configuration separate from other services
 
-| File | Description |
-|------|-------------|
-| [../README.md](../README.md) | Main project overview, tech stack, and ERP explanation |
-| [../GETTING-STARTED.md](../GETTING-STARTED.md) | Quick setup guide for cloning, running, and working on the project |
-| [../ARCHITECTURE.md](../ARCHITECTURE.md) | Detailed architecture guide including technology versions, patterns, and best practices |
-| [../CODING_GUIDELINES.md](../CODING_GUIDELINES.md) | Coding standards and guidelines for frontend and backend development |
-| [../paging_vs_filtering.md](../paging_vs_filtering.md) | Comparison of traditional server-side paging vs modern filtering approaches |
-| [README.md](README.md) | DevOps console tool documentation (this file) |
-| [../backend/README.md](../backend/README.md) | Backend setup and development details |
-| [../frontend/README.md](../frontend/README.md) | Frontend setup and development details |
+## Troubleshooting
 
-## Notes
-- This tool uses ADO.NET directly (Npgsql) for flexibility.
-- No Entity Framework dependency is required.
-- Safe to run multiple times (idempotent operations).
-- Requires the PostgreSQL database container to be running.
+### Common Issues
+
+**Connection Failed**
+- Verify PostgreSQL is running
+- Check connection string in `appsettings.json`
+- Ensure database user has proper permissions
+
+**SQL File Not Found**
+- Ensure `../database.sql` and `../database_test_data.sql` exist
+- Check relative path from devops directory
+
+**Permission Denied**
+- Database user needs CREATE, DROP, INSERT, UPDATE permissions
+- For production, consider using dedicated devops database user
+
+### Error Messages
+
+The tool provides detailed error messages. Common errors include:
+- `Could not find a valid connection string` — Check `appsettings.json`
+- `SQL file not found` — Verify SQL files exist in parent directory
+- `Failed to retrieve admin user ID` — Database connection or permissions issue
+
+## Development
+
+### Adding New Commands
+
+1. Add command handling in `Main()` method
+2. Implement command logic as separate async method
+3. Follow existing patterns for error handling and user interaction
+4. Update this README with new command documentation
+
+### Code Structure
+
+- `Program.cs` — Main application logic and command handling
+- `appsettings.json` — Configuration and connection strings
+- `../database.sql` — Database schema definition
+- `../database_test_data.sql` — Test data population script
