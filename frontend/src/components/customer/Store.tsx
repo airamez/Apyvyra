@@ -39,7 +39,6 @@ interface StoreProps {
 
 export default function Store({ onViewCart }: StoreProps) {
   const { t } = useTranslation('Store');
-  const { t: tCommon } = useTranslation('Common');
   
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<ProductCategory[]>([]);

@@ -17,7 +17,6 @@ interface PaymentProps {
 
 export default function Payment({ order, onBackToCheckout, onPaymentComplete }: PaymentProps) {
   const { t } = useTranslation('Payment');
-  const { t: tCommon } = useTranslation('Common');
   
   const [stripePromise, setStripePromise] = useState<Promise<any> | null>(null);
   const [clientSecret, setClientSecret] = useState<string | null>(null);
@@ -45,7 +44,7 @@ export default function Payment({ order, onBackToCheckout, onPaymentComplete }: 
         }
       } catch (err) {
         const errorMessages = getErrorMessages(err);
-        setError(errorMessages[0] || 'Failed to initialize payment');
+        setError(errorMessages[0] || t('FAILED_INITIALIZE'));
       } finally {
         setLoading(false);
       }
@@ -58,7 +57,7 @@ export default function Payment({ order, onBackToCheckout, onPaymentComplete }: 
     return (
       <Box sx={{ p: 2, textAlign: 'center' }}>
         <CircularProgress sx={{ mb: 2 }} />
-        <Typography>Initializing payment...</Typography>
+        <Typography>{t('INITIALIZING_PAYMENT')}</Typography>
       </Box>
     );
   }

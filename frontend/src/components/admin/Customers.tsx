@@ -17,7 +17,6 @@ import { useTranslation } from '../../hooks/useTranslation';
 
 export default function Customers() {
   const { t } = useTranslation('Customers');
-  const { t: tCommon } = useTranslation('Common');
   
   const [customers, setCustomers] = useState<UserList[]>([]);
   const [loading, setLoading] = useState(true);

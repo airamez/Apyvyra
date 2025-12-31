@@ -29,7 +29,6 @@ interface ShoppingCartProps {
 
 export default function ShoppingCart({ onBackToStore, onCheckout }: ShoppingCartProps) {
   const { t } = useTranslation('ShoppingCart');
-  const { t: tCommon } = useTranslation('Common');
   
   const [cartSummary, setCartSummary] = useState<CartSummary>({ items: [], subtotal: 0, taxAmount: 0, total: 0, itemCount: 0 });
 

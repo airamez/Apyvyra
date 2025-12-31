@@ -24,6 +24,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import { type CreateProductData, type ProductUrl, type UrlType, productService } from '../../../services/productService';
 import { categoryService } from '../../../services/categoryService';
 import ProductUrlDialog from './ProductUrlDialog';
+import { useTranslation } from '../../../hooks/useTranslation';
 
 interface ProductCategory {
   id: number;
@@ -60,6 +61,9 @@ interface ProductFormProps {
 }
 
 export default function ProductForm({ open, editingProduct, onClose, onSubmit }: ProductFormProps) {
+  const { t } = useTranslation('ProductForm');
+  const { t: tCommon } = useTranslation('Common');
+  
   const [categories, setCategories] = useState<ProductCategory[]>([]);
   const [formData, setFormData] = useState<CreateProductData>({
     sku: '',
@@ -209,7 +213,7 @@ export default function ProductForm({ open, editingProduct, onClose, onSubmit }:
                     onChange={(e) => handleFormChange('isActive', e.target.checked)}
                   />
                 }
-                label="Active"
+                label={t('ACTIVE')}
               />
             )}
           </Box>
@@ -218,7 +222,7 @@ export default function ProductForm({ open, editingProduct, onClose, onSubmit }:
         <Grid container spacing={2} sx={{ mt: 1 }}>
                     <Grid size={3}>
             <TextField
-              label="SKU"
+              label={t('SKU')}
               fullWidth
               required
               value={formData.sku}
@@ -229,7 +233,7 @@ export default function ProductForm({ open, editingProduct, onClose, onSubmit }:
           </Grid>
           <Grid size={9}>
             <TextField
-              label="Product Name"
+              label={t('PRODUCT_NAME')}
               fullWidth
               required
               value={formData.name}
@@ -240,7 +244,7 @@ export default function ProductForm({ open, editingProduct, onClose, onSubmit }:
           </Grid>
           <Grid size={4}>
             <TextField
-              label="Brand"
+              label={t('BRAND')}
               fullWidth
               value={formData.brand}
               onChange={(e) => handleFormChange('brand', e.target.value)}
@@ -255,7 +259,7 @@ export default function ProductForm({ open, editingProduct, onClose, onSubmit }:
           </Grid>
           <Grid size={4}>
             <TextField
-              label="Manufacturer"
+              label={t('MANUFACTURER')}
               fullWidth
               value={formData.manufacturer}
               onChange={(e) => handleFormChange('manufacturer', e.target.value)}
@@ -273,7 +277,7 @@ export default function ProductForm({ open, editingProduct, onClose, onSubmit }:
               <InputLabel id="category-label">Category</InputLabel>
               <Select
                 labelId="category-label"
-                label="Category"
+                label={t('CATEGORY')}
                 value={formData.categoryId ?? ''}
                 onChange={(e) => handleFormChange('categoryId', !e.target.value ? undefined : Number(e.target.value))}
                 variant="outlined"
@@ -291,7 +295,7 @@ export default function ProductForm({ open, editingProduct, onClose, onSubmit }:
           </Grid>
           <Grid size={12}>
             <TextField
-              label="Full Description"
+              label={t('FULL_DESCRIPTION')}
               fullWidth
               multiline
               rows={3}
@@ -309,7 +313,7 @@ export default function ProductForm({ open, editingProduct, onClose, onSubmit }:
                     <Grid size={4}>
             <Tooltip title="Maximum 4 decimal places supported">
               <TextField
-                label="Price"
+                label={t('PRICE')}
                 fullWidth
                 required
                 type="text"
@@ -354,9 +358,9 @@ export default function ProductForm({ open, editingProduct, onClose, onSubmit }:
             </Tooltip>
           </Grid>
           <Grid size={4}>
-            <Tooltip title="Maximum 4 decimal places supported">
+            <Tooltip title={t('MAX_DECIMAL_PLACES_TOOLTIP')}>
               <TextField
-                label="Cost Price"
+                label={t('COST_PRICE')}
                 fullWidth
                 type="text"
                 value={formData.costPrice ?? ''}
@@ -402,7 +406,7 @@ export default function ProductForm({ open, editingProduct, onClose, onSubmit }:
           <Grid size={4}>
             <Tooltip title="Tax rate as percentage (e.g., 8.25)">
               <TextField
-                label="Tax Rate (%)"
+                label={t('TAX_RATE')}
                 fullWidth
                 type="text"
                 value={formData.taxRate ?? ''}
@@ -449,7 +453,7 @@ export default function ProductForm({ open, editingProduct, onClose, onSubmit }:
           </Grid>
                     <Grid size={3}>
             <TextField
-              label="Stock"
+              label={t('STOCK')}
               fullWidth
               required
               type="number"
@@ -474,7 +478,7 @@ export default function ProductForm({ open, editingProduct, onClose, onSubmit }:
           </Grid>
           <Grid size={3}>
             <TextField
-              label="Low Stock Threshold"
+              label={t('LOW_STOCK_THRESHOLD')}
               fullWidth
               type="number"
               value={formData.lowStockThreshold ?? ''}
@@ -498,7 +502,7 @@ export default function ProductForm({ open, editingProduct, onClose, onSubmit }:
           </Grid>
           <Grid size={3}>
             <TextField
-              label="Weight"
+              label={t('WEIGHT')}
               fullWidth
               value={formData.weight}
               onChange={(e) => handleFormChange('weight', e.target.value)}
@@ -513,7 +517,7 @@ export default function ProductForm({ open, editingProduct, onClose, onSubmit }:
           </Grid>
           <Grid size={3}>
             <TextField
-              label="Dimensions"
+              label={t('DIMENSIONS')}
               fullWidth
               value={formData.dimensions}
               onChange={(e) => handleFormChange('dimensions', e.target.value)}

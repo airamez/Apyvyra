@@ -26,7 +26,6 @@ interface StripePaymentFormProps {
 
 export default function StripePaymentForm({ order, onPaymentComplete }: StripePaymentFormProps) {
   const { t } = useTranslation('Payment');
-  const { t: tCommon } = useTranslation('Common');
   
   const stripe = useStripe();
   const elements = useElements();

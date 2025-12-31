@@ -276,7 +276,7 @@ export default function Staff() {
             </IconButton>
           </Tooltip>
           {params.row.status === 0 && (
-            <Tooltip title="Resend Invitation">
+            <Tooltip title={t('RESEND_INVITATION')}>
               <IconButton
                 size="small"
                 color="info"

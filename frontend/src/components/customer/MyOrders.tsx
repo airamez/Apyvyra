@@ -26,7 +26,6 @@ interface OrderRowProps {
 
 function OrderRow({ order }: OrderRowProps) {
   const { t } = useTranslation('MyOrders');
-  const { t: tCommon } = useTranslation('Common');
   
   const [open, setOpen] = useState(false);
 
@@ -174,7 +173,6 @@ function OrderRow({ order }: OrderRowProps) {
 
 export default function MyOrders() {
   const { t } = useTranslation('MyOrders');
-  const { t: tCommon } = useTranslation('Common');
   
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);

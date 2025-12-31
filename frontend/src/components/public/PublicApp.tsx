@@ -26,7 +26,6 @@ interface PublicAppProps {
 
 function PublicAppContent({ onLoginSuccess, toggleTheme, mode }: PublicAppProps) {
   const { t } = useTranslation('Navigation');
-  const { t: tCommon } = useTranslation('Common');
   
   const navigate = useNavigate();
   const location = useLocation();
