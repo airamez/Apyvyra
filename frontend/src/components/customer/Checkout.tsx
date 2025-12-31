@@ -79,6 +79,15 @@ export default function Checkout({ onBackToCart, onOrderComplete }: CheckoutProp
     }
   };
 
+  const handleChangeAddress = () => {
+    // Reset everything to original state
+    setShippingAddress('');
+    setAddressValidation(null);
+    setBypassValidation(false);
+    setError(null);
+    setIsValidatingAddress(false);
+  };
+
   const handleProceedToPayment = async () => {
     if (!shippingAddress.trim()) {
       setError('Please enter a shipping address');
@@ -204,7 +213,7 @@ export default function Checkout({ onBackToCart, onOrderComplete }: CheckoutProp
               }
             />
             
-            <Box sx={{ mt: 2, display: 'flex', gap: 2, alignItems: 'center' }}>
+            <Box sx={{ mt: 2, display: 'flex', gap: 2, alignItems: 'center', flexWrap: 'wrap' }}>
               <Button
                 variant="outlined"
                 onClick={handleValidateAddress}
@@ -213,6 +222,17 @@ export default function Checkout({ onBackToCart, onOrderComplete }: CheckoutProp
               >
                 {isValidatingAddress ? 'Validating...' : 'Validate Address'}
               </Button>
+              
+              {addressValidation?.isValid && (
+                <Button
+                  variant="text"
+                  onClick={handleChangeAddress}
+                  color="secondary"
+                  size="small"
+                >
+                  Change Address
+                </Button>
+              )}
               
               <FormControlLabel
                 control={
