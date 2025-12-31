@@ -1,5 +1,21 @@
 # Getting Started
 
+## Quick Setup Overview
+
+### Payment Processing (Stripe)
+- **What it's for**: Processing credit card payments during checkout
+- **Setup URL**: [https://dashboard.stripe.com/register](https://dashboard.stripe.com/register)
+- **API Keys**: Get from [Stripe Dashboard → Developers → API Keys](https://dashboard.stripe.com/apikeys)
+- **Cost**: Free for development, 2.9% + 30¢ per transaction in production
+- **Testing**: Use test mode with test card numbers (no real charges)
+
+### Address Validation (Google Maps)
+- **What it's for**: Validating and standardizing shipping addresses during checkout
+- **Setup URL**: [https://console.cloud.google.com/](https://console.cloud.google.com/)
+- **API Keys**: Create at [Google Cloud → APIs & Services → Credentials](https://console.cloud.google.com/apis/credentials)
+- **Cost**: $200 monthly free credit, then ~$0.017 per validation request
+- **Testing**: Mock mode available (no API key required for development)
+
 ## Prerequisites
 
 - Node.js (latest) - [https://nodejs.org/](https://nodejs.org/)
