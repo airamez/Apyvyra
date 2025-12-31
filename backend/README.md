@@ -1,199 +1,134 @@
 # Backend (ASP.NET Core Web API)
 
-> **Note**: We will always be using the latest stable versions of all packages and frameworks.
+> **Note**: This project uses the latest stable versions of all packages and frameworks.
 
-The backend is a RESTful Web API built with **ASP.NET Core**, using **Entity Framework Core** for data access and **PostgreSQL** as the database.
+A modern RESTful Web API built with **ASP.NET Core**, using **Entity Framework Core** for data access and **PostgreSQL** as the database. Features JWT authentication, Stripe payment processing, email services, and comprehensive API documentation.
+
+## Table of Contents
+
+- [Quick Start](#quick-start)
+- [Architecture Overview](#architecture-overview)
+- [Prerequisites](#prerequisites)
+- [Setup](#setup)
+- [Configuration](#configuration)
+- [Running the Application](#running-the-application)
+- [API Documentation](#api-documentation)
+- [Key Features](#key-features)
+- [Development](#development)
+- [Deployment](#deployment)
+- [Troubleshooting](#troubleshooting)
+- [Resources](#resources)
+
+## Quick Start
+
+```bash
+# 1. Setup database
+cd ../devops
+dotnet run -- db-init
+
+# 2. Install dependencies and run
+cd ../backend
+dotnet restore
+dotnet run
+```
+
+API available at: `http://localhost:5000`  
+Swagger UI: `http://localhost:5000/swagger`
 
 ## Architecture Overview
 
-### ASP.NET Core Web API
-- **API Style**: RESTful with conventional routing (`/api/[controller]`)
+### Core Technologies
+
+- **Framework**: ASP.NET Core Web API (.NET 10.0)
+- **Database**: PostgreSQL with Entity Framework Core
 - **Authentication**: JWT Bearer tokens
-- **Serialization**: JSON with camelCase naming (configured in `Program.cs`)
-- **OpenAPI/Swagger**: Integrated for API documentation
-- **CORS**: Configured to allow frontend communication with custom headers
+- **Payments**: Stripe integration with mock mode support
+- **Email**: SMTP with HTML templates
+- **Documentation**: OpenAPI/Swagger
 
-### Entity Framework Core (Database-First Approach)
-- **Provider**: Npgsql.EntityFrameworkCore.PostgreSQL
-- **Approach**: **Database-First** - Schema defined in SQL, models scaffolded from database
-- **DbContext**: `AppDbContext` manages all database entities
-- **Models**: Auto-generated partial classes from database schema
-- **No Migrations**: Schema changes are managed via SQL scripts in `database.sql`
+### Design Principles
 
-### Database Schema Management
-- **Schema Definition**: `/database.sql` - Single source of truth for database structure
-- **Initialization**: DevOps console tool (`dotnet run -- db-init`) executes SQL script
-- **Model Generation**: Use EF Core scaffolding to regenerate models after schema changes:
-  ```bash
-  dotnet ef dbcontext scaffold "Host=localhost;Port=5432;Database=apyvyra;Username=apyvyra;Password=apyvyra" Npgsql.EntityFrameworkCore.PostgreSQL -o Models -c AppDbContext -d Data --context-dir Data --force
-  ```
+- **RESTful API**: Conventional routing with proper HTTP methods
+- **Database-First**: Schema defined in SQL, models scaffolded from database
+- **Clean Architecture**: Controllers → Services → Data access layers
+- **Error Handling**: Custom headers and structured error responses
+- **Security**: JWT authentication with role-based authorization
 
 ## Prerequisites
 
-- .NET SDK (latest stable version)
-- PostgreSQL database (via Docker or local installation)
-- Stripe account (for payment processing - see Stripe Configuration below)
+- **.NET SDK**: Version 10.0 or later ([download](https://dotnet.microsoft.com/download/dotnet/10.0))
+- **PostgreSQL**: Version 13+ (via Docker or local installation)
+- **Git**: For cloning and version control
+- **Stripe Account**: For payment processing (optional - can use mock mode)
+
+### Recommended Tools
+
+- **Visual Studio Code** or **Visual Studio 2022+**
+- **Docker Desktop** (for containerized database)
+- **Postman** or **Insomnia** (for API testing)
+- **Git** client
 
 ## Setup
 
-1. **Restore dependencies**
-   ```bash
-   cd backend
-   dotnet restore
-   ```
-
-2. **Database setup**
-   - Ensure PostgreSQL is running (via Docker Compose):
-     ```bash
-     docker-compose up -d db
-     ```
-   - Initialize database schema using DevOps tool:
-     ```bash
-     cd ../devops
-     dotnet run -- db-init
-     dotnet run -- db-load-test-data
-     cd ../backend
-     ```
-
-3. **Configuration**
-   - Connection string in `appsettings.json`:
-     ```json
-     {
-       "ConnectionStrings": {
-         "DefaultConnection": "Host=localhost;Port=5432;Database=apyvyra;Username=apyvyra;Password=apyvyra"
-       }
-     }
-     ```
-   - JWT settings in `appsettings.json`:
-     ```json
-     {
-       "Jwt": {
-         "Key": "YourSuperSecretKeyThatIsAtLeast32CharactersLongForHS256",
-         "Issuer": "ApyvyraAPI",
-         "Audience": "ApyvyraClient",
-         "ExpiresInMinutes": 60
-       }
-     }
-     ```
-   - Email settings in `appsettings.json`:
-     ```json
-     {
-       "EmailSettings": {
-         "SmtpHost": "smtp.gmail.com",
-         "SmtpPort": 587,
-         "SmtpUser": "your-email@gmail.com",
-         "SmtpPass": "your-app-password",
-         "FromEmail": "noreply@apyvyra.com",
-         "FromName": "Apyvyra",
-         "DevelopmentMode": true
-       }
-     }
-     ```
-   - Stripe settings in `appsettings.json`:
-     ```json
-     {
-       "Stripe": {
-         "PublishableKey": "pk_test_...",
-         "SecretKey": "sk_test_...",
-         "WebhookSecret": "whsec_...",
-         "MockStripe": false
-       }
-     }
-     ```
-
-## Running
+### 1. Clone and Navigate
 
 ```bash
-# Run the API
-dotnet run
-
-# Run with hot reload for development
-dotnet watch run
+git clone <repository-url>
+cd apyvyra/backend
 ```
 
-The API will be available at `http://localhost:5000` (configured in `Properties/launchSettings.json`).
+### 2. Database Setup
 
-## Stripe Configuration
+**Option A: Docker (Recommended)**
 
-### Setting Up Stripe for Testing
+```bash
+# From project root
+docker-compose up -d db
 
-1. **Create a Stripe Account**
-   - Sign up at [stripe.com](https://stripe.com)
-   - Verify your email and complete the basic setup
-   - Enable test mode (toggle in the dashboard)
-
-2. **Get Test API Keys**
-   - In Stripe Dashboard → Developers → API Keys
-   - Copy the **Publishable key** (starts with `pk_test_`)
-   - Copy the **Secret key** (starts with `sk_test_`)
-   - Create a webhook endpoint and copy the **Signing secret** (starts with `whsec_`)
-
-3. **Configure Webhook**
-   - Go to Developers → Webhooks
-   - Add endpoint: `https://your-domain.com/api/payment/webhook`
-   - Select events: `payment_intent.succeeded`, `payment_intent.payment_failed`
-   - Copy the webhook signing secret
-
-4. **Update appsettings.json**
-   ```json
-   {
-     "Stripe": {
-       "PublishableKey": "pk_test_your_publishable_key_here",
-       "SecretKey": "sk_test_your_secret_key_here", 
-       "WebhookSecret": "whsec_your_webhook_secret_here",
-       "MockStripe": false
-     }
-   }
-   ```
-
-### Payment Testing Options
-
-#### Option 1: Mock Stripe (Development/Testing)
-Set `"MockStripe": true` in `appsettings.json` to bypass Stripe entirely:
-- Simulates successful payments without real charges
-- No Stripe account required for basic testing
-- Perfect for development and demo purposes
-- Payment flow works normally but uses mock responses
-
-#### Option 2: Stripe Test Mode (Real Testing)
-Set `"MockStripe": false` and use test keys:
-- Uses real Stripe test environment
-- No actual charges to real cards
-- Test with Stripe's test card numbers
-- Full payment workflow with real Stripe processing
-
-### Test Card Numbers (Stripe Test Mode)
-Use these card numbers in the payment form:
-- **Success**: `4242 4242 4242 4242` (Visa)
-- **Success**: `4000 0000 0000 0002` (Card declined)
-- **Success**: `4000 0000 0000 9995` (Insufficient funds)
-- Any future expiry date, any CVC, any 5-digit ZIP code
-
-### Email Templates
-
-The backend includes email templates for customer communications:
-
-```
-backend/email-templates/
-├── confirmation.html      # Email confirmation for user registration
-├── staff-invitation.html  # Staff account invitation
-├── order-confirmation.html # Order confirmation to customers
-└── order-shipped.html     # Shipping notification to customers
+# Wait for database to be ready
+sleep 10
 ```
 
-#### Template Variables
-Each template uses placeholder variables that are dynamically replaced:
-- `{{customer_name}}` - Customer's full name
-- `{{order_number}}` - Order identifier
-- `{{order_items}}` - HTML table of ordered products
-- `{{total_amount}}` - Order total with formatting
-- `{{shipping_address}}` - Customer's delivery address
-- `{{shipping_details}}` - Tracking info and delivery details
+**Option B: Local PostgreSQL**
 
-#### Email Configuration
-Configure SMTP settings in `appsettings.json`:
+Ensure PostgreSQL is running with:
+- Host: `localhost`
+- Port: `5432`
+- Database: `apyvyra`
+- Username: `apyvyra`
+- Password: `apyvyra`
+
+### 3. Initialize Database
+
+```bash
+# From project root
+cd devops
+dotnet run -- db-init
+dotnet run -- db-load-test-data  # Optional: Load test data
+cd ../backend
+```
+
+### 4. Restore Dependencies
+
+```bash
+dotnet restore
+```
+
+## Configuration
+
+### appsettings.json Structure
+
 ```json
 {
+  "ConnectionStrings": {
+    "DefaultConnection": "Host=localhost;Port=5432;Database=apyvyra;Username=apyvyra;Password=apyvyra"
+  },
+  "Jwt": {
+    "Key": "YourSuperSecretKeyThatIsAtLeast32CharactersLongForHS256",
+    "Issuer": "ApyvyraAPI",
+    "Audience": "ApyvyraClient",
+    "ExpiresInMinutes": 60
+  },
   "EmailSettings": {
     "SmtpHost": "smtp.gmail.com",
     "SmtpPort": 587,
@@ -202,276 +137,348 @@ Configure SMTP settings in `appsettings.json`:
     "FromEmail": "noreply@apyvyra.com",
     "FromName": "Apyvyra",
     "DevelopmentMode": true
+  },
+  "Stripe": {
+    "PublishableKey": "pk_test_...",
+    "SecretKey": "sk_test_...",
+    "WebhookSecret": "whsec_...",
+    "MockStripe": true
+  },
+  "BaseUrl": "http://localhost:5000",
+  "QuerySettings": {
+    "MAX_RECORDS_QUERIES_COUNT": 100
   }
 }
 ```
 
-**Development Mode**: When `true`, emails are logged to console instead of being sent. Check the backend console for email logs.
+### Environment-Specific Configuration
 
-## Project Structure
+Create `appsettings.Development.json`, `appsettings.Staging.json`, or `appsettings.Production.json` for environment-specific settings.
 
-```
-backend/
-├── Controllers/          # Web API controllers (RESTful endpoints)
-│   ├── BaseApiController.cs       # Base controller with error handling helpers
-│   ├── AppUserController.cs       # User registration, login, authentication
-│   ├── ProductController.cs       # Product CRUD operations
-│   ├── ProductCategoryController.cs # Category management
-│   ├── OrderController.cs         # Order management and processing
-│   └── PaymentController.cs        # Payment processing with Stripe
-├── Models/              # Entity Framework models (auto-generated from DB)
-│   ├── AppUser.cs
-│   ├── Product.cs
-│   ├── ProductCategory.cs
-│   ├── ProductUrl.cs
-│   ├── CustomerOrder.cs
-│   ├── OrderItem.cs
-│   └── Payment.cs
-├── Data/               # Entity Framework DbContext
-│   └── AppDbContext.cs            # Database context with entity configurations
-├── Services/           # Business logic layer
-│   └── EmailService.cs            # Email sending with templates
-├── Middleware/         # Custom middleware
-│   └── ResponseHeadersMiddleware.cs # Adds X-Success and X-Errors headers
-├── Enums/              # Application enums
-│   ├── OrderStatus.cs              # Order status constants and helpers
-│   └── PaymentStatus.cs           # Payment status constants and helpers
-├── Helpers/            # Utility classes
-│   └── QueryFilterHelper.cs        # Dynamic query filtering
-├── email-templates/    # Email templates for customer communications
-│   ├── confirmation.html           # User registration confirmation
-│   ├── staff-invitation.html       # Staff account invitation
-│   ├── order-confirmation.html     # Order confirmation to customers
-│   └── order-shipped.html          # Shipping notification to customers
-├── Program.cs          # Application entry point and service configuration
-└── appsettings.json    # Configuration (connection strings, JWT, Stripe, Email)
+### Stripe Configuration
+
+#### Development (Mock Mode)
+Set `"MockStripe": true` for development - simulates payments without real charges.
+
+#### Production (Live Mode)
+1. Create Stripe account at [stripe.com](https://stripe.com)
+2. Get live API keys from Stripe Dashboard
+3. Set `"MockStripe": false`
+4. Configure webhook endpoint for payment events
+
+**Test Card Numbers:**
+- Success: `4242 4242 4242 4242`
+- Declined: `4000 0000 0000 0002`
+- Insufficient funds: `4000 0000 0000 9995`
+
+## Running the Application
+
+### Development Mode
+
+```bash
+# Run with hot reload
+dotnet watch run
+
+# Or run normally
+dotnet run
 ```
 
-## Key Features
+### Production Mode
 
-### 1. **Entity Framework Core Integration**
-- **DbContext**: `AppDbContext` manages all database entities
-- **DbSets**: `AppUsers`, `Products`, `ProductCategories`, `ProductUrls`, `CustomerOrders`, `OrderItems`, `Payments`
-- **Relationships**: Configured via Fluent API in `OnModelCreating`
-- **Connection**: Npgsql provider for PostgreSQL
-- **Configuration**: Registered in `Program.cs` with dependency injection
+```bash
+# Build for production
+dotnet publish -c Release -o ./publish
 
-### 2. **RESTful Web API**
-- **Controllers**: Inherit from `ControllerBase` or custom `BaseApiController`
-- **Routing**: Attribute-based routing with `[Route("api/[controller]")]`
-- **HTTP Verbs**: GET, POST, PUT, DELETE with proper status codes
-- **DTOs**: Request/response models separate from entity models
-- **Async/Await**: All database operations use async patterns
-
-### 3. **JWT Authentication**
-- **Protected Endpoints**: Use `[Authorize]` attribute
-- **Public Endpoints**: `POST /api/app_user` (register), `POST /api/app_user/login`
-- **Token Generation**: Created on successful login with user claims
-- **Token Validation**: Configured in `Program.cs` with issuer, audience, and signing key
-- **Bearer Scheme**: Tokens sent in `Authorization: Bearer <token>` header
-
-### 4. **Error Handling**
-- **Custom Headers**: `X-Success` (true/false) and `X-Errors` (JSON array)
-- **BaseApiController**: Helper methods for consistent error responses:
-  - `BadRequestWithErrors()`
-  - `NotFoundWithError()`
-  - `ConflictWithError()`
-  - `InternalServerErrorWithError()`
-- **Middleware**: `ResponseHeadersMiddleware` adds headers to all responses
-- **CORS**: Custom headers exposed via `WithExposedHeaders()`
-
-### 5. **Database Auditing**
-- **Audit Fields**: All entities include:
-  - `created_at` (TIMESTAMPTZ)
-  - `created_by` (foreign key to app_user)
-  - `updated_at` (TIMESTAMPTZ)
-  - `updated_by` (foreign key to app_user)
-- **Automatic Timestamps**: Default values set in database schema
-- **User Tracking**: Controllers populate created_by/updated_by from JWT claims
-
-### 6. **CORS Configuration**
-- **Policy**: `AllowFrontend` allows localhost origins
-- **Credentials**: Enabled for cookie/auth header support
-- **Custom Headers**: `X-Success`, `X-Errors`, `X-Has-More-Records`, `X-Total-Count` exposed to frontend
-- **Methods**: All HTTP methods allowed
-
-### 7. **Query Limiting (Modern Filtering Approach)**
-- **Configuration**: `MAX_RECORDS_QUERIES_COUNT` in `appsettings.json` (default: 100)
-- **Approach**: Returns only top N filtered records instead of traditional pagination
-- **Headers**: Automatically sets `X-Has-More-Records` and `X-Total-Count` headers
-- **Helper Method**: `ExecuteLimitedQueryAsync<T>()` in `BaseApiController`
-- **Benefits**: Better performance, encourages precise filtering, reduces backend load
-- **See**: `paging_vs_filtering.md` for detailed explanation
-
-### 8. **Dynamic Server-Side Filtering (QueryFilterHelper)**
-
-All list endpoints support **dynamic filtering** via query parameters using the `QueryFilterHelper` class. Filters are applied **before** the `MAX_RECORDS_QUERIES_COUNT` limit.
-
-**Supported Operators**:
-- `eq` (equals): `field=value`
-- `ne` (not equals): `field_ne=value`
-- `lt` (less than): `field_lt=value`
-- `lte` (less than or equal): `field_lte=value`
-- `gt` (greater than): `field_gt=value`
-- `gte` (greater than or equal): `field_gte=value`
-- `contains`: `field=value` (default for strings)
-- `startsWith`: `field_startsWith=value`
-- `endsWith`: `field_endsWith=value`
-- `between`: `field_from=value1&field_to=value2`
-
-**Examples**:
-- `/api/product?name=nike` → Name contains "nike"
-- `/api/product?price_gt=100` → Price > 100
-- `/api/product?price_from=50&price_to=200` → Price between 50 and 200
-- `/api/product?categoryId=5&isActive=true` → Category = 5 AND Active = true
-- `/api/product?name_startsWith=Pro` → Name starts with "Pro"
-
-**Implementation**:
-```csharp
-[HttpGet]
-public async Task<ActionResult<IEnumerable<ProductResponse>>> GetProducts()
-{
-    var query = _context.Products.Include(p => p.Category).AsQueryable();
-    
-    // Apply dynamic filters from query parameters
-    query = Helpers.QueryFilterHelper.ApplyQueryFilters(query, Request.Query);
-    
-    var products = await ExecuteLimitedQueryAsync(query);
-    return Ok(products);
-}
+# Run published application
+cd publish
+./Apyvyra.Backend  # or Apyvyra.Backend.exe on Windows
 ```
 
-**Benefits**:
-- No need to define individual filter parameters
-- Supports any entity property dynamically
-- Consistent filtering across all endpoints
-- Frontend can use reusable FilterComponent
-- Type-safe conversions (int, decimal, DateTime, bool, etc.)
-- Supports nested properties (e.g., `Category.Name`)
+### Docker
 
-## API Endpoints
+```bash
+# Build image
+docker build -t apyvyra-backend .
+
+# Run container
+docker run -p 5000:5000 apyvyra-backend
+```
+
+### Access Points
+
+- **API**: `http://localhost:5000`
+- **Swagger UI**: `http://localhost:5000/swagger`
+- **Health Check**: `http://localhost:5000/health` (if implemented)
+
+## API Documentation
 
 ### Authentication
+
+All protected endpoints require JWT token in `Authorization: Bearer <token>` header.
+
+```bash
+# Login to get token
+curl -X POST http://localhost:5000/api/app_user/login \
+  -H "Content-Type: application/json" \
+  -d '{"email":"admin@example.com","password":"password"}'
+
+# Use token in subsequent requests
+curl -H "Authorization: Bearer YOUR_JWT_TOKEN" \
+  http://localhost:5000/api/product
+```
+
+### Endpoints Overview
+
+#### Authentication
 - `POST /api/app_user` - Register new user
 - `POST /api/app_user/login` - Login and receive JWT token
 - `GET /api/app_user/me` - Get current user info (requires auth)
 - `GET /api/app_user` - List all users (Admin/Staff only)
 
-### Products
-- `GET /api/product` - List all products (with filtering)
+#### Products
+- `GET /api/product` - List products with dynamic filtering
 - `GET /api/product/{id}` - Get product by ID
 - `POST /api/product` - Create new product (requires auth)
 - `PUT /api/product/{id}` - Update product (requires auth)
 - `DELETE /api/product/{id}` - Delete product (requires auth)
 
-### Product Categories
-- `GET /api/product_category` - List all categories (with filtering)
+#### Categories
+- `GET /api/product_category` - List categories with filtering
 - `GET /api/product_category/{id}` - Get category by ID
 - `POST /api/product_category` - Create category (requires auth)
 - `PUT /api/product_category/{id}` - Update category (requires auth)
 - `DELETE /api/product_category/{id}` - Delete category (requires auth)
 
-### Orders
-- `GET /api/order` - List all orders (Admin/Staff only, with filtering)
-- `GET /api/order/{id}` - Get order by ID
+#### Orders
+- `GET /api/order` - List orders (Admin/Staff, filtered)
+- `GET /api/order/{id}` - Get order details
 - `POST /api/order` - Create new order (requires auth)
-- `PUT /api/order/{id}/status` - Update order status (Admin/Staff only)
-- `GET /api/order/stats` - Get order statistics (Admin/Staff only)
+- `PUT /api/order/{id}/status` - Update order status (Admin/Staff)
+- `GET /api/order/stats` - Get order statistics (Admin/Staff)
 
-### Payments
-- `POST /api/payment/create-intent` - Create Stripe payment intent
-- `POST /api/payment/confirm` - Confirm payment
-- `POST /api/payment/webhook` - Stripe webhook handler
+#### Payments
 - `GET /api/payment/config` - Get payment configuration
+- `POST /api/payment/create-intent/{orderId}` - Create payment intent
+- `POST /api/payment/confirm/{orderId}` - Confirm payment
+- `POST /api/payment/webhook` - Stripe webhook handler
 
-## NuGet Packages
+### Dynamic Filtering
 
-```xml
-<PackageReference Include="BCrypt.Net-Next" Version="4.0.3" />
-<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.0" />
-<PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.0" />
-<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.0" />
-<PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.0" />
-<PackageReference Include="Stripe.net" Version="45.8.0" />
-<PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.2.1" />
+All list endpoints support advanced filtering via query parameters:
+
+```bash
+# Filter by name (contains)
+GET /api/product?name=nike
+
+# Filter by price range
+GET /api/product?price_gte=50&price_lte=200
+
+# Filter by category and status
+GET /api/product?categoryId=5&isActive=true
+
+# Filter by date range
+GET /api/order?createdAt_gte=2024-01-01&createdAt_lte=2024-12-31
 ```
 
-## Key Features Added
+**Supported Operators:**
+- `eq` (equals): `field=value`
+- `ne` (not equals): `field_ne=value`
+- `lt/gt/lte/gte`: Comparison operators
+- `contains/startsWith/endsWith`: String matching
+- `from/to`: Range queries for dates and numbers
 
-### 9. **Order Management System**
-- **Order Statuses**: Complete workflow from pending to completed
-- **Status Transitions**: Logical validation for status changes
-- **Order Filtering**: Dynamic filtering by customer, date, status
-- **Email Notifications**: Automatic shipping confirmation emails
-- **Order Statistics**: Comprehensive order analytics
+## Key Features
 
-### 10. **Payment Processing with Stripe**
-- **Mock Mode**: Development-friendly payment simulation
-- **Test Mode**: Real Stripe test environment integration
-- **Webhooks**: Secure payment event handling
-- **Payment Intents**: Modern Stripe payment flow
-- **Error Handling**: Comprehensive payment error management
+### 1. Modern Query Limiting
+Returns top N filtered records instead of traditional pagination for better performance.
 
-### 11. **Email Service with Templates**
-- **Template System**: HTML email templates with variable substitution
-- **Development Mode**: Console logging for development
-- **SMTP Integration**: Configurable email delivery
-- **Order Emails**: Confirmation and shipping notifications
-- **User Emails**: Registration and staff invitations
+### 2. Comprehensive Error Handling
+Custom response headers (`X-Success`, `X-Errors`) and structured error responses.
 
-## Development Workflow
+### 3. Database Auditing
+Automatic timestamp and user tracking for all entities.
 
-### Making Schema Changes
-1. Update `../database.sql` with new schema
-2. Run DevOps tool to recreate database:
+### 4. Stripe Payment Integration
+Full payment processing with webhook support and mock mode for development.
+
+### 5. Email Service
+HTML email templates with dynamic content for order confirmations and notifications.
+
+### 6. JWT Authentication
+Secure token-based authentication with role-based authorization.
+
+### 7. Dynamic Filtering
+Powerful query filtering system supporting complex search criteria.
+
+## Project Structure
+
+```
+backend/
+├── Controllers/              # Web API controllers
+│   ├── BaseApiController.cs  # Base controller with error handling
+│   ├── AppUserController.cs  # Authentication & user management
+│   ├── ProductController.cs  # Product CRUD operations
+│   ├── ProductCategoryController.cs # Category management
+│   ├── OrderController.cs    # Order processing
+│   └── PaymentController.cs  # Stripe payment processing
+├── Models/                   # EF Core entity models (auto-generated)
+├── Data/
+│   └── AppDbContext.cs       # Database context & configurations
+├── Services/
+│   ├── EmailService.cs       # Email sending with templates
+│   └── StripeService.cs      # Payment processing
+├── Middleware/
+│   └── ResponseHeadersMiddleware.cs # Custom response headers
+├── Helpers/
+│   └── QueryFilterHelper.cs  # Dynamic query filtering
+├── Enums/                    # Application constants
+├── email-templates/          # HTML email templates
+├── Program.cs                # Application entry point
+├── appsettings.json          # Configuration
+└── README.md                 # This file
+```
+
+## Development
+
+### Database Schema Changes
+
+1. Update `../database.sql` with new schema changes
+2. Run database initialization:
    ```bash
    cd ../devops
    dotnet run -- db-init
    ```
 3. Regenerate EF Core models:
    ```bash
-   cd ../backend
    dotnet ef dbcontext scaffold "Host=localhost;Port=5432;Database=apyvyra;Username=apyvyra;Password=apyvyra" Npgsql.EntityFrameworkCore.PostgreSQL -o Models -c AppDbContext -d Data --context-dir Data --force
    ```
 4. Update controllers and DTOs as needed
 
 ### Adding New Endpoints
+
 1. Create or update controller in `Controllers/`
-2. Add `[Authorize]` attribute if authentication required
-3. Use `BaseApiController` helper methods for error handling
-4. Return proper DTOs (not raw entity models)
-5. Test with Swagger UI or HTTP client
+2. Use `[Authorize]` attribute for protected endpoints
+3. Inherit from `BaseApiController` for error handling helpers
+4. Return DTOs instead of raw entity models
+5. Test with Swagger UI or API client
 
-## Testing
+### Testing
 
 ```bash
+# Run unit tests
 dotnet test
+
+# Run with coverage
+dotnet test --collect:"XPlat Code Coverage"
 ```
 
-## Building for Production
+## Deployment
+
+### Docker Deployment
+
+```dockerfile
+FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS base
+WORKDIR /app
+EXPOSE 80
+
+FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
+WORKDIR /src
+COPY ["backend/backend.csproj", "backend/"]
+RUN dotnet restore "backend/backend.csproj"
+COPY . .
+WORKDIR "/src/backend"
+RUN dotnet build "backend.csproj" -c Release -o /app/build
+
+FROM build AS publish
+RUN dotnet publish "backend.csproj" -c Release -o /app/publish
+
+FROM base AS final
+WORKDIR /app
+COPY --from=publish /app/publish .
+ENTRYPOINT ["dotnet", "backend.dll"]
+```
+
+### Production Checklist
+
+- [ ] Update `appsettings.json` with production values
+- [ ] Configure environment variables for secrets
+- [ ] Set up SSL/TLS certificates
+- [ ] Configure reverse proxy (nginx/Caddy)
+- [ ] Set up monitoring and logging
+- [ ] Configure Stripe webhooks for live environment
+- [ ] Set up database backups
+- [ ] Configure email SMTP for production
+
+## Troubleshooting
+
+### Common Issues
+
+**Database Connection Failed**
+```bash
+# Check if PostgreSQL is running
+docker ps | grep postgres
+
+# Test connection manually
+psql -h localhost -p 5432 -U apyvyra -d apyvyra
+```
+
+**JWT Authentication Issues**
+- Verify JWT key is at least 32 characters
+- Check token expiration in `appsettings.json`
+- Ensure `Bearer` scheme is used in Authorization header
+
+**CORS Errors**
+- Check `AllowedHosts` in `appsettings.json`
+- Verify CORS policy allows frontend origin
+- Ensure credentials are enabled for auth cookies
+
+**Email Not Sending**
+- Check SMTP credentials in `appsettings.json`
+- Verify `DevelopmentMode` setting
+- Look for email logs in console output
+
+**Stripe Payment Errors**
+- Verify API keys are correct
+- Check webhook endpoint configuration
+- Use Stripe dashboard to monitor payment events
+
+### Debug Mode
+
+Run with detailed logging:
+```bash
+dotnet run --environment Development
+```
+
+### Health Checks
 
 ```bash
-dotnet publish -c Release -o ./publish
+# Basic health check
+curl http://localhost:5000/health
+
+# Database connectivity
+curl http://localhost:5000/api/health/database
 ```
 
-The published output can be containerized using the provided Dockerfile.
+## Resources
 
-## Docker Support
+### Official Documentation
 
-Build and run with Docker:
-```bash
-docker build -t apyvyra-backend .
-docker run -p 5000:5000 apyvyra-backend
-```
+- [ASP.NET Core Web API](https://learn.microsoft.com/en-us/aspnet/core/web-api/)
+- [Entity Framework Core](https://learn.microsoft.com/en-us/ef/core/)
+- [JWT Authentication](https://learn.microsoft.com/en-us/aspnet/core/security/authentication/)
+- [Stripe API Reference](https://stripe.com/docs/api)
+- [Npgsql Documentation](https://www.npgsql.org/doc/)
 
-Or use Docker Compose from project root:
-```bash
-docker-compose up backend
-```
+### Related Project Documentation
 
-## Additional Resources
+- [Main Project README](../README.md)
+- [Getting Started Guide](../GETTING-STARTED.md)
+- [Architecture Overview](../ARCHITECTURE.md)
+- [DevOps Tools](../devops/README.md)
+- [Frontend Documentation](../frontend/README.md)
 
-- [ASP.NET Core Web API Documentation](https://learn.microsoft.com/en-us/aspnet/core/web-api/)
-- [Entity Framework Core Documentation](https://learn.microsoft.com/en-us/ef/core/)
-- [Npgsql Entity Framework Provider](https://www.npgsql.org/efcore/)
-- [JWT Authentication in ASP.NET Core](https://learn.microsoft.com/en-us/aspnet/core/security/authentication/)
+### Community Resources
+
+- [ASP.NET Core GitHub](https://github.com/dotnet/aspnetcore)
+- [EF Core GitHub](https://github.com/dotnet/efcore)
+- [Stripe Developer Community](https://stripe.com/docs/questions)
