@@ -219,9 +219,6 @@ class Program
             cmd.CommandTimeout = 120; // Increase timeout for large data load
             await cmd.ExecuteNonQueryAsync();
             Console.WriteLine("Test data loaded successfully.");
-            Console.WriteLine("- 5 product categories created");
-            Console.WriteLine("- 100 products created with realistic data");
-            Console.WriteLine("- Product images added from Unsplash (public domain)");
             return 0;
         }
         catch (Exception ex)
