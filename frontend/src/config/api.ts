@@ -52,6 +52,10 @@ export const API_ENDPOINTS = {
   ADDRESS: {
     VALIDATE: `${API_BASE_URL}/api/address/validate`,
   },
+  TRANSLATION: {
+    LANGUAGE: `${API_BASE_URL}/api/translation/language`,
+    GET: (component: string) => `${API_BASE_URL}/api/translation/${component}`,
+  },
   // Add more domain endpoints as needed
   // CUSTOMERS: {
   //   LIST: `${API_BASE_URL}/api/customers`,

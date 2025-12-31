@@ -24,6 +24,7 @@ import { productService, type ProductUrl, type CreateProductData, type UrlType }
 import ProductForm from './ProductForm';
 import FilterComponent, { type FilterValues } from '../FilterComponent';
 import { productFilterConfig } from '../../../config/filterConfigs';
+import { useTranslation } from '../../../hooks/useTranslation';
 
 interface Product {
   id: number;
@@ -45,6 +46,9 @@ interface Product {
 }
 
 export default function Products() {
+  const { t } = useTranslation('Products');
+  const { t: tCommon } = useTranslation('Common');
+  
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -193,11 +197,11 @@ export default function Products() {
         <Box sx={{ display: 'flex', alignItems: 'center' }}>
           <InventoryIcon sx={{ fontSize: 40, mr: 2, color: 'primary.main' }} />
           <Typography variant="h4" component="h1">
-            Products
+            {t('TITLE')}
           </Typography>
         </Box>
         <Button variant="contained" startIcon={<AddIcon />} onClick={handleOpenForm}>
-          Add Product
+          {t('ADD_PRODUCT')}
         </Button>
       </Box>
 
@@ -221,8 +225,8 @@ export default function Products() {
       <Card>
         <CardContent>
           <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
-            <Typography variant="h6">Product Inventory</Typography>
-            <Chip label={`${products.length} products`} color="primary" />
+            <Typography variant="h6">{t('PRODUCT_INVENTORY')}</Typography>
+            <Chip label={`${products.length} ${t('PRODUCT_COUNT')}`} color="primary" />
           </Box>
           {loading ? (
             <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}>
@@ -230,7 +234,7 @@ export default function Products() {
             </Box>
           ) : products.length === 0 ? (
             <Typography variant="body2" color="text.secondary">
-              No products found. Start by adding your first product.
+              {t('NO_PRODUCTS')}
             </Typography>
           ) : (
             <Box sx={{ width: '100%', mt: 2 }}>
@@ -239,36 +243,36 @@ export default function Products() {
                 columns={[
                   {
                     field: 'sku',
-                    headerName: 'SKU',
+                    headerName: t('SKU'),
                     width: 100,
                   },
                   {
                     field: 'name',
-                    headerName: 'Name',
+                    headerName: t('NAME'),
                     flex: 1,
                     minWidth: 180,
                   },
                   {
                     field: 'categoryName',
-                    headerName: 'Category',
+                    headerName: t('CATEGORY'),
                     width: 120,
                     valueGetter: (value) => value || '-',
                   },
                   {
                     field: 'brand',
-                    headerName: 'Brand',
+                    headerName: t('BRAND'),
                     width: 110,
                     valueGetter: (value) => value || '-',
                   },
                   {
                     field: 'manufacturer',
-                    headerName: 'Manufacturer',
+                    headerName: t('MANUFACTURER'),
                     width: 130,
                     valueGetter: (value) => value || '-',
                   },
                   {
                     field: 'price',
-                    headerName: 'Price',
+                    headerName: t('PRICE'),
                     width: 100,
                     type: 'number',
                     renderCell: (params: GridRenderCellParams) => (
@@ -277,7 +281,7 @@ export default function Products() {
                   },
                   {
                     field: 'taxRate',
-                    headerName: 'Tax Rate',
+                    headerName: t('TAX_RATE'),
                     width: 90,
                     type: 'number',
                     valueGetter: (value) => value || 0,
@@ -287,7 +291,7 @@ export default function Products() {
                   },
                   {
                     field: 'stockQuantity',
-                    headerName: 'Stock',
+                    headerName: t('STOCK'),
                     width: 80,
                     type: 'number',
                     renderCell: (params: GridRenderCellParams) => (
@@ -300,19 +304,19 @@ export default function Products() {
                   },
                   {
                     field: 'lowStockThreshold',
-                    headerName: 'Low Stock Threshold',
+                    headerName: t('LOW_STOCK_THRESHOLD'),
                     width: 130,
                     type: 'number',
                     valueGetter: (value) => value || 0,
                   },
                   {
                     field: 'isActive',
-                    headerName: 'Status',
+                    headerName: t('STATUS'),
                     width: 100,
                     type: 'boolean',
                     renderCell: (params: GridRenderCellParams) => (
                       <Chip
-                        label={params.row.isActive ? 'Active' : 'Inactive'}
+                        label={params.row.isActive ? t('ACTIVE') : t('INACTIVE')}
                         color={params.row.isActive ? 'success' : 'default'}
                         size="small"
                       />
@@ -320,7 +324,7 @@ export default function Products() {
                   },
                   {
                     field: 'actions',
-                    headerName: 'Actions',
+                    headerName: t('ACTIONS'),
                     width: 100,
                     sortable: false,
                     filterable: false,
@@ -384,19 +388,19 @@ export default function Products() {
 
       {/* Delete Confirmation Dialog */}
       <Dialog open={deleteDialogOpen} onClose={handleDeleteCancel} maxWidth="xs" fullWidth>
-        <DialogTitle>Delete Product</DialogTitle>
+        <DialogTitle>{t('DELETE_DIALOG_TITLE')}</DialogTitle>
         <DialogContent>
           <Typography>
-            Are you sure you want to delete <strong>{productToDelete?.name}</strong>?
+            {t('DELETE_CONFIRM', { name: productToDelete?.name || '' })}
           </Typography>
           <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-            This action cannot be undone.
+            {tCommon('THIS_ACTION_CANNOT_BE_UNDONE')}
           </Typography>
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleDeleteCancel}>Cancel</Button>
+          <Button onClick={handleDeleteCancel}>{tCommon('CANCEL')}</Button>
           <Button onClick={handleDeleteConfirm} color="error" variant="contained">
-            Delete
+            {tCommon('DELETE')}
           </Button>
         </DialogActions>
       </Dialog>

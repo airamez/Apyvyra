@@ -7,6 +7,7 @@ import { paymentService } from '../../services/paymentService';
 import { type Order } from '../../services/orderService';
 import { getErrorMessages } from '../../utils/apiErrorHandler';
 import { MockPaymentForm, StripePaymentForm } from './payment';
+import { useTranslation } from '../../hooks/useTranslation';
 
 interface PaymentProps {
   order: Order;
@@ -15,6 +16,9 @@ interface PaymentProps {
 }
 
 export default function Payment({ order, onBackToCheckout, onPaymentComplete }: PaymentProps) {
+  const { t } = useTranslation('Payment');
+  const { t: tCommon } = useTranslation('Common');
+  
   const [stripePromise, setStripePromise] = useState<Promise<any> | null>(null);
   const [clientSecret, setClientSecret] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
@@ -92,7 +96,7 @@ export default function Payment({ order, onBackToCheckout, onPaymentComplete }: 
     return (
       <Box sx={{ p: 2 }}>
         <Alert severity="error">
-          Payment system is not configured. Please contact support.
+          {t('PAYMENT_NOT_CONFIGURED')}
         </Alert>
       </Box>
     );
@@ -107,14 +111,14 @@ export default function Payment({ order, onBackToCheckout, onPaymentComplete }: 
           variant="outlined"
           size="small"
         >
-          Back
+          {t('BACK')}
         </Button>
-        <Typography variant="h5">Payment</Typography>
+        <Typography variant="h5">{t('TITLE')}</Typography>
       </Box>
 
       {testMode && (
         <Alert severity="info" sx={{ mb: 2 }}>
-          <strong>Test Mode:</strong> Use card number 4242 4242 4242 4242 with any future expiry date and any CVC.
+          <strong>{t('TEST_MODE_MESSAGE')}</strong>
         </Alert>
       )}
 
@@ -124,13 +128,14 @@ export default function Payment({ order, onBackToCheckout, onPaymentComplete }: 
           clientSecret,
           appearance: {
             theme: 'stripe',
-            variables: {
-              colorPrimary: '#1976d2',
-            },
           },
         }}
       >
-        <StripePaymentForm order={order} onPaymentComplete={onPaymentComplete} />
+        <StripePaymentForm 
+          order={order} 
+          onBackToCheckout={onBackToCheckout}
+          onPaymentComplete={onPaymentComplete}
+        />
       </Elements>
     </Box>
   );

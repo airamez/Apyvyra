@@ -1,0 +1,20 @@
+{
+  "SEARCH_PRODUCTS": "Search products...",
+  "CATEGORY": "Category",
+  "ALL_CATEGORIES": "All Categories",
+  "BRAND_PLACEHOLDER": "Brand...",
+  "MANUFACTURER_PLACEHOLDER": "Manufacturer...",
+  "SEARCH": "Search",
+  "RESET": "Reset",
+  "CART": "Cart",
+  "ADD": "Add",
+  "NO_DESCRIPTION": "No description",
+  "LOADING_PRODUCTS": "Loading products...",
+  "NO_PRODUCTS_FOUND": "No products found. Try adjusting your search.",
+  "ADDED_TO_CART": "Added {quantity} x {productName} to cart",
+  "RESOURCES": "Resources:",
+  "IMAGE": "Image",
+  "VIDEO": "Video",
+  "MANUAL": "Manual",
+  "RESOURCE": "Resource {index}"
+}

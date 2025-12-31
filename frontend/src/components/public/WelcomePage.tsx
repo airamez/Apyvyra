@@ -11,26 +11,28 @@ import {
 import LaunchIcon from '@mui/icons-material/Launch';
 import YouTubeIcon from '@mui/icons-material/YouTube';
 import GitHubIcon from '@mui/icons-material/GitHub';
+import { useTranslation } from '../../hooks/useTranslation';
 
 interface WelcomePageProps {
   isAuthenticated: boolean;
 }
 
 export default function WelcomePage({ isAuthenticated }: WelcomePageProps) {
+  const { t } = useTranslation('WelcomePage');
+  
   return (
     <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
       <Paper elevation={2} sx={{ p: 4 }}>
         {/* Header */}
         <Box sx={{ textAlign: 'center', mb: 4 }}>
           <Typography variant="h3" component="h1" gutterBottom sx={{ color: 'primary.main', fontWeight: 'bold' }}>
-            Welcome to Apyvyra ERP
+            {t('TITLE')}
           </Typography>
           <Typography variant="h5" color="text.secondary" sx={{ mb: 2 }}>
-            "Given freely" in tupi-guarani
+            {t('SUBTITLE')}
           </Typography>
           <Typography variant="body1" sx={{ maxWidth: 800, mx: 'auto', mb: 3 }}>
-            A comprehensive full-stack ERP application built with modern technologies, designed to help organizations
-            manage their core business processes efficiently.
+            {t('DESCRIPTION')}
           </Typography>
         </Box>
 
@@ -44,7 +46,7 @@ export default function WelcomePage({ isAuthenticated }: WelcomePageProps) {
             rel="noopener noreferrer"
             sx={{ mr: 2, mb: 1 }}
           >
-            Visit Apyvyra
+            {t('VISIT_APYVYRA')}
           </Button>
           <Button
             variant="outlined"
@@ -54,7 +56,7 @@ export default function WelcomePage({ isAuthenticated }: WelcomePageProps) {
             rel="noopener noreferrer"
             sx={{ mr: 2, mb: 1 }}
           >
-            GitHub Repository
+            {t('GITHUB_REPOSITORY')}
           </Button>
           <Button
             variant="outlined"
@@ -64,7 +66,7 @@ export default function WelcomePage({ isAuthenticated }: WelcomePageProps) {
             rel="noopener noreferrer"
             sx={{ mb: 1 }}
           >
-            YouTube Playlist
+            {t('YOUTUBE_PLAYLIST')}
           </Button>
         </Box>
 
@@ -74,11 +76,10 @@ export default function WelcomePage({ isAuthenticated }: WelcomePageProps) {
             <Card sx={{ height: '100%' }}>
               <CardContent>
                 <Typography variant="h6" gutterBottom color="primary">
-                  Full-Stack Architecture
+                  {t('FULL_STACK_ARCHITECTURE')}
                 </Typography>
                 <Typography variant="body2">
-                  Built with ASP.NET Core Web API backend, React frontend, PostgreSQL database,
-                  and Docker containerization for easy deployment.
+                  {t('FULL_STACK_DESCRIPTION')}
                 </Typography>
               </CardContent>
             </Card>
@@ -87,11 +88,10 @@ export default function WelcomePage({ isAuthenticated }: WelcomePageProps) {
             <Card sx={{ height: '100%' }}>
               <CardContent>
                 <Typography variant="h6" gutterBottom color="primary">
-                  ERP Functionality
+                  {t('ERP_FUNCTIONALITY')}
                 </Typography>
                 <Typography variant="body2">
-                  Complete Enterprise Resource Planning system with product management,
-                  user authentication, categories, and customer relationship management.
+                  {t('ERP_DESCRIPTION')}
                 </Typography>
               </CardContent>
             </Card>
@@ -100,11 +100,10 @@ export default function WelcomePage({ isAuthenticated }: WelcomePageProps) {
             <Card sx={{ height: '100%' }}>
               <CardContent>
                 <Typography variant="h6" gutterBottom color="primary">
-                  Learning Platform
+                  {t('LEARNING_PLATFORM')}
                 </Typography>
                 <Typography variant="body2">
-                  Educational project demonstrating real-world software development practices,
-                  live coding sessions, and AI-assisted development techniques.
+                  {t('LEARNING_DESCRIPTION')}
                 </Typography>
               </CardContent>
             </Card>
@@ -114,7 +113,7 @@ export default function WelcomePage({ isAuthenticated }: WelcomePageProps) {
         {/* Tech Stack */}
         <Box sx={{ mb: 4 }}>
           <Typography variant="h6" gutterBottom sx={{ textAlign: 'center' }}>
-            Technology Stack
+            {t('TECHNOLOGY_STACK')}
           </Typography>
           <Box sx={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: 1 }}>
             {['React', 'TypeScript', 'ASP.NET Core', 'C#', 'PostgreSQL', 'Entity Framework', 'Docker', 'Material-UI'].map((tech) => (
@@ -140,11 +139,11 @@ export default function WelcomePage({ isAuthenticated }: WelcomePageProps) {
         <Box sx={{ textAlign: 'center' }}>
           <Typography variant="body1" color="text.secondary" paragraph>
             {isAuthenticated
-              ? 'Use the menu above to navigate to different sections of the application.'
-              : 'Please log in to access the ERP system.'}
+              ? t('AUTHENTICATED_MESSAGE')
+              : t('NOT_AUTHENTICATED_MESSAGE')}
           </Typography>
           <Typography variant="body2" color="text.secondary">
-            Visit <a href="https://apyvyra" target="_blank" rel="noopener noreferrer" style={{ color: 'inherit', textDecoration: 'underline' }}>https://apyvyra</a> for more information
+            {t('MORE_INFO', { url: 'https://apyvyra' })}
           </Typography>
         </Box>
       </Paper>

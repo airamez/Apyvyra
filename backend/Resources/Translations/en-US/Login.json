@@ -1,0 +1,19 @@
+{
+  "TITLE": "Login",
+  "EMAIL_ADDRESS": "Email Address",
+  "PASSWORD": "Password",
+  "LOGIN_BUTTON": "Login",
+  "LOGGING_IN": "Logging in...",
+  "LOGIN_SUCCESS": "Login successful! Welcome back.",
+  "LOGIN_ERROR": "An error occurred during login",
+  "DONT_HAVE_ACCOUNT": "Don't have an account?",
+  "SIGN_UP_HERE": "Sign up here",
+  "EMAIL_CONFIRMATION_REQUIRED": "Email Confirmation Required",
+  "CHECK_INBOX_MESSAGE": "Check your inbox for the confirmation email. If you don't see it, you can request a new one below.",
+  "RESEND_CONFIRMATION_TO": "Resend confirmation email to:",
+  "RESEND_EMAIL": "Resend Email",
+  "SENDING": "Sending...",
+  "FAILED_RESEND": "Failed to resend confirmation email. Please try again.",
+  "RESEND_ERROR": "An error occurred. Please try again later.",
+  "PLEASE_LOGIN_TO_VALIDATE": "Please log in to validate your address and proceed with checkout."
+}

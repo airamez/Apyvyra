@@ -1,0 +1,18 @@
+{
+  "TITLE": "Welcome to Apyvyra ERP",
+  "SUBTITLE": "\"Given freely\" in tupi-guarani",
+  "DESCRIPTION": "A comprehensive full-stack ERP application built with modern technologies, designed to help organizations manage their core business processes efficiently.",
+  "VISIT_APYVYRA": "Visit Apyvyra",
+  "GITHUB_REPOSITORY": "GitHub Repository",
+  "YOUTUBE_PLAYLIST": "YouTube Playlist",
+  "FULL_STACK_ARCHITECTURE": "Full-Stack Architecture",
+  "FULL_STACK_DESCRIPTION": "Built with ASP.NET Core Web API backend, React frontend, PostgreSQL database, and Docker containerization for easy deployment.",
+  "ERP_FUNCTIONALITY": "ERP Functionality",
+  "ERP_DESCRIPTION": "Complete Enterprise Resource Planning system with product management, user authentication, categories, and customer relationship management.",
+  "LEARNING_PLATFORM": "Learning Platform",
+  "LEARNING_DESCRIPTION": "Educational project demonstrating real-world software development practices, live coding sessions, and AI-assisted development techniques.",
+  "TECHNOLOGY_STACK": "Technology Stack",
+  "AUTHENTICATED_MESSAGE": "Use the menu above to navigate to different sections of the application.",
+  "NOT_AUTHENTICATED_MESSAGE": "Please log in to access the ERP system.",
+  "MORE_INFO": "Visit {url} for more information"
+}

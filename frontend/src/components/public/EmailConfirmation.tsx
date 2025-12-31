@@ -14,8 +14,11 @@ import {
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import ErrorIcon from '@mui/icons-material/Error';
 import EmailIcon from '@mui/icons-material/Email';
+import { useTranslation } from '../../hooks/useTranslation';
 
 export default function EmailConfirmation() {
+  const { t } = useTranslation('EmailConfirmation');
+  
   const { token } = useParams<{ token: string }>();
   const navigate = useNavigate();
   const [status, setStatus] = useState<'loading' | 'success' | 'error' | 'already_confirmed' | 'expired' | 'invalid'>('loading');
@@ -27,27 +30,27 @@ export default function EmailConfirmation() {
     // Handle status-based routes - these are redirects from the backend
     if (token === 'success') {
       setStatus('success');
-      setMessage('Your account has been successfully activated!');
+      setMessage(t('ACCOUNT_ACTIVATED'));
       return;
     }
     if (token === 'already-confirmed') {
       setStatus('already_confirmed');
-      setMessage('Your email was already confirmed!');
+      setMessage(t('EMAIL_ALREADY_CONFIRMED'));
       return;
     }
     if (token === 'expired') {
       setStatus('expired');
-      setMessage('Your confirmation link has expired. Please request a new confirmation email.');
+      setMessage(t('LINK_EXPIRED_DESCRIPTION'));
       return;
     }
     if (token === 'invalid') {
       setStatus('invalid');
-      setMessage('Invalid confirmation link. Please check your email or request a new confirmation.');
+      setMessage(t('INVALID_LINK_DESCRIPTION'));
       return;
     }
     if (token === 'error') {
       setStatus('error');
-      setMessage('An error occurred while confirming your email. Please try again later.');
+      setMessage(t('CONFIRMATION_ERROR'));
       return;
     }
 
@@ -57,7 +60,7 @@ export default function EmailConfirmation() {
       confirmEmail();
     } else {
       setStatus('invalid');
-      setMessage('Invalid confirmation link.');
+      setMessage(t('INVALID_LINK_DESCRIPTION'));
     }
   }, [token, isProcessing]);
 
@@ -79,11 +82,11 @@ export default function EmailConfirmation() {
           setMessage(data.message);
         } else {
           setStatus('success');
-          setMessage(data.message || 'Email confirmed successfully! Your account is now active.');
+          setMessage(data.message || t('EMAIL_CONFIRMED_SUCCESS'));
         }
       } else {
         // Handle standardized error responses with headers
-        const errorMessage = data.message || 'Confirmation failed';
+        const errorMessage = data.message || t('CONFIRMATION_FAILED_MESSAGE');
         
         console.log('Setting error status based on:', errorMessage);
         
@@ -93,7 +96,7 @@ export default function EmailConfirmation() {
         } else if (errorMessage.includes('Invalid confirmation token')) {
           // This likely means the confirmation already worked but token was consumed
           setStatus('success');
-          setMessage('Your email has been confirmed! Your account is now active. You can log in.');
+          setMessage(t('EMAIL_CONFIRMED_SUCCESS'));
         } else {
           setStatus('error');
           setMessage(errorMessage);
@@ -102,7 +105,7 @@ export default function EmailConfirmation() {
     } catch (error) {
       console.error('Confirmation error:', error);
       setStatus('error');
-      setMessage('An error occurred while confirming your email. Please try again later.');
+      setMessage(t('CONFIRMATION_ERROR'));
     }
   };
 
@@ -121,10 +124,10 @@ export default function EmailConfirmation() {
           <Box sx={{ textAlign: 'center', py: 4 }}>
             <CircularProgress size={60} sx={{ mb: 3 }} />
             <Typography variant="h5" gutterBottom>
-              Confirming your email...
+              {t('CONFIRMING_EMAIL')}
             </Typography>
             <Typography variant="body2" color="text.secondary">
-              Please wait while we activate your account.
+              {t('PLEASE_WAIT')}
             </Typography>
           </Box>
         );
@@ -136,14 +139,13 @@ export default function EmailConfirmation() {
               <CheckCircleIcon sx={{ fontSize: 48 }} />
             </Avatar>
             <Typography variant="h4" gutterBottom color="success.main">
-              Welcome to Apyvyra! 🎉
+              {t('WELCOME_TITLE')}
             </Typography>
             <Typography variant="h6" gutterBottom>
-              Your account has been successfully activated!
+              {t('ACCOUNT_ACTIVATED')}
             </Typography>
             <Typography variant="body1" sx={{ mb: 4, maxWidth: 500, mx: 'auto' }}>
-              Thank you for confirming your email address. Your account is now active and ready to use. 
-              You can now log in and start managing your inventory with Apyvyra's powerful tools.
+              {t('THANK_YOU_MESSAGE')}
             </Typography>
             <Button
               variant="contained"
@@ -151,7 +153,7 @@ export default function EmailConfirmation() {
               onClick={handleGoToLogin}
               sx={{ px: 4, py: 1.5 }}
             >
-              Go to Login
+              {t('GO_TO_LOGIN')}
             </Button>
           </Box>
         );
@@ -163,10 +165,10 @@ export default function EmailConfirmation() {
               <EmailIcon sx={{ fontSize: 48 }} />
             </Avatar>
             <Typography variant="h4" gutterBottom color="info.main">
-              Already Confirmed
+              {t('ALREADY_CONFIRMED_TITLE')}
             </Typography>
             <Typography variant="h6" gutterBottom>
-              Your email was already confirmed!
+              {t('EMAIL_ALREADY_CONFIRMED')}
             </Typography>
             <Typography variant="body1" sx={{ mb: 4, maxWidth: 500, mx: 'auto' }}>
               {message}
@@ -177,7 +179,7 @@ export default function EmailConfirmation() {
               onClick={handleGoToLogin}
               sx={{ px: 4, py: 1.5 }}
             >
-              Go to Login
+              {t('GO_TO_LOGIN')}
             </Button>
           </Box>
         );
@@ -189,10 +191,10 @@ export default function EmailConfirmation() {
               <ErrorIcon sx={{ fontSize: 48 }} />
             </Avatar>
             <Typography variant="h4" gutterBottom color="warning.main">
-              Link Expired
+              {t('LINK_EXPIRED_TITLE')}
             </Typography>
             <Typography variant="h6" gutterBottom>
-              Your confirmation link has expired
+              {t('LINK_EXPIRED_MESSAGE')}
             </Typography>
             <Alert severity="warning" sx={{ mb: 3, maxWidth: 500, mx: 'auto' }}>
               {message}
@@ -202,13 +204,13 @@ export default function EmailConfirmation() {
                 variant="outlined"
                 onClick={handleRequestNewEmail}
               >
-                Request New Email
+                {t('REQUEST_NEW_EMAIL')}
               </Button>
               <Button
                 variant="contained"
                 onClick={handleGoToLogin}
               >
-                Go to Login
+                {t('GO_TO_LOGIN')}
               </Button>
             </Box>
           </Box>
@@ -221,10 +223,10 @@ export default function EmailConfirmation() {
               <ErrorIcon sx={{ fontSize: 48 }} />
             </Avatar>
             <Typography variant="h4" gutterBottom color="error.main">
-              Invalid Link
+              {t('INVALID_LINK_TITLE')}
             </Typography>
             <Typography variant="h6" gutterBottom>
-              We couldn't validate your confirmation link
+              {t('INVALID_LINK_MESSAGE')}
             </Typography>
             <Alert severity="error" sx={{ mb: 3, maxWidth: 500, mx: 'auto' }}>
               {message}
@@ -234,13 +236,13 @@ export default function EmailConfirmation() {
                 variant="outlined"
                 onClick={() => navigate('/register')}
               >
-                Create New Account
+                {t('CREATE_NEW_ACCOUNT')}
               </Button>
               <Button
                 variant="contained"
                 onClick={handleGoToLogin}
               >
-                Go to Login
+                {t('GO_TO_LOGIN')}
               </Button>
             </Box>
           </Box>
@@ -253,10 +255,10 @@ export default function EmailConfirmation() {
               <ErrorIcon sx={{ fontSize: 48 }} />
             </Avatar>
             <Typography variant="h4" gutterBottom color="error.main">
-              Confirmation Failed
+              {t('CONFIRMATION_FAILED_TITLE')}
             </Typography>
             <Typography variant="h6" gutterBottom>
-              We couldn't confirm your email
+              {t('CONFIRMATION_FAILED_MESSAGE')}
             </Typography>
             <Alert severity="error" sx={{ mb: 3, maxWidth: 500, mx: 'auto' }}>
               {message}
@@ -266,13 +268,13 @@ export default function EmailConfirmation() {
                 variant="outlined"
                 onClick={() => navigate('/register')}
               >
-                Create New Account
+                {t('CREATE_NEW_ACCOUNT')}
               </Button>
               <Button
                 variant="contained"
                 onClick={handleGoToLogin}
               >
-                Go to Login
+                {t('GO_TO_LOGIN')}
               </Button>
             </Box>
           </Box>

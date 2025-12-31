@@ -18,12 +18,16 @@ import {
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import { orderService, type Order, ORDER_STATUS } from '../../services/orderService';
+import { useTranslation } from '../../hooks/useTranslation';
 
 interface OrderRowProps {
   order: Order;
 }
 
 function OrderRow({ order }: OrderRowProps) {
+  const { t } = useTranslation('MyOrders');
+  const { t: tCommon } = useTranslation('Common');
+  
   const [open, setOpen] = useState(false);
 
   const formatPrice = (price: number) => {
@@ -56,15 +60,10 @@ function OrderRow({ order }: OrderRowProps) {
 
   return (
     <>
-      <TableRow sx={{ '& > *': { borderBottom: 'unset' } }}>
+      <TableRow>
         <TableCell>
-          <IconButton size="small" onClick={() => setOpen(!open)}>
-            {open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
-          </IconButton>
-        </TableCell>
-        <TableCell>
-          <Typography variant="body2" fontWeight="medium">
-            {order.orderNumber}
+          <Typography variant="body2" fontWeight="bold">
+            #{order.id}
           </Typography>
         </TableCell>
         <TableCell>{formatDate(order.orderDate)}</TableCell>
@@ -75,75 +74,70 @@ function OrderRow({ order }: OrderRowProps) {
             size="small"
           />
         </TableCell>
-        <TableCell align="right">{order.items.length}</TableCell>
+        <TableCell>{order.items?.length || 0}</TableCell>
         <TableCell align="right">
-          <Typography fontWeight="medium" color="primary">
+          <Typography fontWeight="bold">
             {formatPrice(order.totalAmount)}
           </Typography>
         </TableCell>
+        <TableCell>
+          <IconButton
+            size="small"
+            onClick={() => setOpen(!open)}
+          >
+            {open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
+          </IconButton>
+        </TableCell>
       </TableRow>
       <TableRow>
-        <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={6}>
+        <TableCell colSpan={6} sx={{ p: 0 }}>
           <Collapse in={open} timeout="auto" unmountOnExit>
-            <Box sx={{ margin: 2 }}>
-              {/* Order Items */}
-              <Typography variant="subtitle2" gutterBottom>
-                Order Items
+            <Box sx={{ p: 2, bgcolor: 'grey.50' }}>
+              <Typography variant="h6" gutterBottom>
+                {t('ORDER_ITEMS')}
               </Typography>
+              
               <Table size="small">
                 <TableHead>
                   <TableRow>
-                    <TableCell>Product</TableCell>
-                    <TableCell align="center">Qty</TableCell>
-                    <TableCell align="right">Unit Price</TableCell>
-                    <TableCell align="right">Tax</TableCell>
-                    <TableCell align="right">Total</TableCell>
+                    <TableCell>{t('PRODUCT')}</TableCell>
+                    <TableCell align="right">{t('QTY')}</TableCell>
+                    <TableCell align="right">{t('UNIT_PRICE')}</TableCell>
+                    <TableCell align="right">{t('TAX')}</TableCell>
+                    <TableCell align="right">{t('TOTAL')}</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {order.items.map((item) => (
-                    <TableRow key={item.id}>
-                      <TableCell>
-                        <Typography variant="body2">{item.productName}</Typography>
-                        <Typography variant="caption" color="text.secondary">
-                          SKU: {item.productSku}
-                        </Typography>
-                      </TableCell>
-                      <TableCell align="center">{item.quantity}</TableCell>
-                      <TableCell align="right">{formatPrice(item.unitPrice)}</TableCell>
-                      <TableCell align="right">
-                        {formatPrice(item.taxAmount)}
-                        <Typography variant="caption" color="text.secondary" display="block">
-                          ({item.taxRate}%)
-                        </Typography>
-                      </TableCell>
-                      <TableCell align="right">{formatPrice(item.lineTotal)}</TableCell>
-                    </TableRow>
-                  ))}
+                  {order.items?.map((item) => {
+                    const lineSubtotal = item.price * item.quantity;
+                    const lineTax = lineSubtotal * (item.taxRate / 100);
+                    const lineTotal = lineSubtotal + lineTax;
+                    
+                    return (
+                      <TableRow key={item.productId}>
+                        <TableCell>{item.productName}</TableCell>
+                        <TableCell align="right">{item.quantity}</TableCell>
+                        <TableCell align="right">{formatPrice(item.price)}</TableCell>
+                        <TableCell align="right">{formatPrice(lineTax)}</TableCell>
+                        <TableCell align="right">{formatPrice(lineTotal)}</TableCell>
+                      </TableRow>
+                    );
+                  })}
                 </TableBody>
               </Table>
 
-              {/* Order Summary */}
-              <Box sx={{ mt: 2, display: 'flex', gap: 4 }}>
-                <Box>
-                  <Typography variant="subtitle2" gutterBottom>
-                    Shipping Address
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary" sx={{ whiteSpace: 'pre-line' }}>
-                    {order.shippingAddress}
-                  </Typography>
-                </Box>
-                <Box sx={{ ml: 'auto', textAlign: 'right' }}>
-                  <Box sx={{ display: 'flex', justifyContent: 'space-between', gap: 3 }}>
-                    <Typography color="text.secondary">Subtotal:</Typography>
+              <Box sx={{ mt: 2, display: 'flex', justifyContent: 'flex-end' }}>
+                <Box sx={{ minWidth: 200 }}>
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
+                    <Typography>{t('SUBTOTAL')}:</Typography>
                     <Typography>{formatPrice(order.subtotal)}</Typography>
                   </Box>
-                  <Box sx={{ display: 'flex', justifyContent: 'space-between', gap: 3 }}>
-                    <Typography color="text.secondary">Tax:</Typography>
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
+                    <Typography>{t('TAX_LABEL')}:</Typography>
                     <Typography>{formatPrice(order.taxAmount)}</Typography>
                   </Box>
-                  <Box sx={{ display: 'flex', justifyContent: 'space-between', gap: 3, mt: 1 }}>
-                    <Typography fontWeight="bold">Total:</Typography>
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
+                    <Typography fontWeight="bold">{t('TOTAL_LABEL')}:</Typography>
                     <Typography fontWeight="bold" color="primary">
                       {formatPrice(order.totalAmount)}
                     </Typography>
@@ -151,10 +145,19 @@ function OrderRow({ order }: OrderRowProps) {
                 </Box>
               </Box>
 
+              <Box sx={{ mt: 2 }}>
+                <Typography variant="subtitle2" gutterBottom>
+                  {t('SHIPPING_ADDRESS')}
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  {order.shippingAddress}
+                </Typography>
+              </Box>
+
               {order.notes && (
                 <Box sx={{ mt: 2 }}>
                   <Typography variant="subtitle2" gutterBottom>
-                    Notes
+                    {t('NOTES')}
                   </Typography>
                   <Typography variant="body2" color="text.secondary">
                     {order.notes}
@@ -170,6 +173,9 @@ function OrderRow({ order }: OrderRowProps) {
 }
 
 export default function MyOrders() {
+  const { t } = useTranslation('MyOrders');
+  const { t: tCommon } = useTranslation('Common');
+  
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -184,7 +190,7 @@ export default function MyOrders() {
       const response = await orderService.getAll();
       setOrders(response.data);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to load orders');
+      setError(err instanceof Error ? err.message : t('FAILED_LOAD_ORDERS'));
     } finally {
       setLoading(false);
     }
@@ -198,33 +204,35 @@ export default function MyOrders() {
     );
   }
 
+  if (error) {
+    return (
+      <Box sx={{ p: 2 }}>
+        <Alert severity="error">{error}</Alert>
+      </Box>
+    );
+  }
+
   return (
     <Box sx={{ p: 2 }}>
-      <Typography variant="h5" gutterBottom>
-        My Orders
+      <Typography variant="h4" gutterBottom>
+        {t('TITLE')}
       </Typography>
 
-      {error && (
-        <Alert severity="error" sx={{ mb: 2 }}>
-          {error}
-        </Alert>
-      )}
-
       {orders.length === 0 ? (
-        <Alert severity="info">
-          You haven't placed any orders yet.
-        </Alert>
+        <Typography color="text.secondary">
+          {t('NO_ORDERS')}
+        </Typography>
       ) : (
         <TableContainer component={Paper}>
           <Table>
             <TableHead>
-              <TableRow sx={{ bgcolor: 'grey.100' }}>
-                <TableCell width={50} />
-                <TableCell>Order #</TableCell>
-                <TableCell>Date</TableCell>
-                <TableCell>Status</TableCell>
-                <TableCell align="right">Items</TableCell>
-                <TableCell align="right">Total</TableCell>
+              <TableRow>
+                <TableCell>{t('ORDER_NUMBER')}</TableCell>
+                <TableCell>{t('DATE')}</TableCell>
+                <TableCell>{t('STATUS')}</TableCell>
+                <TableCell>{t('ITEMS')}</TableCell>
+                <TableCell align="right">{t('TOTAL')}</TableCell>
+                <TableCell></TableCell>
               </TableRow>
             </TableHead>
             <TableBody>

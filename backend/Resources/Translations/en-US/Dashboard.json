@@ -1,0 +1,18 @@
+{
+  "TITLE": "Dashboard",
+  "LOADING": "Loading dashboard data...",
+  "ORDERS_OVERVIEW": "Orders Overview",
+  "TOTAL_ORDERS": "Total Orders",
+  "PENDING_PAYMENT": "Pending Payment",
+  "PAID": "Paid",
+  "CONFIRMED": "Confirmed",
+  "PROCESSING": "Processing",
+  "SHIPPED": "Shipped",
+  "COMPLETED": "Completed",
+  "CANCELLED": "Cancelled",
+  "ON_HOLD": "On Hold",
+  "TOTAL_REVENUE": "Total Revenue",
+  "CUSTOMERS": "Customers",
+  "TOTAL_CUSTOMERS": "Total Customers",
+  "REGISTERED_CUSTOMERS": "Registered Customers"
+}

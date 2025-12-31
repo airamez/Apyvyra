@@ -1,0 +1,16 @@
+{
+  "TITLE": "Create Account",
+  "TITLE_SUCCESS": "Account Created!",
+  "EMAIL_ADDRESS": "Email Address",
+  "PASSWORD": "Password",
+  "PASSWORD_HELPER": "Minimum 6 characters",
+  "CONFIRM_PASSWORD": "Confirm Password",
+  "SIGN_UP_BUTTON": "Sign Up",
+  "REGISTRATION_SUCCESS": "Registration successful! Please check your email to confirm your account.",
+  "CONFIRMATION_SENT": "We've sent a confirmation link to your email address. Click the link to activate your account.",
+  "CHECK_SPAM": "If you don't see the email, check your spam folder.",
+  "AFTER_CONFIRMING_LOGIN": "After confirming, click here to log in",
+  "ALREADY_HAVE_ACCOUNT": "Already have an account?",
+  "SIGN_IN": "Sign in",
+  "REGISTRATION_ERROR": "An error occurred during registration"
+}

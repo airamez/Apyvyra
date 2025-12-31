@@ -15,8 +15,12 @@ import {
 import BadgeIcon from '@mui/icons-material/Badge';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import { staffService, type StaffSetupInfo } from '../../services/staffService';
+import { useTranslation } from '../../hooks/useTranslation';
 
 export default function StaffSetup() {
+  const { t } = useTranslation('StaffSetup');
+  const { t: tCommon } = useTranslation('Common');
+  
   const { token } = useParams<{ token: string }>();
   const navigate = useNavigate();
   
@@ -45,7 +49,7 @@ export default function StaffSetup() {
         setError(info.errorMessage);
       }
     } catch (err: any) {
-      setError(err.message || 'Failed to load setup information');
+      setError(err.message || t('FAILED_LOAD_INFO'));
     } finally {
       setLoading(false);
     }
@@ -53,17 +57,17 @@ export default function StaffSetup() {
 
   const validateForm = (): boolean => {
     if (!password || !confirmPassword) {
-      setError('All fields are required');
+      setError(tCommon('ALL_FIELDS_REQUIRED'));
       return false;
     }
 
     if (password.length < 6) {
-      setError('Password must be at least 6 characters long');
+      setError(tCommon('PASSWORD_MIN_LENGTH'));
       return false;
     }
 
     if (password !== confirmPassword) {
-      setError('Passwords do not match');
+      setError(tCommon('PASSWORDS_NOT_MATCH'));
       return false;
     }
 
@@ -83,7 +87,7 @@ export default function StaffSetup() {
       await staffService.completeSetup({ token: token!, password });
       setSuccess(true);
     } catch (err: any) {
-      setError(err.message || 'Failed to complete setup');
+      setError(err.message || t('FAILED_COMPLETE_SETUP'));
     } finally {
       setSubmitting(false);
     }
@@ -115,7 +119,7 @@ export default function StaffSetup() {
                 <BadgeIcon color="primary" sx={{ fontSize: 40, mr: 2 }} />
               )}
               <Typography variant="h4" component="h1">
-                {success ? 'Welcome to Apyvyra!' : 'Complete Your Account Setup'}
+                {success ? t('TITLE_SUCCESS') : t('TITLE')}
               </Typography>
             </Box>
 
@@ -129,10 +133,10 @@ export default function StaffSetup() {
               <Box sx={{ textAlign: 'center' }}>
                 <Alert severity="success" sx={{ mb: 3 }}>
                   <Typography variant="body1" sx={{ mb: 1 }}>
-                    Your account has been set up successfully!
+                    {t('SETUP_SUCCESS')}
                   </Typography>
                   <Typography variant="body2" sx={{ mb: 2 }}>
-                    You can now log in with your email and password to access the Apyvyra admin panel.
+                    {t('LOGIN_ACCESS_MESSAGE')}
                   </Typography>
                 </Alert>
                 <Button
@@ -141,31 +145,31 @@ export default function StaffSetup() {
                   onClick={handleNavigateToLogin}
                   sx={{ mt: 2 }}
                 >
-                  Go to Login
+                  {t('GO_TO_LOGIN')}
                 </Button>
               </Box>
             ) : setupInfo?.isValid ? (
               <>
                 <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>
-                  Welcome, <strong>{setupInfo.fullName}</strong>! Please set your password to complete your account setup.
+                  {t('WELCOME_MESSAGE', { fullName: setupInfo.fullName || '' })}
                 </Typography>
 
                 <Box component="form" onSubmit={handleSubmit} noValidate>
                   <TextField
-                    margin="normal"
+                    margin="dense"
                     fullWidth
-                    label="Email Address"
+                    label={t('EMAIL_ADDRESS')}
                     type="email"
                     value={setupInfo.email}
                     disabled
                     sx={{ mb: 2 }}
                   />
                   <TextField
-                    margin="normal"
+                    margin="dense"
                     required
                     fullWidth
                     name="password"
-                    label="Password"
+                    label={t('PASSWORD')}
                     type="password"
                     autoComplete="new-password"
                     value={password}
@@ -174,14 +178,14 @@ export default function StaffSetup() {
                       setError(null);
                     }}
                     disabled={submitting}
-                    helperText="Minimum 6 characters"
+                    helperText={t('PASSWORD_HELPER')}
                   />
                   <TextField
-                    margin="normal"
+                    margin="dense"
                     required
                     fullWidth
                     name="confirmPassword"
-                    label="Confirm Password"
+                    label={t('CONFIRM_PASSWORD')}
                     type="password"
                     autoComplete="new-password"
                     value={confirmPassword}
@@ -198,17 +202,17 @@ export default function StaffSetup() {
                     sx={{ mt: 3, mb: 2 }}
                     disabled={submitting}
                   >
-                    {submitting ? <CircularProgress size={24} /> : 'Complete Setup'}
+                    {submitting ? <CircularProgress size={24} /> : t('COMPLETE_SETUP')}
                   </Button>
                 </Box>
               </>
             ) : (
               <Box sx={{ textAlign: 'center' }}>
                 <Alert severity="warning" sx={{ mb: 3 }}>
-                  {error || 'This invitation link is invalid or has expired.'}
+                  {error || t('INVALID_LINK')}
                 </Alert>
                 <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-                  Please contact your administrator for a new invitation.
+                  {t('CONTACT_ADMIN')}
                 </Typography>
                 <Link
                   component="button"
@@ -216,7 +220,7 @@ export default function StaffSetup() {
                   onClick={handleNavigateToLogin}
                   sx={{ cursor: 'pointer' }}
                 >
-                  Go to Login
+                  {t('GO_TO_LOGIN')}
                 </Link>
               </Box>
             )}

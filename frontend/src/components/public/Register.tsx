@@ -15,6 +15,7 @@ import {
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import { userService } from '../../services/userService';
 import { getErrorMessages } from '../../utils/apiErrorHandler';
+import { useTranslation } from '../../hooks/useTranslation';
 
 interface RegisterProps {
   onNavigateToLogin?: () => void;
@@ -27,6 +28,9 @@ interface RegisterFormData {
 }
 
 export default function Register({ onNavigateToLogin }: RegisterProps) {
+  const { t } = useTranslation('Register');
+  const { t: tCommon } = useTranslation('Common');
+  
   const [formData, setFormData] = useState<RegisterFormData>({
     email: '',
     password: '',
@@ -47,22 +51,22 @@ export default function Register({ onNavigateToLogin }: RegisterProps) {
 
   const validateForm = (): boolean => {
     if (!formData.email || !formData.password || !formData.confirmPassword) {
-      setError('All fields are required');
+      setError(tCommon('ALL_FIELDS_REQUIRED'));
       return false;
     }
 
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      setError('Please enter a valid email address');
+      setError(tCommon('INVALID_EMAIL'));
       return false;
     }
 
     if (formData.password.length < 6) {
-      setError('Password must be at least 6 characters long');
+      setError(tCommon('PASSWORD_MIN_LENGTH'));
       return false;
     }
 
     if (formData.password !== formData.confirmPassword) {
-      setError('Passwords do not match');
+      setError(tCommon('PASSWORDS_NOT_MATCH'));
       return false;
     }
 
@@ -92,7 +96,7 @@ export default function Register({ onNavigateToLogin }: RegisterProps) {
       // Remove automatic redirect - user will click the link to navigate to login
     } catch (err) {
       const errorMessages = getErrorMessages(err);
-      setError(errorMessages[0] || 'An error occurred during registration');
+      setError(errorMessages[0] || t('REGISTRATION_ERROR'));
     } finally {
       setLoading(false);
     }
@@ -106,7 +110,7 @@ export default function Register({ onNavigateToLogin }: RegisterProps) {
             <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
               <PersonAddIcon color="primary" sx={{ fontSize: 40, mr: 2 }} />
               <Typography variant="h4" component="h1">
-                {success ? 'Account Created!' : 'Create Account'}
+                {success ? t('TITLE_SUCCESS') : t('TITLE')}
               </Typography>
             </Box>
 
@@ -120,13 +124,13 @@ export default function Register({ onNavigateToLogin }: RegisterProps) {
               <Box sx={{ textAlign: 'center' }}>
                 <Alert severity="success" sx={{ mb: 3 }}>
                   <Typography variant="body1" sx={{ mb: 1 }}>
-                    Registration successful! Please check your email to confirm your account.
+                    {t('REGISTRATION_SUCCESS')}
                   </Typography>
                   <Typography variant="body2" sx={{ mb: 2 }}>
-                    We've sent a confirmation link to your email address. Click the link to activate your account.
+                    {t('CONFIRMATION_SENT')}
                   </Typography>
                   <Typography variant="body2" sx={{ mb: 2 }}>
-                    If you don't see the email, check your spam folder.
+                    {t('CHECK_SPAM')}
                   </Typography>
                   <Link
                     component="button"
@@ -134,7 +138,7 @@ export default function Register({ onNavigateToLogin }: RegisterProps) {
                     onClick={onNavigateToLogin}
                     sx={{ cursor: 'pointer', fontWeight: 'bold', textDecoration: 'underline' }}
                   >
-                    After confirming, click here to log in
+                    {t('AFTER_CONFIRMING_LOGIN')}
                   </Link>
                 </Alert>
               </Box>
@@ -145,7 +149,7 @@ export default function Register({ onNavigateToLogin }: RegisterProps) {
                 required
                 fullWidth
                 id="email"
-                label="Email Address"
+                label={t('EMAIL_ADDRESS')}
                 name="email"
                 type="email"
                 autoComplete="email"
@@ -159,21 +163,21 @@ export default function Register({ onNavigateToLogin }: RegisterProps) {
                 required
                 fullWidth
                 name="password"
-                label="Password"
+                label={t('PASSWORD')}
                 type="password"
                 id="password"
                 autoComplete="new-password"
                 value={formData.password}
                 onChange={handleChange}
                 disabled={loading || success}
-                helperText="Minimum 6 characters"
+                helperText={t('PASSWORD_HELPER')}
               />
               <TextField
                 margin="normal"
                 required
                 fullWidth
                 name="confirmPassword"
-                label="Confirm Password"
+                label={t('CONFIRM_PASSWORD')}
                 type="password"
                 id="confirmPassword"
                 autoComplete="new-password"
@@ -188,12 +192,12 @@ export default function Register({ onNavigateToLogin }: RegisterProps) {
                 sx={{ mt: 3, mb: 2 }}
                 disabled={loading || success}
               >
-                {loading ? <CircularProgress size={24} /> : 'Sign Up'}
+                {loading ? <CircularProgress size={24} /> : t('SIGN_UP_BUTTON')}
               </Button>
 
               <Box sx={{ textAlign: 'center', mt: 2 }}>
                 <Typography variant="body2" color="text.secondary">
-                  Already have an account?{' '}
+                  {t('ALREADY_HAVE_ACCOUNT')}{' '}
                   <Link
                     component="button"
                     variant="body2"
@@ -201,7 +205,7 @@ export default function Register({ onNavigateToLogin }: RegisterProps) {
                     onClick={onNavigateToLogin}
                     sx={{ cursor: 'pointer' }}
                   >
-                    Sign in
+                    {t('SIGN_IN')}
                   </Link>
                 </Typography>
               </Box>

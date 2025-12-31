@@ -23,6 +23,9 @@ builder.Services.AddScoped<IStripeService, StripeService>();
 builder.Services.AddScoped<IGoogleMapsService, GoogleMapsService>();
 builder.Services.AddHttpClient();
 
+// Configure Translation Service
+builder.Services.AddSingleton<ITranslationService, TranslationService>();
+
 // Add DbContext
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));

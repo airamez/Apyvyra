@@ -1,0 +1,20 @@
+{
+  "TITLE": "My Orders",
+  "NO_ORDERS": "You haven't placed any orders yet.",
+  "FAILED_LOAD_ORDERS": "Failed to load orders",
+  "ORDER_NUMBER": "Order #",
+  "DATE": "Date",
+  "STATUS": "Status",
+  "ITEMS": "Items",
+  "TOTAL": "Total",
+  "ORDER_ITEMS": "Order Items",
+  "PRODUCT": "Product",
+  "QTY": "Qty",
+  "UNIT_PRICE": "Unit Price",
+  "TAX": "Tax",
+  "SHIPPING_ADDRESS": "Shipping Address",
+  "SUBTOTAL": "Subtotal:",
+  "TAX_LABEL": "Tax:",
+  "TOTAL_LABEL": "Total:",
+  "NOTES": "Notes"
+}

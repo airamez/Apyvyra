@@ -1,0 +1,13 @@
+{
+  "REQUIRED": "This field is required",
+  "INVALID_EMAIL": "Please enter a valid email address",
+  "PASSWORD_MIN_LENGTH": "Password must be at least 6 characters long",
+  "PASSWORDS_NOT_MATCH": "Passwords do not match",
+  "ALL_FIELDS_REQUIRED": "All fields are required",
+  "INVALID_PHONE": "Please enter a valid phone number",
+  "INVALID_URL": "Please enter a valid URL",
+  "MIN_VALUE": "Value must be at least {min}",
+  "MAX_VALUE": "Value must be at most {max}",
+  "MIN_LENGTH": "Must be at least {min} characters",
+  "MAX_LENGTH": "Must be at most {max} characters"
+}

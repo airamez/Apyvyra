@@ -30,8 +30,12 @@ import SendIcon from '@mui/icons-material/Send';
 import { staffService, type Staff as StaffType, type CreateStaffData, type UpdateStaffData } from '../../services/staffService';
 import FilterComponent, { type FilterValues } from './FilterComponent';
 import { staffFilterConfig } from '../../config/filterConfigs';
+import { useTranslation } from '../../hooks/useTranslation';
 
 export default function Staff() {
+  const { t } = useTranslation('Staff');
+  const { t: tCommon } = useTranslation('Common');
+  
   const [staff, setStaff] = useState<StaffType[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -302,11 +306,11 @@ export default function Staff() {
         <Box sx={{ display: 'flex', alignItems: 'center' }}>
           <BadgeIcon sx={{ fontSize: 40, mr: 2, color: 'primary.main' }} />
           <Typography variant="h4" component="h1">
-            Staff
+            {t('TITLE')}
           </Typography>
         </Box>
         <Button variant="contained" startIcon={<PersonAddIcon />} onClick={handleOpenAddDialog}>
-          Add Staff
+          {t('ADD_STAFF')}
         </Button>
       </Box>
 
@@ -336,8 +340,8 @@ export default function Staff() {
       <Card>
         <CardContent>
           <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
-            <Typography variant="h6">Staff Members</Typography>
-            <Chip label={`${staff.length} staff`} color="primary" />
+            <Typography variant="h6">{t('STAFF_MEMBERS')}</Typography>
+            <Chip label={`${staff.length} ${t('STAFF_COUNT')}`} color="primary" />
           </Box>
           {loading ? (
             <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}>
@@ -345,7 +349,7 @@ export default function Staff() {
             </Box>
           ) : staff.length === 0 ? (
             <Typography variant="body2" color="text.secondary">
-              No staff members found. Start by adding your first staff member.
+              {t('NO_STAFF')}
             </Typography>
           ) : (
             <Box sx={{ width: '100%', mt: 2 }}>
@@ -384,15 +388,15 @@ export default function Staff() {
 
       {/* Add Staff Dialog */}
       <Dialog open={addDialogOpen} onClose={handleCloseAddDialog} maxWidth="sm" fullWidth>
-        <DialogTitle>Add New Staff Member</DialogTitle>
+        <DialogTitle>{t('ADD_DIALOG_TITLE')}</DialogTitle>
         <DialogContent>
           <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-            Enter the staff member's details. They will receive an invitation email to set up their password.
+            {t('ADD_DIALOG_MESSAGE')}
           </Typography>
           <TextField
             autoFocus
             margin="dense"
-            label="Full Name"
+            label={t('FULL_NAME')}
             type="text"
             fullWidth
             required
@@ -402,7 +406,7 @@ export default function Staff() {
           />
           <TextField
             margin="dense"
-            label="Email Address"
+            label={t('EMAIL_ADDRESS')}
             type="email"
             fullWidth
             required
@@ -411,20 +415,20 @@ export default function Staff() {
           />
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleCloseAddDialog} disabled={formLoading}>Cancel</Button>
+          <Button onClick={handleCloseAddDialog} disabled={formLoading}>{tCommon('CANCEL')}</Button>
           <Button onClick={handleAddStaff} variant="contained" disabled={formLoading}>
-            {formLoading ? <CircularProgress size={24} /> : 'Add & Send Invitation'}
+            {formLoading ? <CircularProgress size={24} /> : t('ADD_SEND_INVITATION')}
           </Button>
         </DialogActions>
       </Dialog>
 
       {/* Edit Staff Dialog */}
       <Dialog open={editDialogOpen} onClose={handleCloseEditDialog} maxWidth="sm" fullWidth>
-        <DialogTitle>Edit Staff Member</DialogTitle>
+        <DialogTitle>{t('EDIT_DIALOG_TITLE')}</DialogTitle>
         <DialogContent>
           <TextField
             margin="dense"
-            label="Email Address"
+            label={t('EMAIL_ADDRESS')}
             type="email"
             fullWidth
             disabled
@@ -434,7 +438,7 @@ export default function Staff() {
           <TextField
             autoFocus
             margin="dense"
-            label="Full Name"
+            label={t('FULL_NAME')}
             type="text"
             fullWidth
             required
@@ -443,41 +447,41 @@ export default function Staff() {
             sx={{ mb: 2 }}
           />
           <FormControl fullWidth margin="dense">
-            <InputLabel>Status</InputLabel>
+            <InputLabel>{t('STATUS')}</InputLabel>
             <Select
               value={editFormData.status}
-              label="Status"
+              label={t('STATUS')}
               onChange={(e) => setEditFormData({ ...editFormData, status: e.target.value as number })}
             >
-              <MenuItem value={0}>Pending Confirmation</MenuItem>
-              <MenuItem value={1}>Active</MenuItem>
-              <MenuItem value={2}>Inactive</MenuItem>
+              <MenuItem value={0}>{t('PENDING_CONFIRMATION')}</MenuItem>
+              <MenuItem value={1}>{t('ACTIVE')}</MenuItem>
+              <MenuItem value={2}>{t('INACTIVE')}</MenuItem>
             </Select>
           </FormControl>
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleCloseEditDialog} disabled={formLoading}>Cancel</Button>
+          <Button onClick={handleCloseEditDialog} disabled={formLoading}>{tCommon('CANCEL')}</Button>
           <Button onClick={handleUpdateStaff} variant="contained" disabled={formLoading}>
-            {formLoading ? <CircularProgress size={24} /> : 'Save Changes'}
+            {formLoading ? <CircularProgress size={24} /> : t('SAVE_CHANGES')}
           </Button>
         </DialogActions>
       </Dialog>
 
       {/* Delete Confirmation Dialog */}
       <Dialog open={deleteDialogOpen} onClose={handleCloseDeleteDialog} maxWidth="xs" fullWidth>
-        <DialogTitle>Delete Staff Member</DialogTitle>
+        <DialogTitle>{t('DELETE_DIALOG_TITLE')}</DialogTitle>
         <DialogContent>
           <Typography>
-            Are you sure you want to delete <strong>{selectedStaff?.fullName || selectedStaff?.email}</strong>?
+            {t('DELETE_CONFIRM', { name: selectedStaff?.fullName || selectedStaff?.email || '' })}
           </Typography>
           <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-            This action cannot be undone.
+            {tCommon('THIS_ACTION_CANNOT_BE_UNDONE')}
           </Typography>
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleCloseDeleteDialog} disabled={formLoading}>Cancel</Button>
+          <Button onClick={handleCloseDeleteDialog} disabled={formLoading}>{tCommon('CANCEL')}</Button>
           <Button onClick={handleDeleteStaff} color="error" variant="contained" disabled={formLoading}>
-            {formLoading ? <CircularProgress size={24} /> : 'Delete'}
+            {formLoading ? <CircularProgress size={24} /> : tCommon('DELETE')}
           </Button>
         </DialogActions>
       </Dialog>

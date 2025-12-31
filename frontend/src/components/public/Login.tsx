@@ -19,6 +19,7 @@ import {
 import LoginIcon from '@mui/icons-material/Login';
 import { authService } from '../../services/authService';
 import { API_ENDPOINTS } from '../../config/api';
+import { useTranslation } from '../../hooks/useTranslation';
 
 interface LoginProps {
   onNavigateToRegister?: () => void;
@@ -31,6 +32,9 @@ interface LoginFormData {
 }
 
 export default function Login({ onNavigateToRegister, onLoginSuccess }: LoginProps) {
+  const { t } = useTranslation('Login');
+  const { t: tCommon } = useTranslation('Common');
+  
   const [formData, setFormData] = useState<LoginFormData>({
     email: '',
     password: ''
@@ -54,12 +58,12 @@ export default function Login({ onNavigateToRegister, onLoginSuccess }: LoginPro
 
   const validateForm = (): boolean => {
     if (!formData.email || !formData.password) {
-      setError('All fields are required');
+      setError(tCommon('ALL_FIELDS_REQUIRED'));
       return false;
     }
 
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      setError('Please enter a valid email address');
+      setError(tCommon('INVALID_EMAIL'));
       return false;
     }
 
@@ -89,7 +93,7 @@ export default function Login({ onNavigateToRegister, onLoginSuccess }: LoginPro
       }
       
     } catch (err) {
-      let errorMessage = 'An error occurred during login';
+      let errorMessage = t('LOGIN_ERROR');
       
       // Handle ApiError structure
       if (err && typeof err === 'object' && 'errors' in err) {
@@ -130,10 +134,10 @@ export default function Login({ onNavigateToRegister, onLoginSuccess }: LoginPro
       if (response.ok) {
         setResendMessage(data);
       } else {
-        setResendMessage('Failed to resend confirmation email. Please try again.');
+        setResendMessage(t('FAILED_RESEND'));
       }
     } catch (err) {
-      setResendMessage('An error occurred. Please try again later.');
+      setResendMessage(t('RESEND_ERROR'));
     } finally {
       setResendLoading(false);
     }
@@ -152,7 +156,7 @@ export default function Login({ onNavigateToRegister, onLoginSuccess }: LoginPro
             <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', mb: 3 }}>
               <LoginIcon sx={{ fontSize: 40, mr: 2, color: 'primary.main' }} />
               <Typography component="h1" variant="h4">
-                Login
+                {t('TITLE')}
               </Typography>
             </Box>
 
@@ -164,7 +168,7 @@ export default function Login({ onNavigateToRegister, onLoginSuccess }: LoginPro
 
             {success && (
               <Alert severity="success" sx={{ mb: 2 }}>
-                Login successful! Welcome back.
+                {t('LOGIN_SUCCESS')}
               </Alert>
             )}
 
@@ -174,7 +178,7 @@ export default function Login({ onNavigateToRegister, onLoginSuccess }: LoginPro
                 required
                 fullWidth
                 id="email"
-                label="Email Address"
+                label={t('EMAIL_ADDRESS')}
                 name="email"
                 autoComplete="email"
                 autoFocus
@@ -188,7 +192,7 @@ export default function Login({ onNavigateToRegister, onLoginSuccess }: LoginPro
                 required
                 fullWidth
                 name="password"
-                label="Password"
+                label={t('PASSWORD')}
                 type="password"
                 id="password"
                 autoComplete="current-password"
@@ -205,12 +209,12 @@ export default function Login({ onNavigateToRegister, onLoginSuccess }: LoginPro
                 disabled={loading || success}
                 startIcon={loading ? <CircularProgress size={20} /> : <LoginIcon />}
               >
-                {loading ? 'Logging in...' : 'Login'}
+                {loading ? t('LOGGING_IN') : t('LOGIN_BUTTON')}
               </Button>
 
               <Box sx={{ textAlign: 'center', mt: 2 }}>
                 <Typography variant="body2" color="text.secondary">
-                  Don't have an account?{' '}
+                  {t('DONT_HAVE_ACCOUNT')}{' '}
                   <Link
                     component="button"
                     variant="body2"
@@ -220,7 +224,7 @@ export default function Login({ onNavigateToRegister, onLoginSuccess }: LoginPro
                     }}
                     sx={{ cursor: 'pointer' }}
                   >
-                    Sign up here
+                    {t('SIGN_UP_HERE')}
                   </Link>
                 </Typography>
               </Box>
@@ -230,12 +234,12 @@ export default function Login({ onNavigateToRegister, onLoginSuccess }: LoginPro
             <Dialog open={showResendDialog} onClose={handleCloseResendDialog} maxWidth="sm" fullWidth>
               <DialogTitle>
                 <Typography variant="h6" component="div">
-                  📧 Email Confirmation Required
+                  📧 {t('EMAIL_CONFIRMATION_REQUIRED')}
                 </Typography>
               </DialogTitle>
               <DialogContent>
                 <Typography variant="body2" sx={{ mb: 2 }}>
-                  Check your inbox for the confirmation email. If you don't see it, you can request a new one below.
+                  {t('CHECK_INBOX_MESSAGE')}
                 </Typography>
                 
                 {resendMessage && (
@@ -247,7 +251,7 @@ export default function Login({ onNavigateToRegister, onLoginSuccess }: LoginPro
                 {!resendMessage && (
                   <Box>
                     <Typography variant="body2" sx={{ mb: 1, fontWeight: 'bold' }}>
-                      Resend confirmation email to:
+                      {t('RESEND_CONFIRMATION_TO')}
                     </Typography>
                     <Typography variant="body2" sx={{ mb: 2, color: 'text.secondary' }}>
                       {resendEmail}
@@ -257,7 +261,7 @@ export default function Login({ onNavigateToRegister, onLoginSuccess }: LoginPro
               </DialogContent>
               <DialogActions sx={{ p: 3 }}>
                 <Button onClick={handleCloseResendDialog} disabled={resendLoading}>
-                  {resendMessage ? 'Close' : 'Cancel'}
+                  {resendMessage ? tCommon('CLOSE') : tCommon('CANCEL')}
                 </Button>
                 {!resendMessage && (
                   <Button 
@@ -266,7 +270,7 @@ export default function Login({ onNavigateToRegister, onLoginSuccess }: LoginPro
                     disabled={resendLoading}
                     startIcon={resendLoading ? <CircularProgress size={20} /> : null}
                   >
-                    {resendLoading ? 'Sending...' : 'Resend Email'}
+                    {resendLoading ? t('SENDING') : t('RESEND_EMAIL')}
                   </Button>
                 )}
               </DialogActions>

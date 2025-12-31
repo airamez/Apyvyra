@@ -1,0 +1,17 @@
+{
+  "TITLE": "Complete Your Account Setup",
+  "TITLE_SUCCESS": "Welcome to Apyvyra!",
+  "WELCOME_MESSAGE": "Welcome, {fullName}! Please set your password to complete your account setup.",
+  "EMAIL_ADDRESS": "Email Address",
+  "PASSWORD": "Password",
+  "PASSWORD_HELPER": "Minimum 6 characters",
+  "CONFIRM_PASSWORD": "Confirm Password",
+  "COMPLETE_SETUP": "Complete Setup",
+  "SETUP_SUCCESS": "Your account has been set up successfully!",
+  "LOGIN_ACCESS_MESSAGE": "You can now log in with your email and password to access the Apyvyra admin panel.",
+  "GO_TO_LOGIN": "Go to Login",
+  "INVALID_LINK": "This invitation link is invalid or has expired.",
+  "CONTACT_ADMIN": "Please contact your administrator for a new invitation.",
+  "FAILED_LOAD_INFO": "Failed to load setup information",
+  "FAILED_COMPLETE_SETUP": "Failed to complete setup"
+}

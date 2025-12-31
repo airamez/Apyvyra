@@ -207,6 +207,138 @@ For live applications with real address validation.
 
 > **Important**: Never commit API keys to version control. Use environment variables or secrets management in production.
 
+## Internationalization (i18n) / Translation System
+
+Apyvyra includes a **backend-driven translation system** that allows the application to be deployed in different languages. The language is configured in `appsettings.json` and all translations are served from the backend.
+
+### Architecture Overview
+
+```
+Backend (Translation Service)
+├── Resources/Translations/
+│   ├── en-US/           # English (US) translations
+│   │   ├── Common.json
+│   │   ├── Login.json
+│   │   ├── Register.json
+│   │   └── ...
+│   ├── es-MX/           # Spanish (Mexico) - add as needed
+│   └── pt-BR/           # Portuguese (Brazil) - add as needed
+│
+Frontend (Translation Hook)
+├── useTranslation('ComponentName')  # Fetches and caches translations
+└── t('KEY')                         # Returns translated string
+```
+
+### Configuration
+
+**Backend** (`appsettings.json`):
+```json
+{
+  "Localization": {
+    "Language": "en-US",
+    "ResourcePath": "Resources/Translations"
+  }
+}
+```
+
+### Translation File Format
+
+Each component has its own JSON file with key-value pairs:
+
+**Example** (`Resources/Translations/en-US/Login.json`):
+```json
+{
+  "TITLE": "Login",
+  "EMAIL_ADDRESS": "Email Address",
+  "PASSWORD": "Password",
+  "LOGIN_BUTTON": "Login",
+  "LOGGING_IN": "Logging in...",
+  "LOGIN_SUCCESS": "Login successful! Welcome back.",
+  "DONT_HAVE_ACCOUNT": "Don't have an account?",
+  "SIGN_UP_HERE": "Sign up here"
+}
+```
+
+### Frontend Usage
+
+```tsx
+import { useTranslation } from '../../hooks/useTranslation';
+
+export default function Login() {
+  const { t } = useTranslation('Login');
+  const { t: tCommon } = useTranslation('Common');
+
+  return (
+    <TextField label={t('EMAIL_ADDRESS')} />
+    <Button>{t('LOGIN_BUTTON')}</Button>
+    <Button>{tCommon('CANCEL')}</Button>
+  );
+}
+```
+
+### Parameter Substitution
+
+Translations support parameter substitution using `{paramName}` syntax:
+
+**Translation file**:
+```json
+{
+  "WELCOME_MESSAGE": "Welcome, {fullName}!"
+}
+```
+
+**Usage**:
+```tsx
+t('WELCOME_MESSAGE', { fullName: 'John Doe' })
+// Returns: "Welcome, John Doe!"
+```
+
+### Adding a New Language
+
+1. Create a new folder under `Resources/Translations/` (e.g., `es-MX/`)
+2. Copy all JSON files from `en-US/` to the new folder
+3. Translate all values in the JSON files
+4. Update `appsettings.json` to use the new language:
+   ```json
+   {
+     "Localization": {
+       "Language": "es-MX"
+     }
+   }
+   ```
+
+### API Endpoints
+
+| Endpoint | Description |
+|----------|-------------|
+| `GET /api/translation/language` | Returns current language |
+| `GET /api/translation/{component}` | Returns translations for a component |
+
+### Available Translation Files
+
+| Component | Description |
+|-----------|-------------|
+| `Common` | Shared strings (Cancel, Save, Delete, etc.) |
+| `Login` | Login page |
+| `Register` | Registration page |
+| `EmailConfirmation` | Email confirmation page |
+| `StaffSetup` | Staff account setup |
+| `WelcomePage` | Welcome/home page |
+| `Store` | Product store |
+| `ShoppingCart` | Shopping cart |
+| `Checkout` | Checkout process |
+| `Payment` | Payment page |
+| `MyOrders` | Customer orders |
+| `Dashboard` | Admin dashboard |
+| `Staff` | Staff management |
+| `Products` | Product management |
+| `Categories` | Category management |
+| `Customers` | Customer management |
+| `OrderManagement` | Order management |
+| `Navigation` | Menu/navigation items |
+| `Validation` | Validation messages |
+| `UserProfile` | User profile |
+
 ## Stripe Payment Configuration
 
 Apyvyra integrates with **Stripe** for payment processing. You have three configuration options depending on your development stage:

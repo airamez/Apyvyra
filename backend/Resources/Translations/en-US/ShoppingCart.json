@@ -1,0 +1,16 @@
+{
+  "TITLE": "Shopping Cart",
+  "CONTINUE_SHOPPING": "Continue Shopping",
+  "CLEAR_CART": "Clear Cart",
+  "EMPTY_CART": "Your cart is empty. Start shopping to add items!",
+  "PRODUCT": "Product",
+  "PRICE": "Price",
+  "QTY": "Qty",
+  "TAX": "Tax",
+  "TOTAL": "Total",
+  "ORDER_SUMMARY": "Order Summary",
+  "SUBTOTAL": "Subtotal:",
+  "TAX_LABEL": "Tax:",
+  "TOTAL_LABEL": "Total:",
+  "PROCEED_TO_CHECKOUT": "Proceed to Checkout"
+}

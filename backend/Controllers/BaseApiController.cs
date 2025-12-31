@@ -127,4 +127,12 @@ public abstract class BaseApiController : ControllerBase
         HttpContext.Items["TotalCount"] = totalCount;
         HttpContext.Items["HasMoreRecords"] = hasMoreRecords;
     }
+
+    /// <summary>
+    /// Returns an Ok result with success wrapper
+    /// </summary>
+    protected ActionResult OkWithSuccess<T>(T data)
+    {
+        return Ok(new { data, success = true });
+    }
 }

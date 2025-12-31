@@ -31,12 +31,16 @@ import RemoveIcon from '@mui/icons-material/Remove';
 import { productService, type Product } from '../../services/productService';
 import { categoryService, type ProductCategory } from '../../services/categoryService';
 import { cartService, type CartItem } from '../../services/cartService';
+import { useTranslation } from '../../hooks/useTranslation';
 
 interface StoreProps {
   onViewCart: () => void;
 }
 
 export default function Store({ onViewCart }: StoreProps) {
+  const { t } = useTranslation('Store');
+  const { t: tCommon } = useTranslation('Common');
+  
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<ProductCategory[]>([]);
   const [loading, setLoading] = useState(true);
@@ -192,7 +196,7 @@ export default function Store({ onViewCart }: StoreProps) {
           )}
 
           <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5, fontSize: '0.75rem' }} noWrap>
-            {product.description || 'No description'}
+            {product.description || t('NO_DESCRIPTION')}
           </Typography>
 
           {/* Price, Quantity and Add to Cart */}
@@ -224,7 +228,7 @@ export default function Store({ onViewCart }: StoreProps) {
               onClick={() => addToCart(product)}
               sx={{ minWidth: '60px', fontSize: '0.75rem', px: 1 }}
             >
-              Add
+              {t('ADD')}
             </Button>
           </Box>
         </CardContent>
@@ -234,25 +238,25 @@ export default function Store({ onViewCart }: StoreProps) {
           <Box sx={{ px: 1.5, pb: 1 }}>
             {product.brand && (
               <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.3 }}>
-                <strong>Brand:</strong> {product.brand}
+                <strong>{t('BRAND')}:</strong> {product.brand}
               </Typography>
             )}
             
             {product.manufacturer && (
               <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.3 }}>
-                <strong>Manufacturer:</strong> {product.manufacturer}
+                <strong>{t('MANUFACTURER')}:</strong> {product.manufacturer}
               </Typography>
             )}
             
             {product.dimensions && (
               <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.3 }}>
-                <strong>Dimensions:</strong> {product.dimensions}
+                <strong>{t('DIMENSIONS')}:</strong> {product.dimensions}
               </Typography>
             )}
             
             {product.weight && (
               <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.3 }}>
-                <strong>Weight:</strong> {product.weight}
+                <strong>{t('WEIGHT')}:</strong> {product.weight}
               </Typography>
             )}
           </Box>
@@ -262,12 +266,12 @@ export default function Store({ onViewCart }: StoreProps) {
         {product.productUrls && product.productUrls.length > 0 && (
           <Box sx={{ px: 1.5, pb: 1.5, pt: 1, borderTop: '1px solid #eee' }}>
             <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 'bold', display: 'block', mb: 0.5 }}>
-              Resources:
+              {t('RESOURCES')}:
             </Typography>
             {product.productUrls.map((url, index) => (
               <Box key={url.id} sx={{ mb: 0.3 }}>
                 <Typography variant="caption" color="text.secondary" sx={{ display: 'block' }}>
-                  <strong>{url.urlType === 0 ? 'Image' : url.urlType === 1 ? 'Video' : 'Manual'}:</strong>{' '}
+                  <strong>{url.urlType === 0 ? t('IMAGE') : url.urlType === 1 ? t('VIDEO') : t('MANUAL')}:</strong>{' '}
                   <Link 
                     href={url.url} 
                     target="_blank" 
@@ -278,7 +282,7 @@ export default function Store({ onViewCart }: StoreProps) {
                       '&:hover': { color: 'primary.dark' }
                     }}
                   >
-                    {url.altText || `Resource ${index + 1}`}
+                    {url.altText || t('RESOURCE', { index: index + 1 })}
                   </Link>
                 </Typography>
               </Box>
@@ -295,7 +299,7 @@ export default function Store({ onViewCart }: StoreProps) {
       <Box sx={{ display: 'flex', gap: 2, mb: 2, alignItems: 'center', flexWrap: 'wrap' }}>
         <TextField
           size="small"
-          placeholder="Search products..."
+          placeholder={t('SEARCH_PRODUCTS')}
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           onKeyPress={handleKeyPress}
@@ -310,13 +314,13 @@ export default function Store({ onViewCart }: StoreProps) {
         />
         
         <FormControl size="small" sx={{ minWidth: 150 }}>
-          <InputLabel>Category</InputLabel>
+          <InputLabel>{t('CATEGORY')}</InputLabel>
           <Select
             value={selectedCategory}
-            label="Category"
+            label={t('CATEGORY')}
             onChange={(e) => setSelectedCategory(e.target.value as number | '')}
           >
-            <MenuItem value="">All Categories</MenuItem>
+            <MenuItem value="">{t('ALL_CATEGORIES')}</MenuItem>
             {categories.map((cat) => (
               <MenuItem key={cat.id} value={cat.id}>{cat.name}</MenuItem>
             ))}
@@ -325,7 +329,7 @@ export default function Store({ onViewCart }: StoreProps) {
 
         <TextField
           size="small"
-          placeholder="Brand..."
+          placeholder={t('BRAND_PLACEHOLDER')}
           value={searchBrand}
           onChange={(e) => setSearchBrand(e.target.value)}
           onKeyPress={handleKeyPress}
@@ -334,7 +338,7 @@ export default function Store({ onViewCart }: StoreProps) {
 
         <TextField
           size="small"
-          placeholder="Manufacturer..."
+          placeholder={t('MANUFACTURER_PLACEHOLDER')}
           value={searchManufacturer}
           onChange={(e) => setSearchManufacturer(e.target.value)}
           onKeyPress={handleKeyPress}
@@ -347,7 +351,7 @@ export default function Store({ onViewCart }: StoreProps) {
           onClick={handleSearch}
           startIcon={<SearchIcon />}
         >
-          Search
+          {t('SEARCH')}
         </Button>
 
         <Button
@@ -356,7 +360,7 @@ export default function Store({ onViewCart }: StoreProps) {
           onClick={handleReset}
           startIcon={<ClearIcon />}
         >
-          Reset
+          {t('RESET')}
         </Button>
 
         <Box sx={{ flexGrow: 1 }} />
@@ -370,15 +374,15 @@ export default function Store({ onViewCart }: StoreProps) {
             </Badge>
           }
         >
-          Cart
+          {t('CART')}
         </Button>
       </Box>
 
       {/* Products Grid */}
       {loading ? (
-        <Typography>Loading products...</Typography>
+        <Typography>{t('LOADING_PRODUCTS')}</Typography>
       ) : products.length === 0 ? (
-        <Typography color="text.secondary">No products found. Try adjusting your search.</Typography>
+        <Typography color="text.secondary">{t('NO_PRODUCTS_FOUND')}</Typography>
       ) : (
         <Grid container spacing={2}>
           {products.map((product) => (

@@ -190,7 +190,7 @@ public class GoogleMapsService : IGoogleMapsService
             
             foreach (var type in types)
             {
-                if (!addressComponents.ContainsKey(type))
+                if (!string.IsNullOrEmpty(type) && !addressComponents.ContainsKey(type))
                 {
                     addressComponents[type] = new { long_name = longName, short_name = shortName };
                 }

@@ -1,0 +1,21 @@
+{
+  "TITLE": "Categories",
+  "ADD_CATEGORY": "Add Category",
+  "CATEGORY_LIST": "Category List",
+  "CATEGORY_COUNT": "{count} categories",
+  "NO_CATEGORIES": "No categories found. Start by adding your first category.",
+  "FAILED_LOAD_CATEGORIES": "Failed to load categories. Please try again.",
+  "NAME": "Name",
+  "DESCRIPTION": "Description",
+  "PARENT_CATEGORY": "Parent Category",
+  "STATUS": "Status",
+  "ACTIVE": "Active",
+  "INACTIVE": "Inactive",
+  "ACTIONS": "Actions",
+  "ADD_DIALOG_TITLE": "Add New Category",
+  "EDIT_DIALOG_TITLE": "Edit Category",
+  "DELETE_DIALOG_TITLE": "Delete Category",
+  "DELETE_CONFIRM": "Are you sure you want to delete {name}?",
+  "FAILED_DELETE_CATEGORY": "Failed to delete category",
+  "FAILED_SAVE_CATEGORY": "Failed to save category"
+}

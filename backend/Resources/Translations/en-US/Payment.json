@@ -1,0 +1,21 @@
+{
+  "TITLE": "Payment",
+  "BACK": "Back",
+  "BACK_TO_CHECKOUT": "Back to Checkout",
+  "INITIALIZING_PAYMENT": "Initializing payment...",
+  "FAILED_INITIALIZE": "Failed to initialize payment",
+  "PAYMENT_NOT_CONFIGURED": "Payment system is not configured. Please contact support.",
+  "TEST_MODE_MESSAGE": "Test Mode: Use card number 4242 4242 4242 4242 with any future expiry date and any CVC.",
+  "MOCK_MODE_TITLE": "Mock Payment Mode",
+  "MOCK_MODE_MESSAGE": "This is a simulated payment for testing purposes. No real payment will be processed.",
+  "CARD_NUMBER": "Card Number",
+  "EXPIRY_DATE": "Expiry Date",
+  "CVC": "CVC",
+  "CARDHOLDER_NAME": "Cardholder Name",
+  "PAY_NOW": "Pay Now",
+  "PROCESSING": "Processing...",
+  "PAYMENT_SUCCESS": "Payment successful!",
+  "PAYMENT_FAILED": "Payment failed. Please try again.",
+  "ORDER_NUMBER": "Order #",
+  "AMOUNT": "Amount"
+}

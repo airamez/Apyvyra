@@ -20,6 +20,7 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import ShoppingCartCheckoutIcon from '@mui/icons-material/ShoppingCartCheckout';
 import RemoveShoppingCartIcon from '@mui/icons-material/RemoveShoppingCart';
 import { cartService, type CartSummary } from '../../services/cartService';
+import { useTranslation } from '../../hooks/useTranslation';
 
 interface ShoppingCartProps {
   onBackToStore: () => void;
@@ -27,6 +28,9 @@ interface ShoppingCartProps {
 }
 
 export default function ShoppingCart({ onBackToStore, onCheckout }: ShoppingCartProps) {
+  const { t } = useTranslation('ShoppingCart');
+  const { t: tCommon } = useTranslation('Common');
+  
   const [cartSummary, setCartSummary] = useState<CartSummary>({ items: [], subtotal: 0, taxAmount: 0, total: 0, itemCount: 0 });
 
   useEffect(() => {
@@ -70,10 +74,10 @@ export default function ShoppingCart({ onBackToStore, onCheckout }: ShoppingCart
           variant="outlined"
           size="small"
         >
-          Continue Shopping
+          {t('CONTINUE_SHOPPING')}
         </Button>
         <Typography variant="h5" sx={{ flex: 1 }}>
-          Shopping Cart
+          {t('TITLE')}
         </Typography>
         {items.length > 0 && (
           <Button
@@ -83,14 +87,14 @@ export default function ShoppingCart({ onBackToStore, onCheckout }: ShoppingCart
             variant="outlined"
             size="small"
           >
-            Clear Cart
+            {t('CLEAR_CART')}
           </Button>
         )}
       </Box>
 
       {items.length === 0 ? (
         <Alert severity="info" sx={{ mt: 2 }}>
-          Your cart is empty. Start shopping to add items!
+          {t('EMPTY_CART')}
         </Alert>
       ) : (
         <>
@@ -99,11 +103,11 @@ export default function ShoppingCart({ onBackToStore, onCheckout }: ShoppingCart
             <Table size="small">
               <TableHead>
                 <TableRow sx={{ bgcolor: 'grey.100' }}>
-                  <TableCell>Product</TableCell>
-                  <TableCell align="right">Price</TableCell>
-                  <TableCell align="center">Qty</TableCell>
-                  <TableCell align="right">Tax</TableCell>
-                  <TableCell align="right">Total</TableCell>
+                  <TableCell>{t('PRODUCT')}</TableCell>
+                  <TableCell align="right">{t('PRICE')}</TableCell>
+                  <TableCell align="center">{t('QTY')}</TableCell>
+                  <TableCell align="right">{t('TAX')}</TableCell>
+                  <TableCell align="right">{t('TOTAL')}</TableCell>
                   <TableCell align="center" width={50}></TableCell>
                 </TableRow>
               </TableHead>
@@ -183,24 +187,24 @@ export default function ShoppingCart({ onBackToStore, onCheckout }: ShoppingCart
           {/* Cart Summary */}
           <Paper sx={{ p: 2, maxWidth: 350, ml: 'auto' }}>
             <Typography variant="h6" gutterBottom>
-              Order Summary
+              {t('ORDER_SUMMARY')}
             </Typography>
             <Divider sx={{ mb: 2 }} />
             
             <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
-              <Typography color="text.secondary">Subtotal:</Typography>
+              <Typography color="text.secondary">{t('SUBTOTAL')}:</Typography>
               <Typography>{formatPrice(subtotal)}</Typography>
             </Box>
             
             <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
-              <Typography color="text.secondary">Tax:</Typography>
+              <Typography color="text.secondary">{t('TAX_LABEL')}:</Typography>
               <Typography>{formatPrice(taxAmount)}</Typography>
             </Box>
             
             <Divider sx={{ my: 1 }} />
             
             <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
-              <Typography variant="h6">Total:</Typography>
+              <Typography variant="h6">{t('TOTAL_LABEL')}:</Typography>
               <Typography variant="h6" color="primary">
                 {formatPrice(total)}
               </Typography>
@@ -213,7 +217,7 @@ export default function ShoppingCart({ onBackToStore, onCheckout }: ShoppingCart
               startIcon={<ShoppingCartCheckoutIcon />}
               onClick={onCheckout}
             >
-              Proceed to Checkout
+              {t('PROCEED_TO_CHECKOUT')}
             </Button>
           </Paper>
         </>

@@ -1,0 +1,17 @@
+{
+  "HOME": "Home",
+  "DASHBOARD": "Dashboard",
+  "STORE": "Store",
+  "CART": "Cart",
+  "MY_ORDERS": "My Orders",
+  "PROFILE": "Profile",
+  "PRODUCTS": "Products",
+  "CATEGORIES": "Categories",
+  "CUSTOMERS": "Customers",
+  "STAFF": "Staff",
+  "ORDERS": "Orders",
+  "SETTINGS": "Settings",
+  "LOGOUT": "Logout",
+  "LOGIN": "Login",
+  "REGISTER": "Register"
+}

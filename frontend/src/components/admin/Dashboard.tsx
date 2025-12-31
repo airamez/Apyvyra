@@ -5,8 +5,11 @@ import { userService } from '../../services/userService';
 import { orderService, type OrderStats } from '../../services/orderService';
 import OrderSection from './dashboard/OrderSection';
 import CustomerSection from './dashboard/CustomerSection';
+import { useTranslation } from '../../hooks/useTranslation';
 
 function Dashboard() {
+  const { t } = useTranslation('Dashboard');
+  
   const [customerCount, setCustomerCount] = useState<number>(0);
   const [orderStats, setOrderStats] = useState<OrderStats | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
@@ -39,10 +42,10 @@ function Dashboard() {
         <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
           <DashboardIcon sx={{ fontSize: 40, mr: 2, color: 'primary.main' }} />
           <Typography variant="h4" component="h1">
-            Dashboard
+            {t('TITLE')}
           </Typography>
         </Box>
-        <Typography>Loading dashboard data...</Typography>
+        <Typography>{t('LOADING')}</Typography>
       </Container>
     );
   }
@@ -52,7 +55,7 @@ function Dashboard() {
       <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
         <DashboardIcon sx={{ fontSize: 40, mr: 2, color: 'primary.main' }} />
         <Typography variant="h4" component="h1">
-          Dashboard
+          {t('TITLE')}
         </Typography>
       </Box>
 

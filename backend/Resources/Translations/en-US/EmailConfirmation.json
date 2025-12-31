@@ -1,0 +1,22 @@
+{
+  "CONFIRMING_EMAIL": "Confirming your email...",
+  "PLEASE_WAIT": "Please wait while we activate your account.",
+  "WELCOME_TITLE": "Welcome to Apyvyra!",
+  "ACCOUNT_ACTIVATED": "Your account has been successfully activated!",
+  "THANK_YOU_MESSAGE": "Thank you for confirming your email address. Your account is now active and ready to use. You can now log in and start managing your inventory with Apyvyra's powerful tools.",
+  "GO_TO_LOGIN": "Go to Login",
+  "ALREADY_CONFIRMED_TITLE": "Already Confirmed",
+  "EMAIL_ALREADY_CONFIRMED": "Your email was already confirmed!",
+  "LINK_EXPIRED_TITLE": "Link Expired",
+  "LINK_EXPIRED_MESSAGE": "Your confirmation link has expired",
+  "LINK_EXPIRED_DESCRIPTION": "Your confirmation link has expired. Please request a new confirmation email.",
+  "REQUEST_NEW_EMAIL": "Request New Email",
+  "INVALID_LINK_TITLE": "Invalid Link",
+  "INVALID_LINK_MESSAGE": "We couldn't validate your confirmation link",
+  "INVALID_LINK_DESCRIPTION": "Invalid confirmation link. Please check your email or request a new confirmation.",
+  "CREATE_NEW_ACCOUNT": "Create New Account",
+  "CONFIRMATION_FAILED_TITLE": "Confirmation Failed",
+  "CONFIRMATION_FAILED_MESSAGE": "We couldn't confirm your email",
+  "CONFIRMATION_ERROR": "An error occurred while confirming your email. Please try again later.",
+  "EMAIL_CONFIRMED_SUCCESS": "Your email has been confirmed! Your account is now active. You can log in."
+}

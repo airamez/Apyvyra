@@ -1,0 +1,14 @@
+{
+  "TITLE": "User Profile",
+  "EMAIL": "Email",
+  "ROLE": "Role",
+  "STATUS": "Status",
+  "MEMBER_SINCE": "Member Since",
+  "LAST_LOGIN": "Last Login",
+  "EDIT_PROFILE": "Edit Profile",
+  "CHANGE_PASSWORD": "Change Password",
+  "LOGOUT": "Logout",
+  "ADMIN": "Admin",
+  "STAFF": "Staff",
+  "CUSTOMER": "Customer"
+}
