@@ -1,5 +1,6 @@
 import { Dialog, DialogTitle, DialogContent, DialogActions, Button, List, ListItem, ListItemIcon, ListItemText, Typography } from '@mui/material';
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
+import { useTranslation } from '../../hooks/useTranslation';
 
 interface ErrorDialogProps {
   open: boolean;
@@ -11,12 +12,15 @@ interface ErrorDialogProps {
 /**
  * Reusable error dialog component for displaying API errors
  */
-export default function ErrorDialog({ open, errors, onClose, title = 'Error' }: ErrorDialogProps) {
+export default function ErrorDialog({ open, errors, onClose, title }: ErrorDialogProps) {
+  const { t } = useTranslation('ErrorDialog');
+  const { t: tCommon } = useTranslation('Common');
+  
   return (
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
       <DialogTitle sx={{ display: 'flex', alignItems: 'center', gap: 1, color: 'error.main' }}>
         <ErrorOutlineIcon />
-        {title}
+        {title || t('TITLE')}
       </DialogTitle>
       <DialogContent>
         {errors.length === 1 ? (
@@ -36,7 +40,7 @@ export default function ErrorDialog({ open, errors, onClose, title = 'Error' }: 
       </DialogContent>
       <DialogActions>
         <Button onClick={onClose} variant="contained" color="primary">
-          OK
+          {tCommon('OK')}
         </Button>
       </DialogActions>
     </Dialog>

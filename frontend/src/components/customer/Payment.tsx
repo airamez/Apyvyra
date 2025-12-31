@@ -74,7 +74,7 @@ export default function Payment({ order, onBackToCheckout, onPaymentComplete }: 
           onClick={onBackToCheckout}
           variant="outlined"
         >
-          Back to Checkout
+          {t('BACK_TO_CHECKOUT')}
         </Button>
       </Box>
     );

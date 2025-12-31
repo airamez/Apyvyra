@@ -35,15 +35,15 @@ public class EmailService : IEmailService
             
             // Prepare template variables - always use the same template since new token is created
             var emailBody = template
-                .Replace("{{email_type}}", "Welcome to Apyvyra!")
-                .Replace("{{email_subtitle}}", "Your journey to seamless inventory management starts here")
-                .Replace("{{confirmation_instruction}}", "Please click the button below to verify your email address and activate your account:")
+                .Replace("{{email_type}}", "EMAIL_TYPE_WELCOME")
+                .Replace("{{email_subtitle}}", "EMAIL_SUBTITLE_JOURNEY_STARTS")
+                .Replace("{{confirmation_instruction}}", "EMAIL_CONFIRMATION_INSTRUCTION")
                 .Replace("{{confirmation_url}}", confirmationUrl)
                 .Replace("{{expiry_class}}", "")
-                .Replace("{{expiry_title}}", "Important")
-                .Replace("{{expiry_message}}", "This confirmation link will expire in 24 hours for security reasons. If you don't confirm in time, you'll need to request a new confirmation email.")
-                .Replace("{{security_title}}", "Security Notice")
-                .Replace("{{security_message}}", "If you didn't create an account with Apyvyra, please ignore this email or contact our support team. We take security seriously and will never ask for your password via email.");
+                .Replace("{{expiry_title}}", "EMAIL_EXPIRY_TITLE")
+                .Replace("{{expiry_message}}", "EMAIL_EXPIRY_MESSAGE")
+                .Replace("{{security_title}}", "EMAIL_SECURITY_TITLE")
+                .Replace("{{security_message}}", "EMAIL_SECURITY_MESSAGE");
 
             // Remove the resend section completely since we always use the same template
             var startIndex = emailBody.IndexOf("{{#is_resend}}");
@@ -53,7 +53,7 @@ public class EmailService : IEmailService
                 emailBody = emailBody.Remove(startIndex, endIndex - startIndex);
             }
 
-            var subject = "Confirm Your Email Address - Apyvyra";
+            var subject = "EMAIL_SUBJECT_CONFIRM_EMAIL";
             await SendEmailAsync(toEmail, subject, emailBody);
         }
         catch (Exception ex)
@@ -213,7 +213,7 @@ public class EmailSettings
     public string Username { get; set; } = string.Empty;
     public string Password { get; set; } = string.Empty;
     public string FromEmail { get; set; } = string.Empty;
-    public string FromName { get; set; } = "Apyvyra";
+    public string FromName { get; set; } = "APYVYRA";
     public bool EnableSsl { get; set; } = true;
     public bool DevelopmentMode { get; set; } = false;
 }

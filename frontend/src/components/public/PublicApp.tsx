@@ -16,6 +16,7 @@ import Login from './Login';
 import WelcomePage from './WelcomePage';
 import EmailConfirmation from './EmailConfirmation';
 import StaffSetup from './StaffSetup';
+import { useTranslation } from '../../hooks/useTranslation';
 
 interface PublicAppProps {
   onLoginSuccess: () => void;
@@ -24,6 +25,9 @@ interface PublicAppProps {
 }
 
 function PublicAppContent({ onLoginSuccess, toggleTheme, mode }: PublicAppProps) {
+  const { t } = useTranslation('Navigation');
+  const { t: tCommon } = useTranslation('Common');
+  
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -53,12 +57,12 @@ function PublicAppContent({ onLoginSuccess, toggleTheme, mode }: PublicAppProps)
             sx={{ cursor: 'pointer' }}
             onClick={() => navigate('/')}
           >
-            Apyvyra ERP
+            {t('TITLE')}
           </Typography>
 
           <Box sx={{ flexGrow: 1 }} />
 
-          <Tooltip title={`Switch to ${mode === 'light' ? 'dark' : 'light'} mode`}>
+          <Tooltip title={t('SWITCH_THEME', { mode: mode === 'light' ? 'dark' : 'light' })}>
             <IconButton onClick={toggleTheme} color="inherit" sx={{ mr: 2 }}>
               {mode === 'dark' ? <Brightness7Icon /> : <Brightness4Icon />}
             </IconButton>
@@ -67,9 +71,9 @@ function PublicAppContent({ onLoginSuccess, toggleTheme, mode }: PublicAppProps)
           {!isAuthPage && (
             <>
               <Button color="inherit" onClick={handleNavigateToRegister} sx={{ mr: 1 }}>
-                Sign Up
+                {t('SIGN_UP')}
               </Button>
-              <Button color="inherit" onClick={handleNavigateToLogin}>Login</Button>
+              <Button color="inherit" onClick={handleNavigateToLogin}>{t('LOGIN')}</Button>
             </>
           )}
         </Toolbar>

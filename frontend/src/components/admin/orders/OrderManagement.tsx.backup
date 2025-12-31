@@ -361,57 +361,59 @@ export default function OrderManagement() {
                 Current Status: <Chip label={selectedOrder.statusName} size="small" color={getStatusColor(selectedOrder.status)} />
               </Typography>
 
-              <Box sx={{ mb: 3 }}>
-                <Typography variant="subtitle2" color="text.secondary">Customer</Typography>
-                <Typography>{selectedOrder.customerName}</Typography>
-                <Typography variant="body2">{selectedOrder.customerEmail}</Typography>
-              </Box>
+              <>
+                <Box sx={{ mb: 3 }}>
+                  <Typography variant="subtitle2" color="text.secondary">Customer</Typography>
+                  <Typography>{selectedOrder.customerName}</Typography>
+                  <Typography variant="body2">{selectedOrder.customerEmail}</Typography>
+                </Box>
 
-              <Box sx={{ mb: 3 }}>
-                <Typography variant="subtitle2" color="text.secondary">Shipping Address</Typography>
-                <Typography style={{ whiteSpace: 'pre-line' }}>{selectedOrder.shippingAddress}</Typography>
-              </Box>
+                <Box sx={{ mb: 3 }}>
+                  <Typography variant="subtitle2" color="text.secondary">Shipping Address</Typography>
+                  <Typography style={{ whiteSpace: 'pre-line' }}>{selectedOrder.shippingAddress}</Typography>
+                </Box>
 
-              <Box sx={{ mb: 3 }}>
-                <Typography variant="subtitle2" color="text.secondary" gutterBottom>Order Items</Typography>
-                {selectedOrder.items.map((item) => (
-                  <Box key={item.id} sx={{ display: 'flex', justifyContent: 'space-between', py: 1, borderBottom: '1px solid', borderColor: 'divider' }}>
-                    <Box>
-                      <Typography>{item.productName}</Typography>
-                      <Typography variant="body2" color="text.secondary">SKU: {item.productSku}</Typography>
+                <Box sx={{ mb: 3 }}>
+                  <Typography variant="subtitle2" color="text.secondary" gutterBottom>{t('ORDER_ITEMS')}</Typography>
+                  {selectedOrder.items.map((item) => (
+                    <Box key={item.id} sx={{ display: 'flex', justifyContent: 'space-between', py: 1, borderBottom: '1px solid', borderColor: 'divider' }}>
+                      <Box>
+                        <Typography>{item.productName}</Typography>
+                        <Typography variant="body2" color="text.secondary">SKU: {item.productSku}</Typography>
+                      </Box>
+                      <Box sx={{ textAlign: 'right' }}>
+                        <Typography>{item.quantity} x {formatPrice(item.unitPrice)}</Typography>
+                        <Typography variant="body2" color="text.secondary">{formatPrice(item.lineTotal)}</Typography>
+                      </Box>
                     </Box>
-                    <Box sx={{ textAlign: 'right' }}>
-                      <Typography>{item.quantity} x {formatPrice(item.unitPrice)}</Typography>
-                      <Typography variant="body2" color="text.secondary">{formatPrice(item.lineTotal)}</Typography>
-                    </Box>
+                  ))}
+                </Box>
+
+                <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 2 }}>
+                  <Box sx={{ textAlign: 'right' }}>
+                    <Typography variant="body2">{t('SUBTOTAL')}: {formatPrice(selectedOrder.subtotal)}</Typography>
+                    <Typography variant="body2">{t('TAX')}: {formatPrice(selectedOrder.taxAmount)}</Typography>
+                    <Typography variant="h6">{t('TOTAL')}: {formatPrice(selectedOrder.totalAmount)}</Typography>
                   </Box>
-                ))}
-              </Box>
-
-              <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 2 }}>
-                <Box sx={{ textAlign: 'right' }}>
-                  <Typography variant="body2">Subtotal: {formatPrice(selectedOrder.subtotal)}</Typography>
-                  <Typography variant="body2">Tax: {formatPrice(selectedOrder.taxAmount)}</Typography>
-                  <Typography variant="h6">Total: {formatPrice(selectedOrder.totalAmount)}</Typography>
                 </Box>
-              </Box>
 
-              {selectedOrder.notes && (
+                {selectedOrder.notes && (
+                  <Box sx={{ mt: 3 }}>
+                    <Typography variant="subtitle2" color="text.secondary">{t('NOTES')}</Typography>
+                    <Typography>{selectedOrder.notes}</Typography>
+                  </Box>
+                )}
+
                 <Box sx={{ mt: 3 }}>
-                  <Typography variant="subtitle2" color="text.secondary">Notes</Typography>
-                  <Typography>{selectedOrder.notes}</Typography>
+                  <Typography variant="subtitle2" color="text.secondary" gutterBottom>{t('TIMELINE')}</Typography>
+                  <Typography variant="body2">{t('ORDER_DATE')}: {formatDate(selectedOrder.orderDate)}</Typography>
+                  {selectedOrder.paidAt && <Typography variant="body2">{t('PAID')}: {formatDate(selectedOrder.paidAt)}</Typography>}
+                  {selectedOrder.confirmedAt && <Typography variant="body2">{t('CONFIRMED')}: {formatDate(selectedOrder.confirmedAt)}</Typography>}
+                  {selectedOrder.shippedAt && <Typography variant="body2">{t('SHIPPED')}: {formatDate(selectedOrder.shippedAt)}</Typography>}
+                  {selectedOrder.deliveredAt && <Typography variant="body2">{t('COMPLETED')}: {formatDate(selectedOrder.deliveredAt)}</Typography>}
+                  {selectedOrder.cancelledAt && <Typography variant="body2" color="error">{t('CANCELLED')}: {formatDate(selectedOrder.cancelledAt)}</Typography>}
                 </Box>
-              )}
-
-              <Box sx={{ mt: 3 }}>
-                <Typography variant="subtitle2" color="text.secondary" gutterBottom>Timeline</Typography>
-                <Typography variant="body2">Order Date: {formatDate(selectedOrder.orderDate)}</Typography>
-                {selectedOrder.paidAt && <Typography variant="body2">Paid: {formatDate(selectedOrder.paidAt)}</Typography>}
-                {selectedOrder.confirmedAt && <Typography variant="body2">Confirmed: {formatDate(selectedOrder.confirmedAt)}</Typography>}
-                {selectedOrder.shippedAt && <Typography variant="body2">Shipped: {formatDate(selectedOrder.shippedAt)}</Typography>}
-                {selectedOrder.deliveredAt && <Typography variant="body2">Completed: {formatDate(selectedOrder.deliveredAt)}</Typography>}
-                {selectedOrder.cancelledAt && <Typography variant="body2" color="error">Cancelled: {formatDate(selectedOrder.cancelledAt)}</Typography>}
-              </Box>
+              </>
             </Box>
           )}
         </DialogContent>
@@ -486,6 +488,86 @@ export default function OrderManagement() {
           >
             {updateLoading ? t('UPDATING') : t('UPDATE_STATUS')}
           </Button>
+              <Box key={item.id} sx={{ display: 'flex', justifyContent: 'space-between', py: 1, borderBottom: '1px solid', borderColor: 'divider' }}>
+                <Box>
+                  <Typography variant="h6">{selectedOrder.orderNumber}</Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    {formatDate(selectedOrder.orderDate)}
+                  </Typography>
+                </Box>
+                <Box sx={{ textAlign: 'right' }}>
+                  <Chip label={selectedOrder.statusName} color={getStatusColor(selectedOrder.status)} />
+                  <Chip label={selectedOrder.paymentStatusName} sx={{ ml: 1 }} variant="outlined" />
+                </Box>
+              </Box>
+
+              <Box sx={{ mb: 3 }}>
+                <Typography variant="subtitle2" color="text.secondary">Customer</Typography>
+                <Typography>{selectedOrder.customerName}</Typography>
+                <Typography variant="body2">{selectedOrder.customerEmail}</Typography>
+              </Box>
+
+              <Box sx={{ mb: 3 }}>
+                <Typography variant="subtitle2" color="text.secondary">Shipping Address</Typography>
+                <Typography style={{ whiteSpace: 'pre-line' }}>{selectedOrder.shippingAddress}</Typography>
+              </Box>
+
+              <Box sx={{ mb: 3 }}>
+                <Typography variant="subtitle2" color="text.secondary" gutterBottom>Order Items</Typography>
+                {selectedOrder.items.map((item) => (
+                  <Box key={item.id} sx={{ display: 'flex', justifyContent: 'space-between', py: 1, borderBottom: '1px solid', borderColor: 'divider' }}>
+                    <Box>
+                      <Typography>{item.productName}</Typography>
+                      <Typography variant="body2" color="text.secondary">SKU: {item.productSku}</Typography>
+                    </Box>
+                    <Box sx={{ textAlign: 'right' }}>
+                      <Typography>{item.quantity} x {formatPrice(item.unitPrice)}</Typography>
+                      <Typography variant="body2" color="text.secondary">{formatPrice(item.lineTotal)}</Typography>
+                    </Box>
+                  </Box>
+                ))}
+              </Box>
+
+              <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 2 }}>
+                <Box sx={{ textAlign: 'right' }}>
+                  <Typography variant="body2">Subtotal: {formatPrice(selectedOrder.subtotal)}</Typography>
+                  <Typography variant="body2">Tax: {formatPrice(selectedOrder.taxAmount)}</Typography>
+                  <Typography variant="h6">Total: {formatPrice(selectedOrder.totalAmount)}</Typography>
+                </Box>
+              </Box>
+
+              {selectedOrder.notes && (
+                <Box sx={{ mt: 3 }}>
+                  <Typography variant="subtitle2" color="text.secondary">Notes</Typography>
+                  <Typography>{selectedOrder.notes}</Typography>
+                </Box>
+              )}
+
+              <Box sx={{ mt: 3 }}>
+                <Typography variant="subtitle2" color="text.secondary" gutterBottom>Timeline</Typography>
+                <Typography variant="body2">Order Date: {formatDate(selectedOrder.orderDate)}</Typography>
+                {selectedOrder.paidAt && <Typography variant="body2">Paid: {formatDate(selectedOrder.paidAt)}</Typography>}
+                {selectedOrder.confirmedAt && <Typography variant="body2">Confirmed: {formatDate(selectedOrder.confirmedAt)}</Typography>}
+                {selectedOrder.shippedAt && <Typography variant="body2">Shipped: {formatDate(selectedOrder.shippedAt)}</Typography>}
+                {selectedOrder.deliveredAt && <Typography variant="body2">Completed: {formatDate(selectedOrder.deliveredAt)}</Typography>}
+                {selectedOrder.cancelledAt && <Typography variant="body2" color="error">Cancelled: {formatDate(selectedOrder.cancelledAt)}</Typography>}
+              </Box>
+            </Box>
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseViewDialog}>Close</Button>
+          {selectedOrder && getValidNextStatuses(selectedOrder.status).length > 0 && (
+            <Button
+              variant="contained"
+              onClick={() => {
+                handleCloseViewDialog();
+                handleOpenEditDialog(selectedOrder);
+              }}
+            >
+              Update Status
+            </Button>
+          )}
         </DialogActions>
       </Dialog>
     </Container>

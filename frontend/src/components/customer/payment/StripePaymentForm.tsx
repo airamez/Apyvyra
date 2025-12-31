@@ -17,6 +17,7 @@ import { paymentService } from '../../../services/paymentService';
 import { type Order } from '../../../services/orderService';
 import { getErrorMessages } from '../../../utils/apiErrorHandler';
 import { PaymentSuccess, OrderSummary, formatPrice } from './PaymentShared';
+import { useTranslation } from '../../../hooks/useTranslation';
 
 interface StripePaymentFormProps {
   order: Order;
@@ -24,6 +25,9 @@ interface StripePaymentFormProps {
 }
 
 export default function StripePaymentForm({ order, onPaymentComplete }: StripePaymentFormProps) {
+  const { t } = useTranslation('Payment');
+  const { t: tCommon } = useTranslation('Common');
+  
   const stripe = useStripe();
   const elements = useElements();
   const [loading, setLoading] = useState(false);
@@ -43,7 +47,7 @@ export default function StripePaymentForm({ order, onPaymentComplete }: StripePa
     try {
       const { error: submitError } = await elements.submit();
       if (submitError) {
-        setError(submitError.message || 'Payment failed');
+        setError(submitError.message || t('PAYMENT_FAILED'));
         setLoading(false);
         return;
       }
@@ -94,7 +98,7 @@ export default function StripePaymentForm({ order, onPaymentComplete }: StripePa
       <Paper sx={{ p: 3, mb: 2 }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
           <LockIcon color="primary" />
-          <Typography variant="h6">Secure Payment</Typography>
+          <Typography variant="h6">{t('SECURE_PAYMENT')}</Typography>
         </Box>
         
         <PaymentElement 
@@ -116,12 +120,12 @@ export default function StripePaymentForm({ order, onPaymentComplete }: StripePa
         {loading ? (
           <CircularProgress size={24} color="inherit" />
         ) : (
-          `Pay ${formatPrice(order.totalAmount)}`
+          `${t('PAY_AMOUNT', { amount: formatPrice(order.totalAmount) })}`
         )}
       </Button>
 
       <Typography variant="caption" color="text.secondary" sx={{ display: 'block', textAlign: 'center', mt: 2 }}>
-        Your payment is secured by Stripe. We never store your card details.
+        {t('PAYMENT_SECURITY_MESSAGE')}
       </Typography>
     </form>
   );

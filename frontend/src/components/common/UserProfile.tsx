@@ -14,12 +14,16 @@ import {
 import EditIcon from '@mui/icons-material/Edit';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import { userService } from '../../services/userService';
+import { useTranslation } from '../../hooks/useTranslation';
 
 interface UserProfileProps {
   onProfileUpdate?: () => void;
 }
 
 function UserProfile({ onProfileUpdate }: UserProfileProps) {
+  const { t } = useTranslation('UserProfile');
+  const { t: tCommon } = useTranslation('Common');
+  
   const [currentUser, setCurrentUser] = useState<any>(null);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
@@ -79,14 +83,14 @@ function UserProfile({ onProfileUpdate }: UserProfileProps) {
       setEditDialogOpen(false);
       onProfileUpdate?.();
     } catch (err: any) {
-      setError(err.message || 'Failed to update profile');
+      setError(err.message || t('FAILED_UPDATE_PROFILE'));
     } finally {
       setLoading(false);
     }
   };
 
   const getDisplayName = () => {
-    if (!currentUser) return 'Loading...';
+    if (!currentUser) return t('LOADING');
     return currentUser.fullName || currentUser.email;
   };
 
@@ -144,24 +148,24 @@ function UserProfile({ onProfileUpdate }: UserProfileProps) {
           </MenuItem>
           <MenuItem onClick={handleEditProfile}>
             <EditIcon sx={{ mr: 1, fontSize: 20 }} />
-            Edit Profile
+            {t('EDIT_PROFILE')}
           </MenuItem>
         </Menu>
       </Box>
 
       <Dialog open={editDialogOpen} onClose={handleDialogClose} maxWidth="sm" fullWidth>
-        <DialogTitle>Edit Profile</DialogTitle>
+        <DialogTitle>{t('EDIT_PROFILE')}</DialogTitle>
         <DialogContent>
           <TextField
             autoFocus
             margin="dense"
-            label="Full Name"
+            label={t('FULL_NAME')}
             type="text"
             fullWidth
             variant="outlined"
             value={fullName}
             onChange={(e) => setFullName(e.target.value)}
-            placeholder="Enter your full name"
+            placeholder={t('FULL_NAME_PLACEHOLDER')}
           />
           {error && (
             <Typography color="error" variant="body2" sx={{ mt: 1 }}>
@@ -170,9 +174,9 @@ function UserProfile({ onProfileUpdate }: UserProfileProps) {
           )}
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleDialogClose}>Cancel</Button>
+          <Button onClick={handleDialogClose}>{tCommon('CANCEL')}</Button>
           <Button onClick={handleSaveProfile} variant="contained" disabled={loading}>
-            {loading ? 'Saving...' : 'Save'}
+            {loading ? t('SAVING') : t('SAVE')}
           </Button>
         </DialogActions>
       </Dialog>

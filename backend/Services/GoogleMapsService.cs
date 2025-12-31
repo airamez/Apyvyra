@@ -55,7 +55,7 @@ public class GoogleMapsService : IGoogleMapsService
             return new AddressValidationResult
             {
                 IsValid = false,
-                ErrorMessage = "Address is required"
+                ErrorMessage = "ADDRESS_REQUIRED"
             };
         }
 
@@ -75,7 +75,7 @@ public class GoogleMapsService : IGoogleMapsService
             return new AddressValidationResult
             {
                 IsValid = false,
-                ErrorMessage = "Failed to validate address with Google Maps API"
+                ErrorMessage = "GOOGLE_MAPS_VALIDATION_FAILED"
             };
         }
     }
@@ -116,8 +116,8 @@ public class GoogleMapsService : IGoogleMapsService
             AddressComponents = new Dictionary<string, object>
             {
                 ["street_number"] = parts[0],
-                ["route"] = parts.Length > 1 ? string.Join(" ", parts[1..Math.Min(3, parts.Length - 2)]) : "Unknown Street",
-                ["locality"] = parts.Length > 2 ? parts[^2] : "Unknown City",
+                ["route"] = parts.Length > 1 ? string.Join(" ", parts[1..Math.Min(3, parts.Length - 2)]) : "UNKNOWN_STREET",
+                ["locality"] = parts.Length > 2 ? parts[^2] : "UNKNOWN_CITY",
                 ["administrative_area_level_1"] = parts.Length > 1 ? parts[^1] : "CA",
                 ["postal_code"] = System.Text.RegularExpressions.Regex.IsMatch(parts[^1], @"\d") ? parts[^1] : "00000",
                 ["country"] = "US"

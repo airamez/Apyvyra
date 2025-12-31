@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { 
-  Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField, Typography, IconButton, Tooltip, Alert, Container, Card, CardContent, FormControl, InputLabel, Select, MenuItem, FormControlLabel, Checkbox 
+  Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField, Typography, IconButton, Tooltip, Alert, Container, Card, CardContent, FormControl, InputLabel, Select, MenuItem, FormControlLabel, Checkbox, Chip 
 } from '@mui/material';
 import type { SelectChangeEvent } from '@mui/material';
 import { DataGrid, type GridRenderCellParams } from '@mui/x-data-grid';
@@ -11,6 +11,7 @@ import CategoryIcon from '@mui/icons-material/Category';
 import { categoryService } from '../../../services/categoryService';
 import FilterComponent, { type FilterValues } from '../FilterComponent';
 import { categoryFilterConfig } from '../../../config/filterConfigs';
+import { useTranslation } from '../../../hooks/useTranslation';
 
 interface ProductCategory {
   id: number;
@@ -22,6 +23,9 @@ interface ProductCategory {
 }
 
 export default function Categories() {
+  const { t } = useTranslation('Categories');
+  const { t: tCommon } = useTranslation('Common');
+  
   const [categories, setCategories] = useState<ProductCategory[]>([]);
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<ProductCategory | null>(null);
@@ -40,7 +44,7 @@ export default function Categories() {
       setHasMoreRecords(response.metadata.hasMoreRecords);
       setTotalCount(response.metadata.totalCount);
     } catch (err) {
-      setError('Failed to load categories');
+      setError(t('FAILED_LOAD_CATEGORIES'));
     } finally {
       setLoading(false);
     }
@@ -82,9 +86,9 @@ export default function Categories() {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleSave = async () => {
+  const handleSubmit = async () => {
     if (!form.name.trim()) {
-      setError('Name is required');
+      setError(t('NAME_REQUIRED'));
       return;
     }
     try {
@@ -128,11 +132,11 @@ export default function Categories() {
         <Box sx={{ display: 'flex', alignItems: 'center' }}>
           <CategoryIcon sx={{ fontSize: 40, mr: 2, color: 'primary.main' }} />
           <Typography variant="h4" component="h1">
-            Product Categories
+            {t('TITLE')}
           </Typography>
         </Box>
         <Button variant="contained" startIcon={<AddIcon />} onClick={() => handleOpen()}>
-          Add Category
+          {t('ADD_CATEGORY')}
         </Button>
       </Box>
 
@@ -161,38 +165,45 @@ export default function Categories() {
               columns={[
                 {
                   field: 'name',
-                  headerName: 'Name',
+                  headerName: t('NAME'),
                   flex: 1,
                   minWidth: 200,
                 },
                 {
                   field: 'description',
-                  headerName: 'Description',
+                  headerName: t('DESCRIPTION'),
                   flex: 2,
                   minWidth: 300,
                 },
                 {
                   field: 'parentCategoryName',
-                  headerName: 'Parent Category',
+                  headerName: t('PARENT_CATEGORY'),
                   flex: 1,
                   minWidth: 150,
-                  renderCell: (params) => params.row?.parentCategoryName || 'None',
+                  renderCell: (params) => params.row?.parentCategoryName || t('NONE'),
                 },
                 {
                   field: 'isActive',
-                  headerName: 'Active',
+                  headerName: t('ACTIVE'),
                   width: 80,
                   type: 'boolean',
+                  renderCell: (params: GridRenderCellParams) => (
+                    <Chip
+                      label={params.row.isActive ? t('YES') : t('NO')}
+                      color={params.row.isActive ? 'success' : 'default'}
+                      size="small"
+                    />
+                  ),
                 },
                 {
                   field: 'actions',
-                  headerName: 'Actions',
-                  width: 120,
+                  headerName: t('ACTIONS'),
+                  width: 100,
                   sortable: false,
                   filterable: false,
                   renderCell: (params: GridRenderCellParams) => (
                     <Box>
-                      <Tooltip title="Edit">
+                      <Tooltip title={t('EDIT')}>
                         <IconButton
                           size="small"
                           color="primary"
@@ -201,7 +212,7 @@ export default function Categories() {
                           <EditIcon fontSize="small" />
                         </IconButton>
                       </Tooltip>
-                      <Tooltip title="Delete">
+                      <Tooltip title={t('DELETE')}>
                         <IconButton
                           size="small"
                           color="error"
@@ -243,45 +254,46 @@ export default function Categories() {
         </CardContent>
       </Card>
 
-      <Dialog open={open} onClose={handleClose}>
-        <DialogTitle>{editing ? 'Edit Category' : 'Add Category'}</DialogTitle>
+      <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>
+        <DialogTitle>{editing ? t('EDIT_CATEGORY') : t('ADD_CATEGORY')}</DialogTitle>
         <DialogContent>
           <TextField
             autoFocus
             margin="dense"
-            name="name"
-            label="Name"
+            label={t('NAME')}
+            type="text"
             fullWidth
-            value={form.name}
-            onChange={handleChange}
             required
+            value={form.name}
+            onChange={(e) => setForm({ ...form, name: e.target.value })}
+            sx={{ mb: 2 }}
           />
           <TextField
             margin="dense"
-            name="description"
-            label="Description"
+            label={t('DESCRIPTION')}
+            type="text"
             fullWidth
+            multiline
+            rows={3}
             value={form.description}
-            onChange={handleChange}
+            onChange={(e) => setForm({ ...form, description: e.target.value })}
+            sx={{ mb: 2 }}
           />
           <FormControl fullWidth margin="dense">
-            <InputLabel>Parent Category</InputLabel>
+            <InputLabel>{t('PARENT_CATEGORY')}</InputLabel>
             <Select
-              name="parentCategoryId"
               value={form.parentCategoryId}
-              onChange={handleChange}
-              label="Parent Category"
+              label={t('PARENT_CATEGORY')}
+              onChange={(e: SelectChangeEvent) => setForm({ ...form, parentCategoryId: e.target.value })}
             >
-              <MenuItem value="">
-                <em>None</em>
-              </MenuItem>
+              <MenuItem value="">{t('NONE')}</MenuItem>
               {categories
-                .filter(cat => !editing || cat.id !== editing.id) // Don't allow self-reference
+                .filter(cat => cat.id !== editing?.id)
                 .map(cat => (
-                <MenuItem key={cat.id} value={cat.id.toString()}>
-                  {cat.name}
-                </MenuItem>
-              ))}
+                  <MenuItem key={cat.id} value={cat.id.toString()}>
+                    {cat.name}
+                  </MenuItem>
+                ))}
             </Select>
           </FormControl>
           <FormControlLabel
@@ -289,27 +301,35 @@ export default function Categories() {
               <Checkbox
                 checked={form.isActive}
                 onChange={(e) => setForm({ ...form, isActive: e.target.checked })}
-                name="isActive"
               />
             }
-            label="Active"
-            sx={{ mt: 1 }}
+            label={t('ACTIVE')}
+            sx={{ mt: 2 }}
           />
-          {error && <Typography color="error" variant="body2">{error}</Typography>}
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleClose}>Cancel</Button>
-          <Button onClick={handleSave} variant="contained">Save</Button>
+          <Button onClick={handleClose}>{tCommon('CANCEL')}</Button>
+          <Button onClick={handleSubmit} variant="contained">
+            {editing ? t('UPDATE') : t('CREATE')}
+          </Button>
         </DialogActions>
       </Dialog>
-      <Dialog open={deleteDialog.open} onClose={() => setDeleteDialog({ open: false, id: null })}>
-        <DialogTitle>Delete Category</DialogTitle>
+
+      <Dialog open={deleteDialog.open} onClose={() => setDeleteDialog({ open: false, id: null })} maxWidth="xs" fullWidth>
+        <DialogTitle>{t('DELETE_CATEGORY')}</DialogTitle>
         <DialogContent>
-          <Typography>Are you sure you want to delete this category?</Typography>
+          <Typography>
+            {t('DELETE_CONFIRM')}
+          </Typography>
+          <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+            {tCommon('THIS_ACTION_CANNOT_BE_UNDONE')}
+          </Typography>
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setDeleteDialog({ open: false, id: null })}>Cancel</Button>
-          <Button onClick={confirmDelete} color="error" variant="contained">Delete</Button>
+          <Button onClick={() => setDeleteDialog({ open: false, id: null })}>{tCommon('CANCEL')}</Button>
+          <Button onClick={confirmDelete} color="error" variant="contained">
+            {tCommon('DELETE')}
+          </Button>
         </DialogActions>
       </Dialog>
     </Container>

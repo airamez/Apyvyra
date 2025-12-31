@@ -13,8 +13,12 @@ import PeopleIcon from '@mui/icons-material/People';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import FilterComponent, { type FilterValues } from './FilterComponent';
 import { userService, type UserList } from '../../services/userService';
+import { useTranslation } from '../../hooks/useTranslation';
 
 export default function Customers() {
+  const { t } = useTranslation('Customers');
+  const { t: tCommon } = useTranslation('Common');
+  
   const [customers, setCustomers] = useState<UserList[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -38,7 +42,7 @@ export default function Customers() {
       setTotalCount(response.metadata.totalCount);
     } catch (err) {
       console.error('Error loading customers:', err);
-      setError('Failed to load customers. Please try again.');
+      setError(t('FAILED_LOAD_CUSTOMERS'));
     } finally {
       setLoading(false);
     }
@@ -73,24 +77,24 @@ export default function Customers() {
   const columns: GridColDef[] = [
     {
       field: 'id',
-      headerName: 'ID',
+      headerName: t('ID'),
       width: 80,
     },
     {
       field: 'username',
-      headerName: 'Username',
+      headerName: t('USERNAME'),
       flex: 1,
       minWidth: 180,
     },
     {
       field: 'email',
-      headerName: 'Email',
+      headerName: t('EMAIL'),
       flex: 1,
       minWidth: 200,
     },
     {
       field: 'userType',
-      headerName: 'User Type',
+      headerName: t('USER_TYPE'),
       width: 120,
       renderCell: (params: GridRenderCellParams) => (
         <Chip
@@ -108,7 +112,7 @@ export default function Customers() {
         <Box sx={{ display: 'flex', alignItems: 'center' }}>
           <PeopleIcon sx={{ fontSize: 40, mr: 2, color: 'primary.main' }} />
           <Typography variant="h4" component="h1">
-            Customers
+            {t('TITLE')}
           </Typography>
         </Box>
         <Button
@@ -118,7 +122,7 @@ export default function Customers() {
           disabled={loading}
           sx={{ minWidth: '120px' }}
         >
-          {loading ? 'Loading...' : 'Refresh'}
+          {loading ? t('LOADING') : t('REFRESH')}
         </Button>
       </Box>
 
@@ -133,19 +137,19 @@ export default function Customers() {
           fields: [
             {
               name: 'username',
-              label: 'Username',
+              label: t('USERNAME'),
               type: 'string',
               operators: ['contains', 'eq', 'startsWith'],
               defaultOperator: 'contains',
-              placeholder: 'Search by username...',
+              placeholder: t('SEARCH_USERNAME'),
             },
             {
               name: 'email',
-              label: 'Email',
+              label: t('EMAIL'),
               type: 'string',
               operators: ['contains', 'eq', 'startsWith'],
               defaultOperator: 'contains',
-              placeholder: 'Search by email...',
+              placeholder: t('SEARCH_EMAIL'),
             },
           ],
           onSearch: handleSearch,
@@ -160,8 +164,8 @@ export default function Customers() {
       <Box sx={{ bgcolor: 'background.paper', borderRadius: 1, boxShadow: 1 }}>
         <Box sx={{ p: 2, borderBottom: 1, borderColor: 'divider' }}>
           <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <Typography variant="h6">Customer List</Typography>
-            <Chip label={`${customers.length} customers`} color="primary" />
+            <Typography variant="h6">{t('CUSTOMER_LIST')}</Typography>
+            <Chip label={`${customers.length} ${t('CUSTOMERS_COUNT')}`} color="primary" />
           </Box>
         </Box>
         
@@ -172,7 +176,7 @@ export default function Customers() {
         ) : customers.length === 0 ? (
           <Box sx={{ p: 4, textAlign: 'center' }}>
             <Typography variant="body2" color="text.secondary">
-              No customers found. Customers will appear here once they register on the platform.
+              {t('NO_CUSTOMERS')}
             </Typography>
           </Box>
         ) : (

@@ -56,7 +56,7 @@ public class StripeService : IStripeService
             var options = new PaymentIntentCreateOptions
             {
                 Amount = ConvertToStripeAmount(order.TotalAmount),
-                Currency = "usd",
+                Currency = "USD",
                 AutomaticPaymentMethods = new PaymentIntentAutomaticPaymentMethodsOptions
                 {
                     Enabled = true,

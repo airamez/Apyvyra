@@ -12,19 +12,19 @@ public static class OrderStatus
     public const int OnHold = 7;
 
     public static readonly string[] Names = {
-        "Pending Payment",
-        "Paid",
-        "Confirmed",
-        "Processing",
-        "Shipped",
-        "Completed",
-        "Cancelled",
-        "On Hold"
+        "ORDER_STATUS_PENDING_PAYMENT",
+        "ORDER_STATUS_PAID",
+        "ORDER_STATUS_CONFIRMED",
+        "ORDER_STATUS_PROCESSING",
+        "ORDER_STATUS_SHIPPED",
+        "ORDER_STATUS_COMPLETED",
+        "ORDER_STATUS_CANCELLED",
+        "ORDER_STATUS_ON_HOLD"
     };
 
     public static string GetName(int status)
     {
-        return status >= 0 && status < Names.Length ? Names[status] : "Unknown";
+        return status >= 0 && status < Names.Length ? Names[status] : "ORDER_STATUS_UNKNOWN";
     }
 
     public static bool IsFinalState(int status)
@@ -63,14 +63,14 @@ public static class PaymentStatus
     public const int Refunded = 3;
 
     public static readonly string[] Names = {
-        "Pending",
-        "Succeeded",
-        "Failed",
-        "Refunded"
+        "PAYMENT_STATUS_PENDING",
+        "PAYMENT_STATUS_SUCCEEDED",
+        "PAYMENT_STATUS_FAILED",
+        "PAYMENT_STATUS_REFUNDED"
     };
 
     public static string GetName(int status)
     {
-        return status >= 0 && status < Names.Length ? Names[status] : "Unknown";
+        return status >= 0 && status < Names.Length ? Names[status] : "PAYMENT_STATUS_UNKNOWN";
     }
 }
