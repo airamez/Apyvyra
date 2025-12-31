@@ -29,6 +29,8 @@ public partial class CustomerOrder
 
     public string? StripeClientSecret { get; set; }
 
+    public string? GooglePlaceId { get; set; }
+
     public DateTime? PaidAt { get; set; }
 
     public DateTime OrderDate { get; set; }

@@ -78,6 +78,119 @@
 
 Email configuration is handled through the backend `appsettings.json` file. For SMTP settings and email templates, see the [Backend README](backend/README.md) for detailed configuration instructions.
 
+## Google Maps Address Validation Configuration
+
+Apyvyra integrates with **Google Maps Platform** for address validation during checkout. You have three configuration options depending on your development stage:
+
+### Option 1: Mock Mode (Recommended for Local Development)
+
+Perfect for demos, testing, and offline development without requiring a Google Maps API key or internet connection.
+
+**Configuration:**
+```json
+{
+  "GoogleMaps": {
+    "ApiKey": "YOUR_GOOGLE_MAPS_API_KEY",
+    "MockAddressValidation": true
+  }
+}
+```
+
+**Features:**
+- No Google Maps API key required
+- No external network calls to Google
+- Basic US address format validation
+- Validates street number, street name, city, state, and zip code
+- Perfect for demos, testing, and offline development
+
+### Option 2: Test Mode with Real Google Maps API
+
+For integration testing with real Google Maps infrastructure using a free API key.
+
+**Setup Steps:**
+1. Go to [https://console.cloud.google.com/](https://console.cloud.google.com/)
+2. Create a new project or select an existing one
+3. Enable the **Places API**:
+   - Go to **APIs & Services** → **Library**
+   - Search for "Places API"
+   - Click **Enable**
+4. Enable the **Geocoding API** (optional, for additional features):
+   - Search for "Geocoding API"
+   - Click **Enable**
+5. Create an API key:
+   - Go to **APIs & Services** → **Credentials**
+   - Click **Create Credentials** → **API Key**
+   - Copy your API key
+6. Restrict your API key (recommended):
+   - Click on your API key
+   - Under **Application restrictions**, select **HTTP referrers**
+   - Add your development domain (e.g., `localhost:*`)
+   - Under **API restrictions**, select **Restrict key**
+   - Select **Places API** and **Geocoding API**
+
+**Configuration:**
+```json
+{
+  "GoogleMaps": {
+    "ApiKey": "YOUR_ACTUAL_GOOGLE_MAPS_API_KEY",
+    "MockAddressValidation": false
+  }
+}
+```
+
+**Features:**
+- Uses real Google Places API
+- Comprehensive address validation and autocomplete
+- Returns formatted addresses and place IDs
+- Free tier includes $200 monthly credit (typically sufficient for development)
+- Requires internet connection and Google Cloud project
+
+### Option 3: Production Mode
+
+For live applications with real address validation.
+
+**Setup Steps:**
+1. Complete your Google Cloud project setup
+2. Secure your API key:
+   - Restrict by IP address or domain
+   - Enable API key restrictions
+   - Monitor usage in Google Cloud Console
+3. Consider enabling billing if you expect high usage:
+   - Google Maps Platform offers $200 monthly free credit
+   - Additional usage is billed per request
+   - Monitor costs in Google Cloud Console
+
+**Configuration:**
+```json
+{
+  "GoogleMaps": {
+    "ApiKey": "YOUR_PRODUCTION_GOOGLE_MAPS_API_KEY",
+    "MockAddressValidation": false
+  }
+}
+```
+
+**Features:**
+- Production-grade address validation
+- Stores Google Place IDs for future reference
+- Comprehensive address components and formatting
+- Requires proper API key security measures
+
+### API Usage and Costs
+
+**Free Tier:**
+- $200 monthly credit automatically applied
+- Places API: ~$0.017 per request
+- Geocoding API: ~$0.005 per request
+- Typically covers thousands of validation requests per month
+
+**Cost Management:**
+- Set up budget alerts in Google Cloud Console
+- Monitor usage in Google Maps Platform
+- Consider usage quotas and limits
+
+> **Important**: Never commit API keys to version control. Use environment variables or secrets management in production.
+
 ## Stripe Payment Configuration
 
 Apyvyra integrates with **Stripe** for payment processing. You have three configuration options depending on your development stage:
@@ -226,6 +339,10 @@ For live applications with real payments.
     "MockMode": false,
     "MockServerUrl": "http://localhost:12111",
     "BypassPayment": false
+  },
+  "GoogleMaps": {
+    "ApiKey": "YOUR_GOOGLE_MAPS_API_KEY",
+    "MockAddressValidation": true
   },
   "BaseUrl": "http://localhost:5000",
   "QuerySettings": {

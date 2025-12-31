@@ -107,6 +107,7 @@ CREATE TABLE customer_order (
     notes TEXT,
     stripe_payment_intent_id VARCHAR(255),
     stripe_client_secret VARCHAR(255),
+    google_place_id VARCHAR(255),
     paid_at TIMESTAMPTZ,
     order_date TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     confirmed_at TIMESTAMPTZ,
@@ -124,6 +125,7 @@ CREATE INDEX idx_customer_order_status ON customer_order(status);
 CREATE INDEX idx_customer_order_payment_status ON customer_order(payment_status);
 CREATE INDEX idx_customer_order_date ON customer_order(order_date);
 CREATE INDEX idx_customer_order_stripe_payment_intent ON customer_order(stripe_payment_intent_id);
+CREATE INDEX idx_customer_order_google_place_id ON customer_order(google_place_id) WHERE google_place_id IS NOT NULL;
 
 -- Order Item table
 CREATE TABLE order_item (

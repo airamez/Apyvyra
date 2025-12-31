@@ -47,6 +47,7 @@ export interface CreateOrderRequest {
   items: CreateOrderItem[];
   shippingAddress: string;
   notes?: string;
+  googlePlaceId?: string;
 }
 
 export interface OrderStats {

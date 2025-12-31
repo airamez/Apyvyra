@@ -19,6 +19,10 @@ builder.Services.AddTransient<IEmailService, EmailService>();
 // Configure Stripe Service
 builder.Services.AddScoped<IStripeService, StripeService>();
 
+// Configure Google Maps Service
+builder.Services.AddScoped<IGoogleMapsService, GoogleMapsService>();
+builder.Services.AddHttpClient();
+
 // Add DbContext
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));

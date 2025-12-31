@@ -182,6 +182,7 @@ public class OrderController : BaseApiController
                 TaxAmount = totalTax,
                 TotalAmount = subtotal + totalTax,
                 Notes = request.Notes,
+                GooglePlaceId = request.GooglePlaceId,
                 OrderDate = DateTime.UtcNow,
                 CreatedBy = userId,
                 OrderItems = orderItems
@@ -430,6 +431,7 @@ public record CreateOrderRequest
     public List<CreateOrderItemRequest> Items { get; init; } = new();
     public string ShippingAddress { get; init; } = string.Empty;
     public string? Notes { get; init; }
+    public string? GooglePlaceId { get; init; }
 }
 
 public record CreateOrderItemRequest

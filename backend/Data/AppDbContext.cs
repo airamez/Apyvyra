@@ -289,6 +289,9 @@ public partial class AppDbContext : DbContext
             entity.Property(e => e.StripeClientSecret)
                 .HasMaxLength(255)
                 .HasColumnName("stripe_client_secret");
+            entity.Property(e => e.GooglePlaceId)
+                .HasMaxLength(255)
+                .HasColumnName("google_place_id");
             entity.Property(e => e.PaidAt).HasColumnName("paid_at");
             entity.Property(e => e.OrderDate)
                 .HasDefaultValueSql("CURRENT_TIMESTAMP")

@@ -14,12 +14,15 @@ import {
   TableRow,
   Alert,
   CircularProgress,
+  FormControlLabel,
+  Checkbox,
 } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { cartService, type CartSummary } from '../../services/cartService';
 import { orderService, type CreateOrderRequest, type Order } from '../../services/orderService';
 import Payment from './Payment';
 import { getErrorMessages } from '../../utils/apiErrorHandler';
+import { validateAddress, type AddressValidationResult } from '../../utils/addressValidation';
 
 interface CheckoutProps {
   onBackToCart: () => void;
@@ -34,6 +37,9 @@ export default function Checkout({ onBackToCart, onOrderComplete }: CheckoutProp
   const [error, setError] = useState<string | null>(null);
   const [showPayment, setShowPayment] = useState(false);
   const [createdOrder, setCreatedOrder] = useState<Order | null>(null);
+  const [addressValidation, setAddressValidation] = useState<AddressValidationResult | null>(null);
+  const [isValidatingAddress, setIsValidatingAddress] = useState(false);
+  const [bypassValidation, setBypassValidation] = useState(false);
 
   useEffect(() => {
     const summary = cartService.getCartSummary();
@@ -44,9 +50,49 @@ export default function Checkout({ onBackToCart, onOrderComplete }: CheckoutProp
     }
   }, [onBackToCart, showPayment]);
 
+  const handleValidateAddress = async () => {
+    if (!shippingAddress.trim()) {
+      setError('Please enter a shipping address first');
+      return;
+    }
+
+    setIsValidatingAddress(true);
+    setError(null);
+    setAddressValidation(null);
+
+    try {
+      const result = await validateAddress(shippingAddress);
+      setAddressValidation(result);
+      
+      if (!result.isValid) {
+        setError(result.errorMessage || 'Address validation failed');
+        
+        // If authentication is required, show a more user-friendly message
+        if (result.errorMessage?.includes('logged in')) {
+          setError('Please log in to validate your address and proceed with checkout.');
+        }
+      }
+    } catch (error) {
+      setError('Failed to validate address. Please try again.');
+    } finally {
+      setIsValidatingAddress(false);
+    }
+  };
+
   const handleProceedToPayment = async () => {
     if (!shippingAddress.trim()) {
       setError('Please enter a shipping address');
+      return;
+    }
+
+    // Check address validation unless bypassed
+    if (!bypassValidation && addressValidation && !addressValidation.isValid) {
+      setError(addressValidation.errorMessage || 'Please enter a valid address');
+      return;
+    }
+
+    if (!bypassValidation && !addressValidation) {
+      setError('Please wait for address validation or check the bypass option');
       return;
     }
 
@@ -61,6 +107,8 @@ export default function Checkout({ onBackToCart, onOrderComplete }: CheckoutProp
         })),
         shippingAddress: shippingAddress.trim(),
         notes: notes.trim() || undefined,
+        // Add Google Place ID if available
+        googlePlaceId: addressValidation?.address?.place_id,
       };
 
       const order = await orderService.create(request);
@@ -133,13 +181,51 @@ export default function Checkout({ onBackToCart, onOrderComplete }: CheckoutProp
             </Typography>
             <TextField
               fullWidth
-              multiline
-              rows={4}
-              placeholder="Enter your complete shipping address (street, city, state, zip code, country)"
+              placeholder="Enter your complete shipping address (street, city, state, zip code)"
               value={shippingAddress}
-              onChange={(e) => setShippingAddress(e.target.value)}
+              onChange={(e) => {
+                setShippingAddress(e.target.value);
+                // Clear validation when address changes
+                if (addressValidation) {
+                  setAddressValidation(null);
+                }
+              }}
               required
+              disabled={addressValidation?.isValid === true}
+              error={addressValidation ? !addressValidation.isValid && !bypassValidation : false}
+              helperText={
+                isValidatingAddress 
+                  ? 'Validating address...' 
+                  : addressValidation && !bypassValidation
+                    ? addressValidation.isValid 
+                      ? `Address validated successfully${addressValidation.isMockValidation ? ' (using mock validation)' : ''}` 
+                      : addressValidation.errorMessage
+                    : ''
+              }
             />
+            
+            <Box sx={{ mt: 2, display: 'flex', gap: 2, alignItems: 'center' }}>
+              <Button
+                variant="outlined"
+                onClick={handleValidateAddress}
+                disabled={isValidatingAddress || !shippingAddress.trim()}
+                startIcon={isValidatingAddress ? <CircularProgress size={16} /> : null}
+              >
+                {isValidatingAddress ? 'Validating...' : 'Validate Address'}
+              </Button>
+              
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    checked={bypassValidation}
+                    onChange={(e) => setBypassValidation(e.target.checked)}
+                    color="primary"
+                    disabled={addressValidation?.isValid === true}
+                  />
+                }
+                label={`Bypass address validation${addressValidation?.isMockValidation ? ' (currently using mock validation)' : ' (for new addresses or validation issues)'}`}
+              />
+            </Box>
           </Paper>
 
           {/* Order Notes */}
@@ -227,7 +313,11 @@ export default function Checkout({ onBackToCart, onOrderComplete }: CheckoutProp
             fullWidth
             size="large"
             onClick={handleProceedToPayment}
-            disabled={loading || !shippingAddress.trim()}
+            disabled={
+              loading || 
+              !shippingAddress.trim() || 
+              (!bypassValidation && (!addressValidation || isValidatingAddress || !addressValidation.isValid))
+            }
           >
             {loading ? (
               <CircularProgress size={24} color="inherit" />

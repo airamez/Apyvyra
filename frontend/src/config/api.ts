@@ -49,6 +49,9 @@ export const API_ENDPOINTS = {
     CONFIRM: (orderId: number) => `${API_BASE_URL}/api/payment/confirm/${orderId}`,
     REFUND: (orderId: number) => `${API_BASE_URL}/api/payment/refund/${orderId}`,
   },
+  ADDRESS: {
+    VALIDATE: `${API_BASE_URL}/api/address/validate`,
+  },
   // Add more domain endpoints as needed
   // CUSTOMERS: {
   //   LIST: `${API_BASE_URL}/api/customers`,
