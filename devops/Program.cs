@@ -96,6 +96,22 @@ class Program
             }
         }
 
+        // Prompt for admin credentials first
+        Console.Write("Enter admin email: ");
+        var email = Console.ReadLine()?.Trim();
+        if (string.IsNullOrEmpty(email))
+        {
+            Console.WriteLine("Email cannot be empty. Aborting.");
+            return 1;
+        }
+        Console.Write("Enter admin password: ");
+        var password = ReadPassword();
+        if (string.IsNullOrEmpty(password))
+        {
+            Console.WriteLine("Password cannot be empty. Aborting.");
+            return 1;
+        }
+
         var sqlFilePath = "../database.sql";
         if (!File.Exists(sqlFilePath))
         {
@@ -111,21 +127,6 @@ class Program
         {
             using var conn = new NpgsqlConnection(connectionString);
             await conn.OpenAsync();
-            
-            // First, try to drop all tables with CASCADE to handle dependencies
-            var dropScript = @"
-                DROP TABLE IF EXISTS product_url CASCADE;
-                DROP TABLE IF EXISTS product_image CASCADE; 
-                DROP TABLE IF EXISTS product CASCADE;
-                DROP TABLE IF EXISTS product_category CASCADE;
-                DROP TABLE IF EXISTS app_user CASCADE;
-            ";
-            
-            using (var dropCmd = new NpgsqlCommand(dropScript, conn))
-            {
-                await dropCmd.ExecuteNonQueryAsync();
-                Console.WriteLine("Dropped existing tables.");
-            }
             
             // Now execute the full SQL script
             using var cmd = new NpgsqlCommand(sql, conn);
@@ -230,8 +231,8 @@ class Program
         }
     }
 
-        static string? GetDefaultConnectionString()
-        {
-            return Configuration.GetConnectionString("DefaultConnection");
-        }
+    static string? GetDefaultConnectionString()
+    {
+        return Configuration.GetConnectionString("DefaultConnection");
+    }
 }
