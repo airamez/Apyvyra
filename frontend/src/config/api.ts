@@ -56,6 +56,9 @@ export const API_ENDPOINTS = {
     LANGUAGE: `${API_BASE_URL}/api/translation/language`,
     GET: (component: string) => `${API_BASE_URL}/api/translation/${component}`,
   },
+  APP_SETTINGS: {
+    SETTINGS: `${API_BASE_URL}/api/appsettings/settings`,
+  },
   // Add more domain endpoints as needed
   // CUSTOMERS: {
   //   LIST: `${API_BASE_URL}/api/customers`,

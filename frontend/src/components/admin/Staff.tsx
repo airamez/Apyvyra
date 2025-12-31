@@ -31,10 +31,12 @@ import { staffService, type Staff as StaffType, type CreateStaffData, type Updat
 import FilterComponent, { type FilterValues } from './FilterComponent';
 import { staffFilterConfig } from '../../config/filterConfigs';
 import { useTranslation } from '../../hooks/useTranslation';
+import { useFormatting } from '../../hooks/useFormatting';
 
 export default function Staff() {
   const { t } = useTranslation('Staff');
   const { t: tCommon } = useTranslation('Common');
+  const { formatDate } = useFormatting();
   
   const [staff, setStaff] = useState<StaffType[]>([]);
   const [loading, setLoading] = useState(true);
@@ -244,13 +246,13 @@ export default function Staff() {
       headerName: 'Confirmed At',
       width: 180,
       valueGetter: (value: string | null) => 
-        value ? new Date(value).toLocaleString() : 'Not confirmed',
+        value ? formatDate(value) : 'Not confirmed',
     },
     {
       field: 'createdAt',
       headerName: 'Created At',
       width: 180,
-      valueGetter: (value: string) => new Date(value).toLocaleString(),
+      valueGetter: (value: string) => formatDate(value),
     },
     {
       field: 'createdByName',

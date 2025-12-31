@@ -23,6 +23,7 @@ import { orderService, type CreateOrderRequest, type Order } from '../../service
 import Payment from './Payment';
 import { getErrorMessages } from '../../utils/apiErrorHandler';
 import { validateAddress, type AddressValidationResult } from '../../utils/addressValidation';
+import { useFormatting } from '../../hooks/useFormatting';
 
 interface CheckoutProps {
   onBackToCart: () => void;
@@ -30,6 +31,8 @@ interface CheckoutProps {
 }
 
 export default function Checkout({ onBackToCart, onOrderComplete }: CheckoutProps) {
+  const { formatCurrency } = useFormatting();
+  
   const [cartSummary, setCartSummary] = useState<CartSummary>({ items: [], subtotal: 0, taxAmount: 0, total: 0, itemCount: 0 });
   const [shippingAddress, setShippingAddress] = useState('');
   const [notes, setNotes] = useState('');
@@ -138,10 +141,6 @@ export default function Checkout({ onBackToCart, onOrderComplete }: CheckoutProp
   const handleBackToCheckout = () => {
     setShowPayment(false);
     setCreatedOrder(null);
-  };
-
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(price);
   };
 
   const { items, subtotal, taxAmount, total } = cartSummary;
@@ -288,11 +287,11 @@ export default function Checkout({ onBackToCart, onOrderComplete }: CheckoutProp
                         <TableCell>
                           <Typography variant="body2">{item.productName}</Typography>
                           <Typography variant="caption" color="text.secondary">
-                            {formatPrice(item.price)} each
+                            {formatCurrency(item.price)} each
                           </Typography>
                         </TableCell>
                         <TableCell align="center">{item.quantity}</TableCell>
-                        <TableCell align="right">{formatPrice(lineTotal)}</TableCell>
+                        <TableCell align="right">{formatCurrency(lineTotal)}</TableCell>
                       </TableRow>
                     );
                   })}
@@ -311,12 +310,12 @@ export default function Checkout({ onBackToCart, onOrderComplete }: CheckoutProp
           
           <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
             <Typography color="text.secondary">Subtotal:</Typography>
-            <Typography>{formatPrice(subtotal)}</Typography>
+            <Typography>{formatCurrency(subtotal)}</Typography>
           </Box>
           
           <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
             <Typography color="text.secondary">Tax:</Typography>
-            <Typography>{formatPrice(taxAmount)}</Typography>
+            <Typography>{formatCurrency(taxAmount)}</Typography>
           </Box>
           
           <Divider sx={{ my: 1 }} />
@@ -324,7 +323,7 @@ export default function Checkout({ onBackToCart, onOrderComplete }: CheckoutProp
           <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 3 }}>
             <Typography variant="h6">Total:</Typography>
             <Typography variant="h6" color="primary">
-              {formatPrice(total)}
+              {formatCurrency(total)}
             </Typography>
           </Box>
 

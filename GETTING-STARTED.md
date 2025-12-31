@@ -449,6 +449,147 @@ For live applications with real payments.
 
 > **Important**: Never commit API keys to version control. Use environment variables or secrets management in production.
 
+## Currency and Number Formatting Configuration
+
+Apyvyra supports configurable currency and number formatting to adapt to different regions and business requirements. The currency settings are defined in the frontend application configuration.
+
+### Configuration Structure
+
+The currency configuration is managed through the frontend app configuration system:
+
+**Location**: `frontend/src/config/app.ts`
+
+```typescript
+export interface AppConfig {
+  currency: {
+    code: string;           // ISO 4217 currency code (e.g., 'USD', 'EUR', 'GBP')
+    symbol: string;         // Currency symbol (e.g., '$', '€', '£')
+    locale: string;         // Locale for number formatting (e.g., 'en-US', 'de-DE', 'fr-FR')
+  };
+  dateFormat: {
+    locale: string;         // Locale for date formatting
+    options: Intl.DateTimeFormatOptions;
+  };
+}
+```
+
+### Default Configuration
+
+```typescript
+export const defaultAppConfig: AppConfig = {
+  currency: {
+    code: 'USD',
+    symbol: '$',
+    locale: 'en-US',
+  },
+  dateFormat: {
+    locale: 'en-US',
+    options: {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+    },
+  },
+};
+```
+
+### Supported Currencies
+
+The system supports any currency that can be formatted by JavaScript's `Intl.NumberFormat`. Common examples:
+
+| Currency | Code | Symbol | Locale | Example |
+|----------|------|--------|---------|---------|
+| US Dollar | USD | $ | en-US | $1,234.56 |
+| Euro | EUR | € | de-DE | 1.234,56 € |
+| British Pound | GBP | £ | en-GB | £1,234.56 |
+| Japanese Yen | JPY | ¥ | ja-JP | ¥1,235 |
+| Canadian Dollar | CAD | $ | en-CA | $1,234.56 |
+| Australian Dollar | AUD | $ | en-AU | $1,234.56 |
+
+### Usage in Components
+
+**Import the formatting utilities:**
+```typescript
+import { formatCurrency, formatDate } from '../../config/app';
+```
+
+**Use in components:**
+```typescript
+// Currency formatting
+formatCurrency(1234.56);  // Returns: $1,234.56 (based on current config)
+
+// Date formatting  
+formatDate('2024-01-15'); // Returns: Jan 15, 2024 (based on current config)
+```
+
+### Dynamic Configuration
+
+The currency configuration can be updated at runtime to support user preferences or regional settings:
+
+```typescript
+import { updateAppConfig } from '../../config/app';
+
+// Update to European configuration
+updateAppConfig({
+  currency: {
+    code: 'EUR',
+    symbol: '€', 
+    locale: 'de-DE',
+  }
+});
+```
+
+### API Integration
+
+For production applications, currency settings can be loaded from the backend API:
+
+**API Endpoint**: `GET /api/app/settings`
+
+**Expected Response:**
+```json
+{
+  "data": {
+    "currency": {
+      "code": "EUR",
+      "symbol": "€",
+      "locale": "de-DE"
+    },
+    "dateFormat": {
+      "locale": "de-DE",
+      "options": {
+        "year": "numeric",
+        "month": "short", 
+        "day": "numeric"
+      }
+    }
+  }
+}
+```
+
+### Implementation Notes
+
+- **Browser Compatibility**: Uses native `Intl.NumberFormat` and `Intl.DateTimeFormat` APIs
+- **Performance**: Configuration is cached in memory for efficient formatting
+- **Fallback**: If configuration fails to load, defaults to USD/en-US
+- **Extensibility**: Easy to add new currencies and locales by updating the configuration
+
+### Testing Different Currencies
+
+To test different currency configurations:
+
+1. **Temporary Override** (for testing):
+```typescript
+// In browser console
+import { updateAppConfig } from './config/app';
+updateAppConfig({ currency: { code: 'EUR', symbol: '€', locale: 'de-DE' }});
+```
+
+2. **Environment-based Configuration**:
+Create different configuration files for different deployment regions.
+
+3. **User Preferences**:
+Store user's preferred currency in their profile and apply it on login.
+
 ## Application Configuration
 
 ### Default Ports and URLs

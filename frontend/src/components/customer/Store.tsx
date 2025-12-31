@@ -32,6 +32,7 @@ import { productService, type Product } from '../../services/productService';
 import { categoryService, type ProductCategory } from '../../services/categoryService';
 import { cartService, type CartItem } from '../../services/cartService';
 import { useTranslation } from '../../hooks/useTranslation';
+import { useFormatting } from '../../hooks/useFormatting';
 
 interface StoreProps {
   onViewCart: () => void;
@@ -39,6 +40,7 @@ interface StoreProps {
 
 export default function Store({ onViewCart }: StoreProps) {
   const { t } = useTranslation('Store');
+  const { formatCurrency } = useFormatting();
   
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<ProductCategory[]>([]);
@@ -165,10 +167,6 @@ export default function Store({ onViewCart }: StoreProps) {
     return primaryImage?.url || anyImage?.url || 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjE0MCIgdmlld0JveD0iMCAwIDIwMCAxNDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIyMDAiIGhlaWdodD0iMTQwIiBmaWxsPSIjRjVGNUY1Ii8+CjxwYXRoIGQ9Ik04NSA1MEgxMTVWOTBIOjVWNTBaIiBmaWxsPSIjOTk5OTk5Ii8+CjxjaXJjbGUgY3g9IjEwMCIgY3k9IjM1IiByPSIxNSIgZmlsbD0iIzk5OTk5OSIvPgo8L3N2Zz4K';
   }, []);
 
-  const formatPrice = useCallback((price: number) => {
-    return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(price);
-  }, []);
-
   // Memoized ProductCard component to prevent unnecessary re-renders
   const ProductCard = memo(({ product }: { product: Product }) => {
     const currentQuantity = quantities[product.id] || 1;
@@ -201,7 +199,7 @@ export default function Store({ onViewCart }: StoreProps) {
           {/* Price, Quantity and Add to Cart */}
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 1 }}>
             <Typography variant="h6" color="primary" sx={{ fontSize: '1rem', fontWeight: 'bold', minWidth: '80px' }}>
-              {formatPrice(product.price)}
+              {formatCurrency(product.price)}
             </Typography>
             <Box sx={{ display: 'flex', alignItems: 'center', border: '1px solid #ddd', borderRadius: 1 }}>
               <IconButton

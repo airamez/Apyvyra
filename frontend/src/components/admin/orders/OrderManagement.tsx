@@ -26,10 +26,12 @@ import VisibilityIcon from '@mui/icons-material/Visibility';
 import FilterComponent, { type FilterConfig, type FilterValues } from '../FilterComponent';
 import { orderService, type Order, ORDER_STATUS, ORDER_STATUS_NAMES } from '../../../services/orderService';
 import { useTranslation } from '../../../hooks/useTranslation';
+import { useFormatting } from '../../../hooks/useFormatting';
 
 export default function OrderManagement() {
   const { t } = useTranslation('OrderManagement');
   const { t: tCommon } = useTranslation('Common');
+  const { formatCurrency, formatDate } = useFormatting();
   
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
@@ -163,20 +165,6 @@ export default function OrderManagement() {
     }
   };
 
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(price);
-  };
-
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    });
-  };
-
   const filterConfig: FilterConfig = {
     fields: [
       {
@@ -232,7 +220,7 @@ export default function OrderManagement() {
       field: 'totalAmount',
       headerName: t('TOTAL'),
       width: 120,
-      renderCell: (params: GridRenderCellParams) => formatPrice(params.row.totalAmount),
+      renderCell: (params: GridRenderCellParams) => formatCurrency(params.row.totalAmount),
     },
     {
       field: 'statusName',
@@ -381,8 +369,8 @@ export default function OrderManagement() {
                       <Typography variant="body2" color="text.secondary">SKU: {item.productSku}</Typography>
                     </Box>
                     <Box sx={{ textAlign: 'right' }}>
-                      <Typography>{item.quantity} x {formatPrice(item.unitPrice)}</Typography>
-                      <Typography variant="body2" color="text.secondary">{formatPrice(item.lineTotal)}</Typography>
+                      <Typography>{item.quantity} x {formatCurrency(item.unitPrice)}</Typography>
+                      <Typography variant="body2" color="text.secondary">{formatCurrency(item.lineTotal)}</Typography>
                     </Box>
                   </Box>
                 ))}
@@ -390,9 +378,9 @@ export default function OrderManagement() {
 
               <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 2 }}>
                 <Box sx={{ textAlign: 'right' }}>
-                  <Typography variant="body2">Subtotal: {formatPrice(selectedOrder.subtotal)}</Typography>
-                  <Typography variant="body2">Tax: {formatPrice(selectedOrder.taxAmount)}</Typography>
-                  <Typography variant="h6">Total: {formatPrice(selectedOrder.totalAmount)}</Typography>
+                  <Typography variant="body2">Subtotal: {formatCurrency(selectedOrder.subtotal)}</Typography>
+                  <Typography variant="body2">Tax: {formatCurrency(selectedOrder.taxAmount)}</Typography>
+                  <Typography variant="h6">Total: {formatCurrency(selectedOrder.totalAmount)}</Typography>
                 </Box>
               </Box>
 

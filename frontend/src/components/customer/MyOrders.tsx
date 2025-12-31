@@ -19,6 +19,7 @@ import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import { orderService, type Order, ORDER_STATUS } from '../../services/orderService';
 import { useTranslation } from '../../hooks/useTranslation';
+import { useFormatting } from '../../hooks/useFormatting';
 
 interface OrderRowProps {
   order: Order;
@@ -26,22 +27,9 @@ interface OrderRowProps {
 
 function OrderRow({ order }: OrderRowProps) {
   const { t } = useTranslation('MyOrders');
+  const { formatCurrency, formatDate } = useFormatting();
   
   const [open, setOpen] = useState(false);
-
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(price);
-  };
-
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    });
-  };
 
   const getStatusColor = (status: number): 'default' | 'warning' | 'info' | 'primary' | 'success' | 'error' => {
     switch (status) {
@@ -76,7 +64,7 @@ function OrderRow({ order }: OrderRowProps) {
         <TableCell>{order.items?.length || 0}</TableCell>
         <TableCell align="right">
           <Typography fontWeight="bold">
-            {formatPrice(order.totalAmount)}
+            {formatCurrency(order.totalAmount)}
           </Typography>
         </TableCell>
         <TableCell>
@@ -108,7 +96,7 @@ function OrderRow({ order }: OrderRowProps) {
                 </TableHead>
                 <TableBody>
                   {order.items?.map((item) => {
-                    const lineSubtotal = item.price * item.quantity;
+                    const lineSubtotal = item.unitPrice * item.quantity;
                     const lineTax = lineSubtotal * (item.taxRate / 100);
                     const lineTotal = lineSubtotal + lineTax;
                     
@@ -116,9 +104,9 @@ function OrderRow({ order }: OrderRowProps) {
                       <TableRow key={item.productId}>
                         <TableCell>{item.productName}</TableCell>
                         <TableCell align="right">{item.quantity}</TableCell>
-                        <TableCell align="right">{formatPrice(item.price)}</TableCell>
-                        <TableCell align="right">{formatPrice(lineTax)}</TableCell>
-                        <TableCell align="right">{formatPrice(lineTotal)}</TableCell>
+                        <TableCell align="right">{formatCurrency(item.unitPrice)}</TableCell>
+                        <TableCell align="right">{formatCurrency(lineTax)}</TableCell>
+                        <TableCell align="right">{formatCurrency(lineTotal)}</TableCell>
                       </TableRow>
                     );
                   })}
@@ -129,16 +117,16 @@ function OrderRow({ order }: OrderRowProps) {
                 <Box sx={{ minWidth: 200 }}>
                   <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
                     <Typography>{t('SUBTOTAL')}:</Typography>
-                    <Typography>{formatPrice(order.subtotal)}</Typography>
+                    <Typography>{formatCurrency(order.subtotal)}</Typography>
                   </Box>
                   <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
                     <Typography>{t('TAX_LABEL')}:</Typography>
-                    <Typography>{formatPrice(order.taxAmount)}</Typography>
+                    <Typography>{formatCurrency(order.taxAmount)}</Typography>
                   </Box>
                   <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
                     <Typography fontWeight="bold">{t('TOTAL_LABEL')}:</Typography>
                     <Typography fontWeight="bold" color="primary">
-                      {formatPrice(order.totalAmount)}
+                      {formatCurrency(order.totalAmount)}
                     </Typography>
                   </Box>
                 </Box>

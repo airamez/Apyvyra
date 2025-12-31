@@ -16,8 +16,9 @@ import {
 import { paymentService } from '../../../services/paymentService';
 import { type Order } from '../../../services/orderService';
 import { getErrorMessages } from '../../../utils/apiErrorHandler';
-import { PaymentSuccess, OrderSummary, formatPrice } from './PaymentShared';
+import { PaymentSuccess, OrderSummary } from './PaymentShared';
 import { useTranslation } from '../../../hooks/useTranslation';
+import { useFormatting } from '../../../hooks/useFormatting';
 
 interface StripePaymentFormProps {
   order: Order;
@@ -26,6 +27,7 @@ interface StripePaymentFormProps {
 
 export default function StripePaymentForm({ order, onPaymentComplete }: StripePaymentFormProps) {
   const { t } = useTranslation('Payment');
+  const { formatCurrency } = useFormatting();
   
   const stripe = useStripe();
   const elements = useElements();
@@ -119,7 +121,7 @@ export default function StripePaymentForm({ order, onPaymentComplete }: StripePa
         {loading ? (
           <CircularProgress size={24} color="inherit" />
         ) : (
-          `${t('PAY_AMOUNT', { amount: formatPrice(order.totalAmount) })}`
+          `${t('PAY_AMOUNT', { amount: formatCurrency(order.totalAmount) })}`
         )}
       </Button>
 

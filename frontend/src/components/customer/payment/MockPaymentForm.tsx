@@ -12,7 +12,8 @@ import LockIcon from '@mui/icons-material/Lock';
 import { paymentService } from '../../../services/paymentService';
 import { type Order } from '../../../services/orderService';
 import { getErrorMessages } from '../../../utils/apiErrorHandler';
-import { PaymentSuccess, OrderSummary, formatPrice } from './PaymentShared';
+import { PaymentSuccess, OrderSummary } from './PaymentShared';
+import { useFormatting } from '../../../hooks/useFormatting';
 
 interface MockPaymentFormProps {
   order: Order;
@@ -21,6 +22,7 @@ interface MockPaymentFormProps {
 }
 
 export default function MockPaymentForm({ order, onBackToCheckout, onPaymentComplete }: MockPaymentFormProps) {
+  const { formatCurrency } = useFormatting();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [paymentSucceeded, setPaymentSucceeded] = useState(false);
@@ -96,7 +98,7 @@ export default function MockPaymentForm({ order, onBackToCheckout, onPaymentComp
         {loading ? (
           <CircularProgress size={24} color="inherit" />
         ) : (
-          `Complete Payment - ${formatPrice(order.totalAmount)}`
+          `Complete Payment - ${formatCurrency(order.totalAmount)}`
         )}
       </Button>
     </Box>

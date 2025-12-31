@@ -5,6 +5,7 @@ import PublicApp from './components/public/PublicApp';
 import AdminApp from './components/admin/AdminApp';
 import CustomerApp from './components/customer/CustomerApp';
 import { authService } from './services/authService';
+import { AppSettingsProvider } from './contexts/AppSettingsContext';
 
 function App() {
   const [mode, setMode] = useState<'light' | 'dark'>('light');
@@ -51,10 +52,12 @@ function App() {
   };
 
   return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
-      {renderApp()}
-    </ThemeProvider>
+    <AppSettingsProvider>
+      <ThemeProvider theme={theme}>
+        <CssBaseline />
+        {renderApp()}
+      </ThemeProvider>
+    </AppSettingsProvider>
   );
 }
 

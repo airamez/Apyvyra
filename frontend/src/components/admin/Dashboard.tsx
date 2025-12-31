@@ -6,9 +6,11 @@ import { orderService, type OrderStats } from '../../services/orderService';
 import OrderSection from './dashboard/OrderSection';
 import CustomerSection from './dashboard/CustomerSection';
 import { useTranslation } from '../../hooks/useTranslation';
+import { useFormatting } from '../../hooks/useFormatting';
 
 function Dashboard() {
   const { t } = useTranslation('Dashboard');
+  const { formatCurrency } = useFormatting();
   
   const [customerCount, setCustomerCount] = useState<number>(0);
   const [orderStats, setOrderStats] = useState<OrderStats | null>(null);
@@ -33,9 +35,6 @@ function Dashboard() {
     loadDashboardData();
   }, []);
 
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(amount);
-  };
   if (loading) {
     return (
       <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>

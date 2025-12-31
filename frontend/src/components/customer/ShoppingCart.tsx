@@ -21,6 +21,7 @@ import ShoppingCartCheckoutIcon from '@mui/icons-material/ShoppingCartCheckout';
 import RemoveShoppingCartIcon from '@mui/icons-material/RemoveShoppingCart';
 import { cartService, type CartSummary } from '../../services/cartService';
 import { useTranslation } from '../../hooks/useTranslation';
+import { useFormatting } from '../../hooks/useFormatting';
 
 interface ShoppingCartProps {
   onBackToStore: () => void;
@@ -29,6 +30,7 @@ interface ShoppingCartProps {
 
 export default function ShoppingCart({ onBackToStore, onCheckout }: ShoppingCartProps) {
   const { t } = useTranslation('ShoppingCart');
+  const { formatCurrency } = useFormatting();
   
   const [cartSummary, setCartSummary] = useState<CartSummary>({ items: [], subtotal: 0, taxAmount: 0, total: 0, itemCount: 0 });
 
@@ -55,10 +57,6 @@ export default function ShoppingCart({ onBackToStore, onCheckout }: ShoppingCart
   const handleClearCart = () => {
     cartService.clearCart();
     loadCart();
-  };
-
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(price);
   };
 
   const { items, subtotal, taxAmount, total } = cartSummary;
@@ -142,7 +140,7 @@ export default function ShoppingCart({ onBackToStore, onCheckout }: ShoppingCart
                         </Box>
                       </TableCell>
                       <TableCell align="right">
-                        {formatPrice(item.price)}
+                        {formatCurrency(item.price)}
                       </TableCell>
                       <TableCell align="center">
                         <TextField
@@ -156,7 +154,7 @@ export default function ShoppingCart({ onBackToStore, onCheckout }: ShoppingCart
                       </TableCell>
                       <TableCell align="right">
                         <Typography variant="body2" color="text.secondary">
-                          {formatPrice(lineTax)}
+                          {formatCurrency(lineTax)}
                         </Typography>
                         <Typography variant="caption" color="text.secondary">
                           ({item.taxRate}%)
@@ -164,7 +162,7 @@ export default function ShoppingCart({ onBackToStore, onCheckout }: ShoppingCart
                       </TableCell>
                       <TableCell align="right">
                         <Typography fontWeight="medium">
-                          {formatPrice(lineTotal)}
+                          {formatCurrency(lineTotal)}
                         </Typography>
                       </TableCell>
                       <TableCell align="center">
@@ -192,12 +190,12 @@ export default function ShoppingCart({ onBackToStore, onCheckout }: ShoppingCart
             
             <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
               <Typography color="text.secondary">{t('SUBTOTAL')}:</Typography>
-              <Typography>{formatPrice(subtotal)}</Typography>
+              <Typography>{formatCurrency(subtotal)}</Typography>
             </Box>
             
             <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
               <Typography color="text.secondary">{t('TAX_LABEL')}:</Typography>
-              <Typography>{formatPrice(taxAmount)}</Typography>
+              <Typography>{formatCurrency(taxAmount)}</Typography>
             </Box>
             
             <Divider sx={{ my: 1 }} />
@@ -205,7 +203,7 @@ export default function ShoppingCart({ onBackToStore, onCheckout }: ShoppingCart
             <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
               <Typography variant="h6">{t('TOTAL_LABEL')}:</Typography>
               <Typography variant="h6" color="primary">
-                {formatPrice(total)}
+                {formatCurrency(total)}
               </Typography>
             </Box>
 
