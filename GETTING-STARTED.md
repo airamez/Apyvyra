@@ -76,7 +76,7 @@
 
 ## Email Configuration
 
-For email confirmation setup and SMTP configuration, see: [Email Confirmation Setup Guide](EMAIL_CONFIRMATION_SETUP.md)
+Email configuration is handled through the backend `appsettings.json` file. For SMTP settings and email templates, see the [Backend README](backend/README.md) for detailed configuration instructions.
 
 ## Stripe Payment Configuration
 
@@ -294,4 +294,3 @@ Orders follow this status progression:
 - [Architecture](ARCHITECTURE.md)
 - [Coding Guidelines](CODING_GUIDELINES.md)
 - [Paging vs Filtering](PAGING_VS_FILTERING.md)
-- [Email Confirmation Setup](EMAIL_CONFIRMATION_SETUP.md)
