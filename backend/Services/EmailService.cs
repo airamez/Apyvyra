@@ -18,18 +18,37 @@ public class EmailService : IEmailService
 {
     private readonly EmailSettings _emailSettings;
     private readonly ILogger<EmailService> _logger;
+    private readonly IConfiguration _configuration;
+    private readonly string _defaultLanguage;
 
-    public EmailService(IOptions<EmailSettings> emailSettings, ILogger<EmailService> logger)
+    public EmailService(IOptions<EmailSettings> emailSettings, ILogger<EmailService> logger, IConfiguration configuration)
     {
         _emailSettings = emailSettings.Value;
         _logger = logger;
+        _configuration = configuration;
+        _defaultLanguage = _configuration["Localization:Language"] ?? "en-US";
+    }
+
+    private string GetLocalizedTemplatePath(string templateName)
+    {
+        var language = _defaultLanguage;
+        var localizedPath = $"email-templates/{language}/{templateName}";
+        
+        // Check if localized template exists, fallback to default if not
+        if (!File.Exists(localizedPath))
+        {
+            _logger.LogWarning("Localized template not found for language {Language}, falling back to default: {TemplatePath}", language, localizedPath);
+            localizedPath = $"email-templates/{templateName}";
+        }
+        
+        return localizedPath;
     }
 
     public async Task SendConfirmationEmailAsync(string toEmail, string confirmationUrl)
     {
         try
         {
-            var templatePath = "email-templates/confirmation.html";
+            var templatePath = GetLocalizedTemplatePath("confirmation.html");
             _logger.LogInformation("Looking for template at: {TemplatePath}", templatePath);
             var template = await File.ReadAllTextAsync(templatePath);
             
@@ -67,7 +86,7 @@ public class EmailService : IEmailService
     {
         try
         {
-            var templatePath = "email-templates/staff-invitation.html";
+            var templatePath = GetLocalizedTemplatePath("staff-invitation.html");
             _logger.LogInformation("Looking for staff invitation template at: {TemplatePath}", templatePath);
             var template = await File.ReadAllTextAsync(templatePath);
             
@@ -89,7 +108,7 @@ public class EmailService : IEmailService
     {
         try
         {
-            var templatePath = "email-templates/order-confirmation.html";
+            var templatePath = GetLocalizedTemplatePath("order-confirmation.html");
             _logger.LogInformation("Looking for order confirmation template at: {TemplatePath}", templatePath);
             var template = await File.ReadAllTextAsync(templatePath);
 
@@ -130,7 +149,7 @@ public class EmailService : IEmailService
     {
         try
         {
-            var templatePath = "email-templates/order-shipped.html";
+            var templatePath = GetLocalizedTemplatePath("order-shipped.html");
             _logger.LogInformation("Looking for order shipped template at: {TemplatePath}", templatePath);
             var template = await File.ReadAllTextAsync(templatePath);
 

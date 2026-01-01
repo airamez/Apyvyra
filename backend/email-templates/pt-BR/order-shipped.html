@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pedido Enviado - Apyvyra</title>
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { background: #10b981; color: white; padding: 20px; text-align: center; }
+        .content { padding: 20px; background: #f9fafb; }
+        .order-details { background: white; padding: 15px; border-radius: 4px; margin: 20px 0; }
+        .table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+        .table th, .table td { padding: 12px; border-bottom: 1px solid #e5e7eb; text-align: left; }
+        .table th { background: #f3f4f6; font-weight: bold; }
+        .table td:last-child { text-align: right; }
+        .total { font-weight: bold; font-size: 18px; text-align: right; margin-top: 20px; }
+        .shipping-info { background: #ecfdf5; padding: 15px; border-radius: 4px; margin: 20px 0; border-left: 4px solid #10b981; }
+        .footer { text-align: center; padding: 20px; font-size: 12px; color: #666; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Seu Pedido Foi Enviado! 🚚</h1>
+        </div>
+        <div class="content">
+            <h2>Olá, {{customer_name}}!</h2>
+            <p>Boas notícias! Seu pedido #{{order_number}} foi enviado e está a caminho.</p>
+            <p><strong>Data de Envio:</strong> {{shipped_date}}</p>
+            
+            <div class="shipping-info">
+                <h3>Informações de Envio</h3>
+                <p>{{shipping_details}}</p>
+            </div>
+            
+            <div class="order-details">
+                <h3>Resumo do Pedido</h3>
+                <p><strong>Endereço de Entrega:</strong><br>{{shipping_address}}</p>
+            </div>
+
+            <h4>Itens do Pedido</h4>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Produto</th>
+                        <th style="text-align: center;">Quantidade</th>
+                        <th style="text-align: right;">Preço Unit.</th>
+                        <th style="text-align: right;">Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {{order_items}}
+                </tbody>
+            </table>
+
+            <div class="total">
+                <p>Subtotal: R$ {{subtotal}}</p>
+                <p>Impostos: R$ {{tax_amount}}</p>
+                <p>Total: R$ {{total_amount}}</p>
+            </div>
+            
+            <p>Agradecemos sua compra na Apyvyra!</p>
+        </div>
+        <div class="footer">
+            <p>&copy; 2024 Apyvyra. Todos os direitos reservados.</p>
+        </div>
+    </div>
+</body>
+</html>
