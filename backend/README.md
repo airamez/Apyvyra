@@ -410,7 +410,6 @@ ENTRYPOINT ["dotnet", "backend.dll"]
 - [ ] Update `appsettings.json` with production values
 - [ ] Configure environment variables for secrets
 - [ ] Set up SSL/TLS certificates
-- [ ] Configure reverse proxy (nginx/Caddy)
 - [ ] Set up monitoring and logging
 - [ ] Configure Stripe webhooks for live environment
 - [ ] Set up database backups
