@@ -217,12 +217,19 @@ Apyvyra includes a **backend-driven translation system** that allows the applica
 Backend (Translation Service)
 ├── Resources/Translations/
 │   ├── en-US/           # English (US) translations
-│   │   ├── Common.json
-│   │   ├── Login.json
-│   │   ├── Register.json
-│   │   └── ...
-│   ├── es-MX/           # Spanish (Mexico) - add as needed
-│   └── pt-BR/           # Portuguese (Brazil) - add as needed
+│   │   ├── email-templates/    # English HTML email templates
+│   │   │   ├── confirmation.html
+│   │   │   ├── order-confirmation.html
+│   │   │   ├── order-shipped.html
+│   │   │   └── staff-invitation.html
+│   │   └── *.json              # English translation files
+│   └── pt-BR/           # Brazilian Portuguese translations
+│       ├── email-templates/    # Portuguese HTML email templates
+│       │   ├── confirmation.html
+│       │   ├── order-confirmation.html
+│       │   ├── order-shipped.html
+│       │   └── staff-invitation.html
+│       └── *.json              # Portuguese translation files
 │
 Frontend (Translation Hook)
 ├── useTranslation('ComponentName')  # Fetches and caches translations
@@ -295,17 +302,35 @@ t('WELCOME_MESSAGE', { fullName: 'John Doe' })
 
 ### Adding a New Language
 
-1. Create a new folder under `Resources/Translations/` (e.g., `es-MX/`)
-2. Copy all JSON files from `en-US/` to the new folder
-3. Translate all values in the JSON files
-4. Update `appsettings.json` to use the new language:
+1. Create a new folder under `Resources/Translations/` (e.g., `es-ES/` for Spanish)
+2. Copy all JSON translation files from `en-US/` to the new folder
+3. Copy the `email-templates/` folder from `en-US/` to the new folder
+4. Translate all values in the JSON files and email templates
+5. Update `appsettings.json` to use the new language:
    ```json
    {
      "Localization": {
-       "Language": "es-MX"
+       "Language": "es-ES"
      }
    }
    ```
+
+**Note**: Currently supported languages are `en-US` (English) and `pt-BR` (Brazilian Portuguese).
+
+### Email Template Translations
+
+Email templates are also localized and stored alongside JSON translations. Each language folder contains an `email-templates/` subfolder with HTML templates for:
+
+- `confirmation.html` - Email confirmation
+- `order-confirmation.html` - Order confirmation emails
+- `order-shipped.html` - Order shipped notifications
+- `staff-invitation.html` - Staff invitation emails
+
+Email subjects are also translated using dedicated translation files:
+- `ConfirmationEmail.json` - Confirmation email subject
+- `StaffInvitationEmail.json` - Staff invitation email subject
+- `OrderConfirmationEmail.json` - Order confirmation email subject
+- `OrderShippedEmail.json` - Order shipped email subject
 
 ### API Endpoints
 
@@ -338,6 +363,10 @@ t('WELCOME_MESSAGE', { fullName: 'John Doe' })
 | `Navigation` | Menu/navigation items |
 | `Validation` | Validation messages |
 | `UserProfile` | User profile |
+| `ConfirmationEmail` | Email confirmation subject |
+| `StaffInvitationEmail` | Staff invitation email subject |
+| `OrderConfirmationEmail` | Order confirmation email subject |
+| `OrderShippedEmail` | Order shipped email subject |
 
 ## Stripe Payment Configuration
 

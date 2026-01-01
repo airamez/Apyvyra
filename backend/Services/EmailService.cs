@@ -33,14 +33,33 @@ public class EmailService : IEmailService
 
     private string GetLocalizedTemplatePath(string templateName)
     {
+        var baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
+        
+        // Try to find Resources folder - first check if it exists in current directory (output)
+        var resourcesPath = Path.Combine(baseDirectory, "Resources");
+        if (!Directory.Exists(resourcesPath))
+        {
+            // If not found in output directory, try to go up directories to find project root
+            var currentDir = Directory.GetParent(baseDirectory);
+            while (currentDir != null)
+            {
+                resourcesPath = Path.Combine(currentDir.FullName, "Resources");
+                if (Directory.Exists(resourcesPath))
+                {
+                    break;
+                }
+                currentDir = currentDir.Parent;
+            }
+        }
+        
         var language = _defaultLanguage;
-        var localizedPath = $"email-templates/{language}/{templateName}";
+        var localizedPath = Path.Combine(resourcesPath, "Translations", language, "email-templates", templateName);
         
         // Check if localized template exists, fallback to default if not
         if (!File.Exists(localizedPath))
         {
             _logger.LogWarning("Localized template not found for language {Language}, falling back to default: {TemplatePath}", language, localizedPath);
-            localizedPath = $"email-templates/{templateName}";
+            localizedPath = Path.Combine(resourcesPath, "Translations", "en-US", "email-templates", templateName);
         }
         
         return localizedPath;

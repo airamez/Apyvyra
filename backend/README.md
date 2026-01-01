@@ -332,7 +332,14 @@ backend/
 ├── Helpers/
 │   └── QueryFilterHelper.cs  # Dynamic query filtering
 ├── Enums/                    # Application constants
-├── email-templates/          # HTML email templates
+├── Resources/
+│   └── Translations/         # Translation files and email templates
+│       ├── en-US/           # English translations
+│       │   ├── email-templates/    # English HTML email templates
+│       │   └── *.json              # English translation files
+│       └── pt-BR/           # Brazilian Portuguese translations
+│           ├── email-templates/    # Portuguese HTML email templates
+│           └── *.json              # Portuguese translation files
 ├── Program.cs                # Application entry point
 ├── appsettings.json          # Configuration
 └── README.md                 # This file
