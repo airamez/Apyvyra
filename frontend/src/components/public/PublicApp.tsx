@@ -79,7 +79,7 @@ function PublicAppContent({ onLoginSuccess, toggleTheme, mode }: PublicAppProps)
       </AppBar>
 
       <Routes>
-        <Route path="/" element={<WelcomePage isAuthenticated={false} />} />
+        <Route path="/" element={<WelcomePage />} />
         <Route path="/register" element={<Register onNavigateToLogin={handleNavigateToLogin} />} />
         <Route path="/login" element={<Login onNavigateToRegister={handleNavigateToRegister} onLoginSuccess={handleLoginSuccessInternal} />} />
         <Route path="/confirm/:token" element={<EmailConfirmation />} />
