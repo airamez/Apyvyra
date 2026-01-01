@@ -52,17 +52,10 @@ public class EmailService : IEmailService
             _logger.LogInformation("Looking for template at: {TemplatePath}", templatePath);
             var template = await File.ReadAllTextAsync(templatePath);
             
-            // Prepare template variables - always use the same template since new token is created
+            // Prepare template variables - only replace data variables, not text
             var emailBody = template
-                .Replace("{{email_type}}", "EMAIL_TYPE_WELCOME")
-                .Replace("{{email_subtitle}}", "EMAIL_SUBTITLE_JOURNEY_STARTS")
-                .Replace("{{confirmation_instruction}}", "EMAIL_CONFIRMATION_INSTRUCTION")
                 .Replace("{{confirmation_url}}", confirmationUrl)
-                .Replace("{{expiry_class}}", "")
-                .Replace("{{expiry_title}}", "EMAIL_EXPIRY_TITLE")
-                .Replace("{{expiry_message}}", "EMAIL_EXPIRY_MESSAGE")
-                .Replace("{{security_title}}", "EMAIL_SECURITY_TITLE")
-                .Replace("{{security_message}}", "EMAIL_SECURITY_MESSAGE");
+                .Replace("{{expiry_class}}", "");
 
             // Remove the resend section completely since we always use the same template
             var startIndex = emailBody.IndexOf("{{#is_resend}}");
@@ -72,7 +65,7 @@ public class EmailService : IEmailService
                 emailBody = emailBody.Remove(startIndex, endIndex - startIndex);
             }
 
-            var subject = "EMAIL_SUBJECT_CONFIRM_EMAIL";
+            var subject = _defaultLanguage == "pt-BR" ? "Confirme seu endereço de email - Apyvyra" : "Confirm your email address - Apyvyra";
             await SendEmailAsync(toEmail, subject, emailBody);
         }
         catch (Exception ex)
@@ -94,7 +87,7 @@ public class EmailService : IEmailService
                 .Replace("{{full_name}}", fullName)
                 .Replace("{{setup_url}}", setupUrl);
 
-            var subject = "You've Been Invited to Join Apyvyra - Staff Account Setup";
+            var subject = _defaultLanguage == "pt-BR" ? "Você foi convidado a se juntar à Apyvyra - Configuração de Conta da Equipe" : "You've Been Invited to Join Apyvyra - Staff Account Setup";
             await SendEmailAsync(toEmail, subject, emailBody);
         }
         catch (Exception ex)
@@ -135,7 +128,7 @@ public class EmailService : IEmailService
                 .Replace("{{total_amount}}", order.TotalAmount.ToString("F2"))
                 .Replace("{{shipping_address}}", order.ShippingAddress.Replace("\n", "<br>"));
 
-            var subject = $"Order Confirmation - {order.OrderNumber} - Apyvyra";
+            var subject = _defaultLanguage == "pt-BR" ? $"Confirmação de Pedido - {order.OrderNumber} - Apyvyra" : $"Order Confirmation - {order.OrderNumber} - Apyvyra";
             await SendEmailAsync(toEmail, subject, emailBody);
         }
         catch (Exception ex)
@@ -182,7 +175,7 @@ public class EmailService : IEmailService
                 .Replace("{{shipping_address}}", order.ShippingAddress.Replace("\n", "<br>"))
                 .Replace("{{shipping_details}}", formattedShippingDetails);
 
-            var subject = $"Your Order Has Shipped - {order.OrderNumber} - Apyvyra";
+            var subject = _defaultLanguage == "pt-BR" ? $"Seu Pedido Foi Enviado - {order.OrderNumber} - Apyvyra" : $"Your Order Has Shipped - {order.OrderNumber} - Apyvyra";
             await SendEmailAsync(toEmail, subject, emailBody);
         }
         catch (Exception ex)
