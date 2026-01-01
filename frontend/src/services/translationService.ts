@@ -26,26 +26,22 @@ export async function fetchLanguage(): Promise<string> {
 
 // Fetch translations for a specific component
 export async function fetchTranslations(component: string): Promise<Record<string, string>> {
+  // Clear cache for this component to force fresh load
+  translationCache.delete(component);
+  
   // Check cache first
   if (translationCache.has(component)) {
-    console.log(`Returning cached translations for ${component}:`, translationCache.get(component));
     return translationCache.get(component)!;
   }
 
   try {
-    console.log(`Fetching translations for ${component} from:`, API_ENDPOINTS.TRANSLATION.GET(component));
     const response = await fetch(API_ENDPOINTS.TRANSLATION.GET(component));
-    console.log(`Response status:`, response.status, response.statusText);
     
     if (response.ok) {
       const data = await response.json();
-      console.log(`Raw response data:`, data);
       const translations = data.data || {};
-      console.log(`Extracted translations for ${component}:`, translations);
       translationCache.set(component, translations);
       return translations;
-    } else {
-      console.error(`Failed to fetch translations. Status: ${response.status}`);
     }
   } catch (error) {
     console.error(`Failed to fetch translations for ${component}:`, error);
@@ -53,11 +49,9 @@ export async function fetchTranslations(component: string): Promise<Record<strin
 
   // Fallback: Try to load from local JSON file if backend is not available
   try {
-    console.log(`Trying fallback to local JSON for ${component}`);
     const response = await fetch(`/translations/${component}.json`);
     if (response.ok) {
       const translations = await response.json();
-      console.log(`Loaded local translations for ${component}:`, translations);
       translationCache.set(component, translations);
       return translations;
     }
@@ -66,7 +60,6 @@ export async function fetchTranslations(component: string): Promise<Record<strin
   }
 
   // Return empty object if all attempts fail
-  console.log(`No translations found for ${component}, returning empty object`);
   translationCache.set(component, {});
   return {};
 }
@@ -78,13 +71,6 @@ export function translate(
   params?: Record<string, string | number>
 ): string {
   let text = translations[key] || key;
-  
-  console.log(`Translating key "${key}":`, {
-    availableKeys: Object.keys(translations),
-    foundValue: translations[key],
-    fallback: key,
-    finalText: text
-  });
   
   // Replace parameters like {name} with actual values
   if (params) {

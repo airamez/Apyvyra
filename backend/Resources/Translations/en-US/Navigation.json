@@ -1,4 +1,7 @@
 {
+  "TITLE": "Apyvyra ERP",
+  "SWITCH_THEME": "Switch to {mode} mode",
+  "SIGN_UP": "Sign up",
   "HOME": "Home",
   "DASHBOARD": "Dashboard",
   "STORE": "Store",

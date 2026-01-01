@@ -6,6 +6,7 @@
   "LOGGING_IN": "Logging in...",
   "LOGIN_SUCCESS": "Login successful! Welcome back.",
   "LOGIN_ERROR": "An error occurred during login",
+  "SIGN_UP": "Sign up",
   "DONT_HAVE_ACCOUNT": "Don't have an account?",
   "SIGN_UP_HERE": "Sign up here",
   "EMAIL_CONFIRMATION_REQUIRED": "Email Confirmation Required",
