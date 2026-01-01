@@ -1,1 +1,20 @@
-{"TITLE":"Login","EMAIL_ADDRESS":"Endereço de Email","PASSWORD":"Senha","LOGIN_BUTTON":"Entrar","LOGGING_IN":"Entrando...","LOGIN_SUCCESS":"Login realizado com sucesso! Bem-vindo de volta.","LOGIN_ERROR":"Ocorreu um erro durante o login","SIGN_UP":"Inscrever-se","DONT_HAVE_ACCOUNT":"Não tem uma conta?","SIGN_UP_HERE":"Inscreva-se aqui","EMAIL_CONFIRMATION_REQUIRED":"Confirmação de Email Necessária","CHECK_INBOX_MESSAGE":"Verifique sua caixa de entrada para o email de confirmação. Se você não o encontrar, pode solicitar um novo abaixo.","RESEND_CONFIRMATION_TO":"Reenviar email de confirmação para:","RESEND_EMAIL":"Reenviar Email","SENDING":"Enviando...","FAILED_RESEND":"Falha ao reenviar email de confirmação. Tente novamente.","RESEND_ERROR":"Ocorreu um erro. Tente novamente mais tarde.","PLEASE_LOGIN_TO_VALIDATE":"Faça login para validar seu endereço e continuar com a finalização da compra."}
+{
+  "TITLE": "Login",
+  "EMAIL_ADDRESS": "Endereço de Email",
+  "PASSWORD": "Senha",
+  "LOGIN_BUTTON": "Entrar",
+  "LOGGING_IN": "Entrando...",
+  "LOGIN_SUCCESS": "Login realizado com sucesso! Bem-vindo de volta.",
+  "LOGIN_ERROR": "Ocorreu um erro durante o login",
+  "SIGN_UP": "Inscrever-se",
+  "DONT_HAVE_ACCOUNT": "Não tem uma conta?",
+  "SIGN_UP_HERE": "Inscreva-se aqui",
+  "EMAIL_CONFIRMATION_REQUIRED": "Confirmação de Email Necessária",
+  "CHECK_INBOX_MESSAGE": "Verifique sua caixa de entrada para o email de confirmação. Se você não o encontrar, pode solicitar um novo abaixo.",
+  "RESEND_CONFIRMATION_TO": "Reenviar email de confirmação para:",
+  "RESEND_EMAIL": "Reenviar Email",
+  "SENDING": "Enviando...",
+  "FAILED_RESEND": "Falha ao reenviar email de confirmação. Tente novamente.",
+  "RESEND_ERROR": "Ocorreu um erro. Tente novamente mais tarde.",
+  "PLEASE_LOGIN_TO_VALIDATE": "Faça login para validar seu endereço e continuar com a finalização da compra."
+}

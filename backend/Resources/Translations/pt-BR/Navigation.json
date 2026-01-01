@@ -1,1 +1,20 @@
-{"TITLE":"Apyvyra ERP","SWITCH_THEME":"Mudar para modo {mode}","SIGN_UP":"Inscrever-se","HOME":"Início","DASHBOARD":"Painel","STORE":"Loja","CART":"Carrinho","MY_ORDERS":"Meus Pedidos","PROFILE":"Perfil","PRODUCTS":"Produtos","CATEGORIES":"Categorias","CUSTOMERS":"Clientes","STAFF":"Equipe","ORDERS":"Pedidos","SETTINGS":"Configurações","LOGOUT":"Sair","LOGIN":"Entrar","REGISTER":"Registrar"}
+{
+  "TITLE": "Apyvyra ERP",
+  "SWITCH_THEME": "Mudar para modo {mode}",
+  "SIGN_UP": "Inscrever-se",
+  "HOME": "Início",
+  "DASHBOARD": "Painel",
+  "STORE": "Loja",
+  "CART": "Carrinho",
+  "MY_ORDERS": "Meus Pedidos",
+  "PROFILE": "Perfil",
+  "PRODUCTS": "Produtos",
+  "CATEGORIES": "Categorias",
+  "CUSTOMERS": "Clientes",
+  "STAFF": "Equipe",
+  "ORDERS": "Pedidos",
+  "SETTINGS": "Configurações",
+  "LOGOUT": "Sair",
+  "LOGIN": "Entrar",
+  "REGISTER": "Registrar"
+}

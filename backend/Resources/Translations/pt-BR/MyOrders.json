@@ -1,1 +1,20 @@
-{"TITLE":"Meus Pedidos","NO_ORDERS":"Você ainda não fez nenhum pedido.","FAILED_LOAD_ORDERS":"Falha ao carregar pedidos","ORDER_NUMBER":"Pedido #","DATE":"Data","STATUS":"Status","ITEMS":"Itens","TOTAL":"Total","ORDER_ITEMS":"Itens do Pedido","PRODUCT":"Produto","QTY":"Qtd","UNIT_PRICE":"Preço Unitário","TAX":"Imposto","SHIPPING_ADDRESS":"Endereço de Entrega","SUBTOTAL":"Subtotal:","TAX_LABEL":"Imposto:","TOTAL_LABEL":"Total:","NOTES":"Notas"}
+{
+  "TITLE": "Meus Pedidos",
+  "NO_ORDERS": "Você ainda não fez nenhum pedido.",
+  "FAILED_LOAD_ORDERS": "Falha ao carregar pedidos",
+  "ORDER_NUMBER": "Pedido #",
+  "DATE": "Data",
+  "STATUS": "Status",
+  "ITEMS": "Itens",
+  "TOTAL": "Total",
+  "ORDER_ITEMS": "Itens do Pedido",
+  "PRODUCT": "Produto",
+  "QTY": "Qtd",
+  "UNIT_PRICE": "Preço Unitário",
+  "TAX": "Imposto",
+  "SHIPPING_ADDRESS": "Endereço de Entrega",
+  "SUBTOTAL": "Subtotal:",
+  "TAX_LABEL": "Imposto:",
+  "TOTAL_LABEL": "Total:",
+  "NOTES": "Notas"
+}

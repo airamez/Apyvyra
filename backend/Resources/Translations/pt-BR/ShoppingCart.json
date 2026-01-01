@@ -1,1 +1,16 @@
-{"TITLE":"Carrinho de Compras","CONTINUE_SHOPPING":"Continuar Comprando","CLEAR_CART":"Limpar Carrinho","EMPTY_CART":"Seu carrinho está vazio. Comece a comprar para adicionar itens!","PRODUCT":"Produto","PRICE":"Preço","QTY":"Qtd","TAX":"Imposto","TOTAL":"Total","ORDER_SUMMARY":"Resumo do Pedido","SUBTOTAL":"Subtotal:","TAX_LABEL":"Imposto:","TOTAL_LABEL":"Total:","PROCEED_TO_CHECKOUT":"Ir para o Checkout"}
+{
+  "TITLE": "Carrinho de Compras",
+  "CONTINUE_SHOPPING": "Continuar Comprando",
+  "CLEAR_CART": "Limpar Carrinho",
+  "EMPTY_CART": "Seu carrinho está vazio. Comece a comprar para adicionar itens!",
+  "PRODUCT": "Produto",
+  "PRICE": "Preço",
+  "QTY": "Qtd",
+  "TAX": "Imposto",
+  "TOTAL": "Total",
+  "ORDER_SUMMARY": "Resumo do Pedido",
+  "SUBTOTAL": "Subtotal:",
+  "TAX_LABEL": "Imposto:",
+  "TOTAL_LABEL": "Total:",
+  "PROCEED_TO_CHECKOUT": "Ir para o Checkout"
+}

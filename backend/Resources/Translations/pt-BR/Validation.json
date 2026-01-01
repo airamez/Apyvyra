@@ -1,1 +1,13 @@
-{"REQUIRED":"Este campo é obrigatório","INVALID_EMAIL":"Digite um endereço de email válido","PASSWORD_MIN_LENGTH":"A senha deve ter pelo menos 6 caracteres","PASSWORDS_NOT_MATCH":"As senhas não coincidem","ALL_FIELDS_REQUIRED":"Todos os campos são obrigatórios","INVALID_PHONE":"Digite um número de telefone válido","INVALID_URL":"Digite uma URL válida","MIN_VALUE":"O valor deve ser pelo menos {min}","MAX_VALUE":"O valor deve ser no máximo {max}","MIN_LENGTH":"Deve ter pelo menos {min} caracteres","MAX_LENGTH":"Deve ter no máximo {max} caracteres"}
+{
+  "REQUIRED": "Este campo é obrigatório",
+  "INVALID_EMAIL": "Digite um endereço de email válido",
+  "PASSWORD_MIN_LENGTH": "A senha deve ter pelo menos 6 caracteres",
+  "PASSWORDS_NOT_MATCH": "As senhas não coincidem",
+  "ALL_FIELDS_REQUIRED": "Todos os campos são obrigatórios",
+  "INVALID_PHONE": "Digite um número de telefone válido",
+  "INVALID_URL": "Digite uma URL válida",
+  "MIN_VALUE": "O valor deve ser pelo menos {min}",
+  "MAX_VALUE": "O valor deve ser no máximo {max}",
+  "MIN_LENGTH": "Deve ter pelo menos {min} caracteres",
+  "MAX_LENGTH": "Deve ter no máximo {max} caracteres"
+}

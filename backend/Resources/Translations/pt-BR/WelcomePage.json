@@ -1,1 +1,18 @@
-{"COMPANY_NAME":"Nome da Sua Empresa","COMPANY_URL":"https://suaempresa.com","COMPANY_DESCRIPTION":"Fornecemos produtos de alta qualidade e serviço excepcional para atender todas as suas necessidades. Nosso compromisso com a excelência garante que você obtenha o melhor valor para seu investimento.","COMPANY_CONTACT_EMAIL":"info@suaempresa.com","COMPANY_PHONE":"+55 (11) 1234-5678","COMPANY_ADDRESS":"Rua dos Negócios, 123, Cidade, Estado 12345","WHY_CHOOSE_US_TITLE":"Por Que Nos Escolher","WHY_CHOOSE_US_DESCRIPTION":"Estamos comprometidos em fornecer os melhores produtos e experiência de serviço","QUALITY_PRODUCTS_TITLE":"Produtos de Qualidade","QUALITY_PRODUCTS_DESCRIPTION":"Selecionamos apenas produtos da mais alta qualidade de fabricantes confiáveis","FAST_DELIVERY_TITLE":"Entrega Rápida","FAST_DELIVERY_DESCRIPTION":"Envio rápido e confiável para obter seus produtos quando você precisar","EXPERT_SUPPORT_TITLE":"Suporte Especializado","EXPERT_SUPPORT_DESCRIPTION":"Nossa equipe experiente está aqui para ajudá-lo com qualquer dúvida","FOOTER_COPYRIGHT":"© 2024 {companyName}. Todos os direitos reservados.","FOOTER_POWERED_BY":"Desenvolvido pelo Sistema ERP Apyvyra"}
+{
+  "COMPANY_NAME": "Nome da Sua Empresa",
+  "COMPANY_URL": "https://suaempresa.com",
+  "COMPANY_DESCRIPTION": "Fornecemos produtos de alta qualidade e serviço excepcional para atender todas as suas necessidades. Nosso compromisso com a excelência garante que você obtenha o melhor valor para seu investimento.",
+  "COMPANY_CONTACT_EMAIL": "info@suaempresa.com",
+  "COMPANY_PHONE": "+55 (11) 1234-5678",
+  "COMPANY_ADDRESS": "Rua dos Negócios, 123, Cidade, Estado 12345",
+  "WHY_CHOOSE_US_TITLE": "Por Que Nos Escolher",
+  "WHY_CHOOSE_US_DESCRIPTION": "Estamos comprometidos em fornecer os melhores produtos e experiência de serviço",
+  "QUALITY_PRODUCTS_TITLE": "Produtos de Qualidade",
+  "QUALITY_PRODUCTS_DESCRIPTION": "Selecionamos apenas produtos da mais alta qualidade de fabricantes confiáveis",
+  "FAST_DELIVERY_TITLE": "Entrega Rápida",
+  "FAST_DELIVERY_DESCRIPTION": "Envio rápido e confiável para obter seus produtos quando você precisar",
+  "EXPERT_SUPPORT_TITLE": "Suporte Especializado",
+  "EXPERT_SUPPORT_DESCRIPTION": "Nossa equipe experiente está aqui para ajudá-lo com qualquer dúvida",
+  "FOOTER_COPYRIGHT": "© 2024 {companyName}. Todos os direitos reservados.",
+  "FOOTER_POWERED_BY": "Desenvolvido pelo Sistema ERP Apyvyra"
+}

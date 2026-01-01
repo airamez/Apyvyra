@@ -1,1 +1,21 @@
-{"TITLE":"Categorias","ADD_CATEGORY":"Adicionar Categoria","CATEGORY_LIST":"Lista de Categorias","CATEGORY_COUNT":"{count} categorias","NO_CATEGORIES":"Nenhuma categoria encontrada. Comece adicionando sua primeira categoria.","FAILED_LOAD_CATEGORIES":"Falha ao carregar categorias. Tente novamente.","NAME":"Nome","DESCRIPTION":"Descrição","PARENT_CATEGORY":"Categoria Pai","STATUS":"Status","ACTIVE":"Ativa","INACTIVE":"Inativa","ACTIONS":"Ações","ADD_DIALOG_TITLE":"Adicionar Nova Categoria","EDIT_DIALOG_TITLE":"Editar Categoria","DELETE_DIALOG_TITLE":"Excluir Categoria","DELETE_CONFIRM":"Tem certeza de que deseja excluir {name}?","FAILED_DELETE_CATEGORY":"Falha ao excluir categoria","FAILED_SAVE_CATEGORY":"Falha ao salvar categoria"}
+{
+  "TITLE": "Categorias",
+  "ADD_CATEGORY": "Adicionar Categoria",
+  "CATEGORY_LIST": "Lista de Categorias",
+  "CATEGORY_COUNT": "{count} categorias",
+  "NO_CATEGORIES": "Nenhuma categoria encontrada. Comece adicionando sua primeira categoria.",
+  "FAILED_LOAD_CATEGORIES": "Falha ao carregar categorias. Tente novamente.",
+  "NAME": "Nome",
+  "DESCRIPTION": "Descrição",
+  "PARENT_CATEGORY": "Categoria Pai",
+  "STATUS": "Status",
+  "ACTIVE": "Ativa",
+  "INACTIVE": "Inativa",
+  "ACTIONS": "Ações",
+  "ADD_DIALOG_TITLE": "Adicionar Nova Categoria",
+  "EDIT_DIALOG_TITLE": "Editar Categoria",
+  "DELETE_DIALOG_TITLE": "Excluir Categoria",
+  "DELETE_CONFIRM": "Tem certeza de que deseja excluir {name}?",
+  "FAILED_DELETE_CATEGORY": "Falha ao excluir categoria",
+  "FAILED_SAVE_CATEGORY": "Falha ao salvar categoria"
+}

@@ -1,1 +1,14 @@
-{"TITLE":"Perfil do Usuário","EMAIL":"Email","ROLE":"Função","STATUS":"Status","MEMBER_SINCE":"Membro Desde","LAST_LOGIN":"Último Login","EDIT_PROFILE":"Editar Perfil","CHANGE_PASSWORD":"Alterar Senha","LOGOUT":"Sair","ADMIN":"Administrador","STAFF":"Equipe","CUSTOMER":"Cliente"}
+{
+  "TITLE": "Perfil do Usuário",
+  "EMAIL": "Email",
+  "ROLE": "Função",
+  "STATUS": "Status",
+  "MEMBER_SINCE": "Membro Desde",
+  "LAST_LOGIN": "Último Login",
+  "EDIT_PROFILE": "Editar Perfil",
+  "CHANGE_PASSWORD": "Alterar Senha",
+  "LOGOUT": "Sair",
+  "ADMIN": "Administrador",
+  "STAFF": "Equipe",
+  "CUSTOMER": "Cliente"
+}

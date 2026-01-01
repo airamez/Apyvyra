@@ -23,6 +23,7 @@ import MyOrders from './MyOrders';
 import UserProfile from '../common/UserProfile';
 import { cartService } from '../../services/cartService';
 import { authService } from '../../services/authService';
+import { useTranslation } from '../../hooks/useTranslation';
 
 interface CustomerAppProps {
   onLogout: () => void;
@@ -31,6 +32,7 @@ interface CustomerAppProps {
 }
 
 export default function CustomerApp({ onLogout, toggleTheme, mode }: CustomerAppProps) {
+  const { t } = useTranslation('Navigation');
   const [activeView, setActiveView] = useState<'store' | 'cart' | 'checkout' | 'orders'>('store');
   const [cartItemCount, setCartItemCount] = useState(0);
   const [userType, setUserType] = useState<'Admin' | 'Staff' | 'Customer'>('Customer');
@@ -90,7 +92,7 @@ export default function CustomerApp({ onLogout, toggleTheme, mode }: CustomerApp
               onClick={() => setActiveView('store')}
               size="small"
             >
-              Store
+              {t('STORE')}
             </Button>
             <Button
               color="inherit"
@@ -103,7 +105,7 @@ export default function CustomerApp({ onLogout, toggleTheme, mode }: CustomerApp
               onClick={handleViewCart}
               size="small"
             >
-              Cart
+              {t('CART')}
             </Button>
             <Button
               color="inherit"
@@ -112,13 +114,13 @@ export default function CustomerApp({ onLogout, toggleTheme, mode }: CustomerApp
               onClick={() => setActiveView('orders')}
               size="small"
             >
-              Orders
+              {t('MY_ORDERS')}
             </Button>
           </Box>
 
           <Box sx={{ flexGrow: 1 }} />
 
-          <Tooltip title={`Switch to ${mode === 'light' ? 'dark' : 'light'} mode`}>
+          <Tooltip title={t('SWITCH_THEME', { mode: mode === 'light' ? 'dark' : 'light' })}>
             <IconButton onClick={toggleTheme} color="inherit" sx={{ mr: 2 }}>
               {mode === 'dark' ? <Brightness7Icon /> : <Brightness4Icon />}
             </IconButton>
@@ -127,7 +129,7 @@ export default function CustomerApp({ onLogout, toggleTheme, mode }: CustomerApp
           <UserProfile />
 
           <Button color="inherit" onClick={onLogout} startIcon={<LogoutIcon />}>
-            Logout
+            {t('LOGOUT')}
           </Button>
         </Toolbar>
       </AppBar>

@@ -1,1 +1,21 @@
-{"TITLE":"Pagamento","BACK":"Voltar","BACK_TO_CHECKOUT":"Voltar ao Checkout","INITIALIZING_PAYMENT":"Inicializando pagamento...","FAILED_INITIALIZE":"Falha ao inicializar pagamento","PAYMENT_NOT_CONFIGURED":"Sistema de pagamento não está configurado. Entre em contato com o suporte.","TEST_MODE_MESSAGE":"Modo de Teste: Use o número do cartão 4242 4242 4242 4242 com qualquer data futura de expiração e qualquer CVC.","MOCK_MODE_TITLE":"Modo de Pagamento Simulado","MOCK_MODE_MESSAGE":"Este é um pagamento simulado para fins de teste. Nenhum pagamento real será processado.","CARD_NUMBER":"Número do Cartão","EXPIRY_DATE":"Data de Expiração","CVC":"CVC","CARDHOLDER_NAME":"Nome do Titular","PAY_NOW":"Pagar Agora","PROCESSING":"Processando...","PAYMENT_SUCCESS":"Pagamento realizado com sucesso!","PAYMENT_FAILED":"Pagamento falhou. Tente novamente.","ORDER_NUMBER":"Pedido #","AMOUNT":"Valor"}
+{
+  "TITLE": "Pagamento",
+  "BACK": "Voltar",
+  "BACK_TO_CHECKOUT": "Voltar ao Checkout",
+  "INITIALIZING_PAYMENT": "Inicializando pagamento...",
+  "FAILED_INITIALIZE": "Falha ao inicializar pagamento",
+  "PAYMENT_NOT_CONFIGURED": "Sistema de pagamento não está configurado. Entre em contato com o suporte.",
+  "TEST_MODE_MESSAGE": "Modo de Teste: Use o número do cartão 4242 4242 4242 4242 com qualquer data futura de expiração e qualquer CVC.",
+  "MOCK_MODE_TITLE": "Modo de Pagamento Simulado",
+  "MOCK_MODE_MESSAGE": "Este é um pagamento simulado para fins de teste. Nenhum pagamento real será processado.",
+  "CARD_NUMBER": "Número do Cartão",
+  "EXPIRY_DATE": "Data de Expiração",
+  "CVC": "CVC",
+  "CARDHOLDER_NAME": "Nome do Titular",
+  "PAY_NOW": "Pagar Agora",
+  "PROCESSING": "Processando...",
+  "PAYMENT_SUCCESS": "Pagamento realizado com sucesso!",
+  "PAYMENT_FAILED": "Pagamento falhou. Tente novamente.",
+  "ORDER_NUMBER": "Pedido #",
+  "AMOUNT": "Valor"
+}

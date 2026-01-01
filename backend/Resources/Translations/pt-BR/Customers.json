@@ -1,1 +1,16 @@
-{"TITLE":"Clientes","CUSTOMER_LIST":"Lista de Clientes","CUSTOMER_COUNT":"{count} clientes","NO_CUSTOMERS":"Nenhum cliente encontrado.","FAILED_LOAD_CUSTOMERS":"Falha ao carregar clientes. Tente novamente.","EMAIL":"Email","STATUS":"Status","EMAIL_CONFIRMED":"Email Confirmado","CONFIRMED_AT":"Confirmado Em","CREATED_AT":"Criado Em","ACTIONS":"Ações","PENDING_CONFIRMATION":"Confirmação Pendente","ACTIVE":"Ativo","INACTIVE":"Inativo"}
+{
+  "TITLE": "Clientes",
+  "CUSTOMER_LIST": "Lista de Clientes",
+  "CUSTOMER_COUNT": "{count} clientes",
+  "NO_CUSTOMERS": "Nenhum cliente encontrado.",
+  "FAILED_LOAD_CUSTOMERS": "Falha ao carregar clientes. Tente novamente.",
+  "EMAIL": "Email",
+  "STATUS": "Status",
+  "EMAIL_CONFIRMED": "Email Confirmado",
+  "CONFIRMED_AT": "Confirmado Em",
+  "CREATED_AT": "Criado Em",
+  "ACTIONS": "Ações",
+  "PENDING_CONFIRMATION": "Confirmação Pendente",
+  "ACTIVE": "Ativo",
+  "INACTIVE": "Inativo"
+}
