@@ -25,5 +25,6 @@
   "ENTER_VALID_ADDRESS": "Please enter a valid address",
   "WAIT_FOR_VALIDATION": "Please wait for address validation or check the bypass option",
   "FAILED_VALIDATE_ADDRESS": "Failed to validate address. Please try again.",
-  "FAILED_CREATE_ORDER": "Failed to create order. Please try again."
+  "FAILED_CREATE_ORDER": "Failed to create order. Please try again.",
+  "PLEASE_LOGIN_TO_VALIDATE": "Please log in to validate your address and proceed with checkout."
 }

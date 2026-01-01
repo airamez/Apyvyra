@@ -24,6 +24,7 @@ import Payment from './Payment';
 import { getErrorMessages } from '../../utils/apiErrorHandler';
 import { validateAddress, type AddressValidationResult } from '../../utils/addressValidation';
 import { useFormatting } from '../../hooks/useFormatting';
+import { useTranslation } from '../../hooks/useTranslation';
 
 interface CheckoutProps {
   onBackToCart: () => void;
@@ -32,6 +33,7 @@ interface CheckoutProps {
 
 export default function Checkout({ onBackToCart, onOrderComplete }: CheckoutProps) {
   const { formatCurrency } = useFormatting();
+  const { t } = useTranslation('Checkout');
   
   const [cartSummary, setCartSummary] = useState<CartSummary>({ items: [], subtotal: 0, taxAmount: 0, total: 0, itemCount: 0 });
   const [shippingAddress, setShippingAddress] = useState('');
@@ -55,7 +57,7 @@ export default function Checkout({ onBackToCart, onOrderComplete }: CheckoutProp
 
   const handleValidateAddress = async () => {
     if (!shippingAddress.trim()) {
-      setError('Please enter a shipping address first');
+      setError(t('ENTER_ADDRESS_FIRST'));
       return;
     }
 
@@ -68,15 +70,15 @@ export default function Checkout({ onBackToCart, onOrderComplete }: CheckoutProp
       setAddressValidation(result);
       
       if (!result.isValid) {
-        setError(result.errorMessage || 'Address validation failed');
+        setError(result.errorMessage || t('ADDRESS_VALIDATION_FAILED'));
         
         // If authentication is required, show a more user-friendly message
         if (result.errorMessage?.includes('logged in')) {
-          setError('Please log in to validate your address and proceed with checkout.');
+          setError(t('PLEASE_LOGIN_TO_VALIDATE'));
         }
       }
     } catch (error) {
-      setError('Failed to validate address. Please try again.');
+      setError(t('FAILED_VALIDATE_ADDRESS'));
     } finally {
       setIsValidatingAddress(false);
     }
@@ -93,18 +95,18 @@ export default function Checkout({ onBackToCart, onOrderComplete }: CheckoutProp
 
   const handleProceedToPayment = async () => {
     if (!shippingAddress.trim()) {
-      setError('Please enter a shipping address');
+      setError(t('ENTER_SHIPPING_ADDRESS'));
       return;
     }
 
     // Check address validation unless bypassed
     if (!bypassValidation && addressValidation && !addressValidation.isValid) {
-      setError(addressValidation.errorMessage || 'Please enter a valid address');
+      setError(addressValidation.errorMessage || t('ENTER_VALID_ADDRESS'));
       return;
     }
 
     if (!bypassValidation && !addressValidation) {
-      setError('Please wait for address validation or check the bypass option');
+      setError(t('WAIT_FOR_VALIDATION'));
       return;
     }
 
@@ -132,7 +134,7 @@ export default function Checkout({ onBackToCart, onOrderComplete }: CheckoutProp
       setShowPayment(true);
     } catch (err) {
       const errorMessages = getErrorMessages(err);
-      setError(errorMessages[0] || 'Failed to create order. Please try again.');
+      setError(errorMessages[0] || t('FAILED_CREATE_ORDER'));
     } finally {
       setLoading(false);
     }
@@ -166,10 +168,10 @@ export default function Checkout({ onBackToCart, onOrderComplete }: CheckoutProp
           variant="outlined"
           size="small"
         >
-          Back to Cart
+          {t('BACK_TO_CART')}
         </Button>
         <Typography variant="h5">
-          Checkout
+          {t('TITLE')}
         </Typography>
       </Box>
 
@@ -185,11 +187,11 @@ export default function Checkout({ onBackToCart, onOrderComplete }: CheckoutProp
           {/* Shipping Address */}
           <Paper sx={{ p: 2, mb: 2 }}>
             <Typography variant="h6" gutterBottom>
-              Shipping Address
+              {t('SHIPPING_ADDRESS')}
             </Typography>
             <TextField
               fullWidth
-              placeholder="Enter your complete shipping address (street, city, state, zip code)"
+              placeholder={t('SHIPPING_ADDRESS_PLACEHOLDER')}
               value={shippingAddress}
               onChange={(e) => {
                 setShippingAddress(e.target.value);
@@ -203,10 +205,10 @@ export default function Checkout({ onBackToCart, onOrderComplete }: CheckoutProp
               error={addressValidation ? !addressValidation.isValid && !bypassValidation : false}
               helperText={
                 isValidatingAddress 
-                  ? 'Validating address...' 
+                  ? t('VALIDATING_ADDRESS')
                   : addressValidation && !bypassValidation
                     ? addressValidation.isValid 
-                      ? `Address validated successfully${addressValidation.isMockValidation ? ' (using mock validation)' : ''}` 
+                      ? `${t('ADDRESS_VALIDATED')}${addressValidation.isMockValidation ? ` ${t('ADDRESS_VALIDATED_MOCK')}` : ''}` 
                       : addressValidation.errorMessage
                     : ''
               }
@@ -219,7 +221,7 @@ export default function Checkout({ onBackToCart, onOrderComplete }: CheckoutProp
                 disabled={isValidatingAddress || !shippingAddress.trim()}
                 startIcon={isValidatingAddress ? <CircularProgress size={16} /> : null}
               >
-                {isValidatingAddress ? 'Validating...' : 'Validate Address'}
+                {isValidatingAddress ? t('VALIDATING_ADDRESS') : t('VALIDATE_ADDRESS')}
               </Button>
               
               {addressValidation?.isValid && (
@@ -229,7 +231,7 @@ export default function Checkout({ onBackToCart, onOrderComplete }: CheckoutProp
                   color="secondary"
                   size="small"
                 >
-                  Change Address
+                  {t('CHANGE_ADDRESS')}
                 </Button>
               )}
               
@@ -242,7 +244,7 @@ export default function Checkout({ onBackToCart, onOrderComplete }: CheckoutProp
                     disabled={addressValidation?.isValid === true}
                   />
                 }
-                label={`Bypass address validation${addressValidation?.isMockValidation ? ' (currently using mock validation)' : ' (for new addresses or validation issues)'}`}
+                label={`${t('BYPASS_VALIDATION')}${addressValidation?.isMockValidation ? ` ${t('BYPASS_VALIDATION_MOCK')}` : ` ${t('BYPASS_VALIDATION_HELP')}`}`}
               />
             </Box>
           </Paper>
@@ -250,13 +252,13 @@ export default function Checkout({ onBackToCart, onOrderComplete }: CheckoutProp
           {/* Order Notes */}
           <Paper sx={{ p: 2, mb: 2 }}>
             <Typography variant="h6" gutterBottom>
-              Order Notes (Optional)
+              {t('ORDER_NOTES')}
             </Typography>
             <TextField
               fullWidth
               multiline
               rows={2}
-              placeholder="Any special instructions for your order..."
+              placeholder={t('ORDER_NOTES_PLACEHOLDER')}
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
             />
@@ -265,15 +267,15 @@ export default function Checkout({ onBackToCart, onOrderComplete }: CheckoutProp
           {/* Order Items */}
           <Paper sx={{ p: 2 }}>
             <Typography variant="h6" gutterBottom>
-              Order Items ({items.length})
+              {t('ORDER_ITEMS')} ({items.length})
             </Typography>
             <TableContainer>
               <Table size="small">
                 <TableHead>
                   <TableRow>
-                    <TableCell>Product</TableCell>
-                    <TableCell align="center">Qty</TableCell>
-                    <TableCell align="right">Total</TableCell>
+                    <TableCell>{t('PRODUCT')}</TableCell>
+                    <TableCell align="center">{t('QTY')}</TableCell>
+                    <TableCell align="right">{t('TOTAL')}</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -304,24 +306,24 @@ export default function Checkout({ onBackToCart, onOrderComplete }: CheckoutProp
         {/* Right: Order Summary */}
         <Paper sx={{ p: 2, width: 300, height: 'fit-content' }}>
           <Typography variant="h6" gutterBottom>
-            Order Summary
+            {t('ORDER_SUMMARY')}
           </Typography>
           <Divider sx={{ mb: 2 }} />
           
           <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
-            <Typography color="text.secondary">Subtotal:</Typography>
+            <Typography color="text.secondary">{t('SUBTOTAL')}:</Typography>
             <Typography>{formatCurrency(subtotal)}</Typography>
           </Box>
           
           <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
-            <Typography color="text.secondary">Tax:</Typography>
+            <Typography color="text.secondary">{t('TAX')}:</Typography>
             <Typography>{formatCurrency(taxAmount)}</Typography>
           </Box>
           
           <Divider sx={{ my: 1 }} />
           
           <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 3 }}>
-            <Typography variant="h6">Total:</Typography>
+            <Typography variant="h6">{t('TOTAL')}:</Typography>
             <Typography variant="h6" color="primary">
               {formatCurrency(total)}
             </Typography>
@@ -341,7 +343,7 @@ export default function Checkout({ onBackToCart, onOrderComplete }: CheckoutProp
             {loading ? (
               <CircularProgress size={24} color="inherit" />
             ) : (
-              'Proceed to Payment'
+              t('PROCEED_TO_PAYMENT')
             )}
           </Button>
         </Paper>
