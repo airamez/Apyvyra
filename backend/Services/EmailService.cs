@@ -19,13 +19,15 @@ public class EmailService : IEmailService
     private readonly EmailSettings _emailSettings;
     private readonly ILogger<EmailService> _logger;
     private readonly IConfiguration _configuration;
+    private readonly ITranslationService _translationService;
     private readonly string _defaultLanguage;
 
-    public EmailService(IOptions<EmailSettings> emailSettings, ILogger<EmailService> logger, IConfiguration configuration)
+    public EmailService(IOptions<EmailSettings> emailSettings, ILogger<EmailService> logger, IConfiguration configuration, ITranslationService translationService)
     {
         _emailSettings = emailSettings.Value;
         _logger = logger;
         _configuration = configuration;
+        _translationService = translationService;
         _defaultLanguage = _configuration["Localization:Language"] ?? "en-US";
     }
 
@@ -65,7 +67,7 @@ public class EmailService : IEmailService
                 emailBody = emailBody.Remove(startIndex, endIndex - startIndex);
             }
 
-            var subject = _defaultLanguage == "pt-BR" ? "Confirme seu endereço de email - Apyvyra" : "Confirm your email address - Apyvyra";
+            var subject = _translationService.Translate("ConfirmationEmail", "SUBJECT");
             await SendEmailAsync(toEmail, subject, emailBody);
         }
         catch (Exception ex)
@@ -87,7 +89,7 @@ public class EmailService : IEmailService
                 .Replace("{{full_name}}", fullName)
                 .Replace("{{setup_url}}", setupUrl);
 
-            var subject = _defaultLanguage == "pt-BR" ? "Você foi convidado a se juntar à Apyvyra - Configuração de Conta da Equipe" : "You've Been Invited to Join Apyvyra - Staff Account Setup";
+            var subject = _translationService.Translate("StaffInvitationEmail", "SUBJECT");
             await SendEmailAsync(toEmail, subject, emailBody);
         }
         catch (Exception ex)
@@ -128,7 +130,7 @@ public class EmailService : IEmailService
                 .Replace("{{total_amount}}", order.TotalAmount.ToString("F2"))
                 .Replace("{{shipping_address}}", order.ShippingAddress.Replace("\n", "<br>"));
 
-            var subject = _defaultLanguage == "pt-BR" ? $"Confirmação de Pedido - {order.OrderNumber} - Apyvyra" : $"Order Confirmation - {order.OrderNumber} - Apyvyra";
+            var subject = _translationService.Translate("OrderConfirmationEmail", "SUBJECT");
             await SendEmailAsync(toEmail, subject, emailBody);
         }
         catch (Exception ex)
@@ -175,7 +177,7 @@ public class EmailService : IEmailService
                 .Replace("{{shipping_address}}", order.ShippingAddress.Replace("\n", "<br>"))
                 .Replace("{{shipping_details}}", formattedShippingDetails);
 
-            var subject = _defaultLanguage == "pt-BR" ? $"Seu Pedido Foi Enviado - {order.OrderNumber} - Apyvyra" : $"Your Order Has Shipped - {order.OrderNumber} - Apyvyra";
+            var subject = _translationService.Translate("OrderShippedEmail", "SUBJECT");
             await SendEmailAsync(toEmail, subject, emailBody);
         }
         catch (Exception ex)
