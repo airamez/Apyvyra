@@ -132,7 +132,6 @@ export default function Payment({ order, onBackToCheckout, onPaymentComplete }: 
       >
         <StripePaymentForm 
           order={order} 
-          onBackToCheckout={onBackToCheckout}
           onPaymentComplete={onPaymentComplete}
         />
       </Elements>

@@ -62,7 +62,6 @@ interface ProductFormProps {
 
 export default function ProductForm({ open, editingProduct, onClose, onSubmit }: ProductFormProps) {
   const { t } = useTranslation('ProductForm');
-  const { t: tCommon } = useTranslation('Common');
   
   const [categories, setCategories] = useState<ProductCategory[]>([]);
   const [formData, setFormData] = useState<CreateProductData>({

@@ -11,22 +11,38 @@ services:
       - db_data:/var/lib/postgresql
 
   backend:
-    build: ./backend
+    image: mcr.microsoft.com/dotnet/sdk:10.0
     depends_on:
       - db
     environment:
       ASPNETCORE_ENVIRONMENT: Development
       ConnectionStrings__DefaultConnection: "Host=db;Database=apyvyra;Username=apyvyra;Password=apyvyra"
       ASPNETCORE_URLS: "http://*:5000"
+      DOTNET_USE_POLLING_FILE_WATCHER: 1
     ports:
       - "5000:5000"
+    volumes:
+      - ./backend:/app
+    working_dir: /app
+    command: dotnet run --urls http://*:5000
+    user: root
+    privileged: true
 
   frontend:
-    build: ./frontend
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.dev
     ports:
-      - "8080:80"
+      - "8080:8080"
     depends_on:
       - backend
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    environment:
+      - VITE_API_URL=http://localhost:5000
+    user: root
+    privileged: true
 
 volumes:
   db_data:

@@ -69,21 +69,54 @@ Apyvyra/
 
 4. **Run the application**
 
-   **Option A: Using Docker (Recommended)**
+   **Option A: Development Mode with Docker (Recommended for Development)**
    ```bash
-   # Start all services (frontend, backend, database)
-   docker-compose up
+   # Start all services in development mode with hot reloading
+   docker-compose -f docker-compose.dev.yml up --build
    ```
-   - Frontend: http://localhost:80
+   - Frontend: http://localhost:8080 - with hot reloading enabled
    - Backend API: http://localhost:5000
+   - Database: localhost:5432
 
-   **Option B: Manual development setup**
+   **Features of development mode:**
+   - **Hot reloading**: Code changes automatically reload in the browser
+   - **Source code mounting**: Edit files locally and see changes instantly
+   - **Development servers**: Vite dev server for frontend, ASP.NET Core watch mode for backend
+   - **Volume mounting**: Preserves node_modules and prevents permission issues
+
+   **Stopping the containers**
    ```bash
-   # Terminal 1: Database (if not using Docker)
+   # Stop all services
+   docker-compose -f docker-compose.dev.yml down
+
+   # Or for production mode
+   docker-compose down
+   ```
+
+   **Docker Modes:**
+   - **Attached mode** (default): Shows logs in terminal, containers stop when you press Ctrl+C
+   - **Detached mode** (`-d` flag): Runs containers in background, returns control to terminal immediately
+
+   **To run in detached mode:**
    ```bash
+   docker-compose -f docker-compose.dev.yml up -d --build
+   ```
+
+   **To view logs from detached containers:**
+   ```bash
+   docker-compose -f docker-compose.dev.yml logs -f
+   ```
+
+   **To stop detached containers:**
+   ```bash
+   docker-compose -f docker-compose.dev.yml down
+   ```
+
+   **Option C: Manual development setup**
+   ```bash
+   # Terminal 1: Start database with Docker
    cd Apyvyra
    docker-compose up -d db
-   ```
 
    # Terminal 2: Backend
    cd backend
@@ -91,10 +124,12 @@ Apyvyra/
 
    # Terminal 3: Frontend
    cd frontend
-   sudo npm run dev # sudo is required because it is running on port 80
+   npm run dev
 
-   - Frontend: http://localhost:80
+   - Frontend: http://localhost:8080
    - Backend API: http://localhost:5000
+   - Database: localhost:5432
+```
 
 ## Requirements
 

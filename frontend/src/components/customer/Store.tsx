@@ -18,19 +18,16 @@ import {
   Badge,
   Snackbar,
   Alert,
-  Collapse,
   Link,
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import ClearIcon from '@mui/icons-material/Clear';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import AddIcon from '@mui/icons-material/Add';
 import RemoveIcon from '@mui/icons-material/Remove';
 import { productService, type Product } from '../../services/productService';
 import { categoryService, type ProductCategory } from '../../services/categoryService';
-import { cartService, type CartItem } from '../../services/cartService';
+import { cartService } from '../../services/cartService';
 import { useTranslation } from '../../hooks/useTranslation';
 import { useFormatting } from '../../hooks/useFormatting';
 
@@ -49,7 +46,6 @@ export default function Store({ onViewCart }: StoreProps) {
   const [selectedCategory, setSelectedCategory] = useState<number | ''>('');
   const [searchBrand, setSearchBrand] = useState('');
   const [searchManufacturer, setSearchManufacturer] = useState('');
-  const [expandedCards, setExpandedCards] = useState<Record<number, boolean>>({});
   const [cartItemCount, setCartItemCount] = useState(0);
   const [quantities, setQuantities] = useState<Record<number, number>>({});
   const [snackbar, setSnackbar] = useState<{ open: boolean; message: string }>({ open: false, message: '' });
@@ -127,15 +123,6 @@ export default function Store({ onViewCart }: StoreProps) {
       handleSearch();
     }
   };
-
-  const toggleExpanded = useCallback((productId: number) => {
-    setExpandedCards(prev => ({
-      ...prev,
-      [productId]: !prev[productId]
-    }));
-  }, []);
-
-  const getQuantity = useCallback((productId: number) => quantities[productId] || 1, [quantities]);
 
   const setQuantity = useCallback((productId: number, qty: number) => {
     if (qty >= 1) {
