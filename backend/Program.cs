@@ -26,6 +26,9 @@ builder.Services.AddHttpClient();
 // Configure Translation Service
 builder.Services.AddSingleton<ITranslationService, TranslationService>();
 
+// Configure Password Validation Service
+builder.Services.AddScoped<IPasswordValidationService, PasswordValidationService>();
+
 // Add DbContext
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));

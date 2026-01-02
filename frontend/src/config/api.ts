@@ -52,6 +52,10 @@ export const API_ENDPOINTS = {
   ADDRESS: {
     VALIDATE: `${API_BASE_URL}/api/address/validate`,
   },
+  PASSWORD_VALIDATION: {
+    VALIDATE: `${API_BASE_URL}/api/passwordvalidation/validate`,
+    RULES_STATUS: `${API_BASE_URL}/api/passwordvalidation/rules-status`,
+  },
   TRANSLATION: {
     LANGUAGE: `${API_BASE_URL}/api/translation/language`,
     GET: (component: string) => `${API_BASE_URL}/api/translation/${component}`,

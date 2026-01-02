@@ -29,7 +29,6 @@ public class TranslationController : BaseApiController
     [HttpGet("{component}")]
     public ActionResult<Dictionary<string, string>> GetTranslations(string component)
     {
-        _logger.LogInformation("Getting translations for component: {Component}", component);
         
         var translations = _translationService.GetTranslations(component);
         

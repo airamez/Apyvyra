@@ -19,13 +19,15 @@ public class AppUserController : BaseApiController
     private readonly ILogger<AppUserController> _logger;
     private readonly IConfiguration _configuration;
     private readonly IEmailService _emailService;
+    private readonly IPasswordValidationService _passwordValidationService;
 
-    public AppUserController(AppDbContext context, ILogger<AppUserController> logger, IConfiguration configuration, IEmailService emailService)
+    public AppUserController(AppDbContext context, ILogger<AppUserController> logger, IConfiguration configuration, IEmailService emailService, IPasswordValidationService passwordValidationService)
     {
         _context = context;
         _logger = logger;
         _configuration = configuration;
         _emailService = emailService;
+        _passwordValidationService = passwordValidationService;
     }
 
     // POST: api/app_user
@@ -35,6 +37,13 @@ public class AppUserController : BaseApiController
     {
         try
         {
+            // Validate password
+            var passwordValidation = _passwordValidationService.ValidatePassword(request.Password);
+            if (!passwordValidation.IsValid)
+            {
+                return BadRequestWithErrors(passwordValidation.Errors);
+            }
+
             if (await _context.AppUsers.AnyAsync(u => u.Email == request.Email))
             {
                 return ConflictWithError("Email already exists");
@@ -800,9 +809,11 @@ public class AppUserController : BaseApiController
                 return BadRequestWithErrors("Invalid token");
             }
 
-            if (string.IsNullOrWhiteSpace(request.Password) || request.Password.Length < 6)
+            // Validate password using the password validation service
+            var passwordValidation = _passwordValidationService.ValidatePassword(request.Password);
+            if (!passwordValidation.IsValid)
             {
-                return BadRequestWithErrors("Password must be at least 6 characters long");
+                return BadRequestWithErrors(passwordValidation.Errors);
             }
 
             var staff = await _context.AppUsers

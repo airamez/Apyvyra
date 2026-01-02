@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import type { FormEvent } from 'react';
 import {
   Container,
@@ -16,6 +16,8 @@ import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import { userService } from '../../services/userService';
 import { getErrorMessages } from '../../utils/apiErrorHandler';
 import { useTranslation } from '../../hooks/useTranslation';
+import { passwordValidationService, type PasswordRulesStatus } from '../../services/passwordValidationService';
+import PasswordRequirements from '../common/PasswordRequirements';
 
 interface RegisterProps {
   onNavigateToLogin?: () => void;
@@ -39,6 +41,21 @@ export default function Register({ onNavigateToLogin }: RegisterProps) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+  const [passwordErrors, setPasswordErrors] = useState<string[]>([]);
+  const [isPasswordValid, setIsPasswordValid] = useState(false);
+  const [isValidatingPassword, setIsValidatingPassword] = useState(false);
+  const [rulesStatus, setRulesStatus] = useState<PasswordRulesStatus>({
+    isValid: false,
+    hasMinLength: false,
+    hasMaxLength: true,
+    hasUppercase: false,
+    hasLowercase: false,
+    hasDigit: false,
+    hasSpecialChar: false,
+    hasNoSpaces: true,
+    hasNoSequential: true
+  });
+  const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -47,7 +64,71 @@ export default function Register({ onNavigateToLogin }: RegisterProps) {
       [name]: value
     }));
     setError(null);
+    
+    // Reset password validation state when password changes
+    if (name === 'password') {
+      setIsPasswordValid(false);
+      setPasswordErrors([]);
+    }
   };
+
+  // Real-time password rules check with debounce
+  useEffect(() => {
+    if (debounceTimerRef.current) {
+      clearTimeout(debounceTimerRef.current);
+    }
+
+    if (!formData.password) {
+      setRulesStatus({
+        isValid: false,
+        hasMinLength: false,
+        hasMaxLength: true,
+        hasUppercase: false,
+        hasLowercase: false,
+        hasDigit: false,
+        hasSpecialChar: false,
+        hasNoSpaces: true,
+        hasNoSequential: true
+      });
+      return;
+    }
+
+    debounceTimerRef.current = setTimeout(async () => {
+      try {
+        const status = await passwordValidationService.getRulesStatus(formData.password);
+        setRulesStatus(status);
+      } catch (err) {
+        console.error('Error checking password rules:', err);
+      }
+    }, 300);
+
+    return () => {
+      if (debounceTimerRef.current) {
+        clearTimeout(debounceTimerRef.current);
+      }
+    };
+  }, [formData.password]);
+
+  const validatePasswordOnBlur = useCallback(async () => {
+    if (!formData.password) {
+      setPasswordErrors([]);
+      setIsPasswordValid(false);
+      return;
+    }
+
+    setIsValidatingPassword(true);
+    try {
+      const result = await passwordValidationService.validatePassword(formData.password);
+      setIsPasswordValid(result.isValid);
+      setPasswordErrors(result.errors);
+    } catch (err) {
+      console.error('Password validation error:', err);
+      setIsPasswordValid(false);
+      setPasswordErrors([tCommon('ERROR')]);
+    } finally {
+      setIsValidatingPassword(false);
+    }
+  }, [formData.password, tCommon]);
 
   const validateForm = (): boolean => {
     if (!formData.email || !formData.password || !formData.confirmPassword) {
@@ -60,8 +141,8 @@ export default function Register({ onNavigateToLogin }: RegisterProps) {
       return false;
     }
 
-    if (formData.password.length < 6) {
-      setError(tCommon('PASSWORD_MIN_LENGTH'));
+    if (!rulesStatus.isValid) {
+      setError(passwordErrors && passwordErrors.length > 0 ? passwordErrors[0] : tCommon('PASSWORD_MIN_LENGTH'));
       return false;
     }
 
@@ -71,6 +152,16 @@ export default function Register({ onNavigateToLogin }: RegisterProps) {
     }
 
     return true;
+  };
+
+  const isFormValid = (): boolean => {
+    return (
+      formData.email.length > 0 &&
+      formData.password.length > 0 &&
+      formData.confirmPassword.length > 0 &&
+      rulesStatus.isValid &&
+      formData.password === formData.confirmPassword
+    );
   };
 
   const handleSubmit = async (e: FormEvent) => {
@@ -103,7 +194,7 @@ export default function Register({ onNavigateToLogin }: RegisterProps) {
   };
 
   return (
-    <Container maxWidth="sm">
+    <Container maxWidth="md">
       <Box sx={{ mt: 3, mb: 4 }}>
         <Card>
           <CardContent sx={{ p: 4 }}>
@@ -143,73 +234,77 @@ export default function Register({ onNavigateToLogin }: RegisterProps) {
                 </Alert>
               </Box>
             ) : (
-              <Box component="form" onSubmit={handleSubmit} noValidate>
-              <TextField
-                margin="normal"
-                required
-                fullWidth
-                id="email"
-                label={t('EMAIL_ADDRESS')}
-                name="email"
-                type="email"
-                autoComplete="email"
-                autoFocus
-                value={formData.email}
-                onChange={handleChange}
-                disabled={loading || success}
-              />
-              <TextField
-                margin="normal"
-                required
-                fullWidth
-                name="password"
-                label={t('PASSWORD')}
-                type="password"
-                id="password"
-                autoComplete="new-password"
-                value={formData.password}
-                onChange={handleChange}
-                disabled={loading || success}
-                helperText={t('PASSWORD_HELPER')}
-              />
-              <TextField
-                margin="normal"
-                required
-                fullWidth
-                name="confirmPassword"
-                label={t('CONFIRM_PASSWORD')}
-                type="password"
-                id="confirmPassword"
-                autoComplete="new-password"
-                value={formData.confirmPassword}
-                onChange={handleChange}
-                disabled={loading || success}
-              />
-              <Button
-                type="submit"
-                fullWidth
-                variant="contained"
-                sx={{ mt: 3, mb: 2 }}
-                disabled={loading || success}
-              >
-                {loading ? <CircularProgress size={24} /> : t('SIGN_UP_BUTTON')}
-              </Button>
-
-              <Box sx={{ textAlign: 'center', mt: 2 }}>
-                <Typography variant="body2" color="text.secondary">
-                  {t('ALREADY_HAVE_ACCOUNT')}{' '}
-                  <Link
-                    component="button"
-                    variant="body2"
-                    type="button"
-                    onClick={onNavigateToLogin}
-                    sx={{ cursor: 'pointer' }}
+              <Box sx={{ display: 'flex', gap: 3 }}>
+                <Box component="form" onSubmit={handleSubmit} noValidate sx={{ flex: 2, minWidth: 300 }}>
+                  <TextField
+                    margin="normal"
+                    required
+                    fullWidth
+                    id="email"
+                    label={t('EMAIL_ADDRESS')}
+                    name="email"
+                    type="email"
+                    autoComplete="email"
+                    autoFocus
+                    value={formData.email}
+                    onChange={handleChange}
+                    disabled={loading || success}
+                  />
+                  <TextField
+                    margin="normal"
+                    required
+                    fullWidth
+                    name="password"
+                    label={t('PASSWORD')}
+                    type="password"
+                    id="password"
+                    autoComplete="new-password"
+                    value={formData.password}
+                    onChange={handleChange}
+                    onBlur={validatePasswordOnBlur}
+                    disabled={loading || success}
+                    error={passwordErrors && passwordErrors.length > 0}
+                  />
+                  <TextField
+                    margin="normal"
+                    required
+                    fullWidth
+                    name="confirmPassword"
+                    label={t('CONFIRM_PASSWORD')}
+                    type="password"
+                    id="confirmPassword"
+                    autoComplete="new-password"
+                    value={formData.confirmPassword}
+                    onChange={handleChange}
+                    disabled={loading || success}
+                  />
+                  <Button
+                    type="submit"
+                    fullWidth
+                    variant="contained"
+                    sx={{ mt: 3, mb: 2 }}
+                    disabled={loading || success || !isFormValid() || isValidatingPassword}
                   >
-                    {t('SIGN_IN')}
-                  </Link>
-                </Typography>
+                    {loading ? <CircularProgress size={24} /> : t('SIGN_UP_BUTTON')}
+                  </Button>
+
+                  <Box sx={{ textAlign: 'center', mt: 2 }}>
+                    <Typography variant="body2" color="text.secondary">
+                      {t('ALREADY_HAVE_ACCOUNT')}{' '}
+                      <Link
+                        component="button"
+                        variant="body2"
+                        type="button"
+                        onClick={onNavigateToLogin}
+                        sx={{ cursor: 'pointer' }}
+                      >
+                        {t('SIGN_IN')}
+                      </Link>
+                    </Typography>
+                  </Box>
+                </Box>
+                <PasswordRequirements rulesStatus={rulesStatus} />
               </Box>
-            </Box>
             )}
           </CardContent>
         </Card>

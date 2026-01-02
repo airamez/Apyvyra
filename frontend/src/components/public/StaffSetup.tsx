@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
   Container,
@@ -16,6 +16,8 @@ import BadgeIcon from '@mui/icons-material/Badge';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import { staffService, type StaffSetupInfo } from '../../services/staffService';
 import { useTranslation } from '../../hooks/useTranslation';
+import { passwordValidationService, type PasswordRulesStatus } from '../../services/passwordValidationService';
+import PasswordRequirements from '../common/PasswordRequirements';
 
 export default function StaffSetup() {
   const { t } = useTranslation('StaffSetup');
@@ -32,12 +34,64 @@ export default function StaffSetup() {
   
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [passwordErrors, setPasswordErrors] = useState<string[]>([]);
+  const [isPasswordValid, setIsPasswordValid] = useState(false);
+  const [isValidatingPassword, setIsValidatingPassword] = useState(false);
+  const [rulesStatus, setRulesStatus] = useState<PasswordRulesStatus>({
+    isValid: false,
+    hasMinLength: false,
+    hasMaxLength: true,
+    hasUppercase: false,
+    hasLowercase: false,
+    hasDigit: false,
+    hasSpecialChar: false,
+    hasNoSpaces: true,
+    hasNoSequential: true
+  });
+  const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     if (token) {
       loadSetupInfo();
     }
   }, [token]);
+
+  // Real-time password rules check with debounce
+  useEffect(() => {
+    if (debounceTimerRef.current) {
+      clearTimeout(debounceTimerRef.current);
+    }
+
+    if (!password) {
+      setRulesStatus({
+        isValid: false,
+        hasMinLength: false,
+        hasMaxLength: true,
+        hasUppercase: false,
+        hasLowercase: false,
+        hasDigit: false,
+        hasSpecialChar: false,
+        hasNoSpaces: true,
+        hasNoSequential: true
+      });
+      return;
+    }
+
+    debounceTimerRef.current = setTimeout(async () => {
+      try {
+        const status = await passwordValidationService.getRulesStatus(password);
+        setRulesStatus(status);
+      } catch (err) {
+        console.error('Error checking password rules:', err);
+      }
+    }, 300);
+
+    return () => {
+      if (debounceTimerRef.current) {
+        clearTimeout(debounceTimerRef.current);
+      }
+    };
+  }, [password]);
 
   const loadSetupInfo = async () => {
     try {
@@ -55,14 +109,35 @@ export default function StaffSetup() {
     }
   };
 
+  const validatePasswordOnBlur = useCallback(async () => {
+    if (!password) {
+      setPasswordErrors([]);
+      setIsPasswordValid(false);
+      return;
+    }
+
+    setIsValidatingPassword(true);
+    try {
+      const result = await passwordValidationService.validatePassword(password);
+      setIsPasswordValid(result.isValid);
+      setPasswordErrors(result.errors);
+    } catch (err) {
+      console.error('Password validation error:', err);
+      setIsPasswordValid(false);
+      setPasswordErrors([tCommon('ERROR')]);
+    } finally {
+      setIsValidatingPassword(false);
+    }
+  }, [password, tCommon]);
+
   const validateForm = (): boolean => {
     if (!password || !confirmPassword) {
       setError(tCommon('ALL_FIELDS_REQUIRED'));
       return false;
     }
 
-    if (password.length < 6) {
-      setError(tCommon('PASSWORD_MIN_LENGTH'));
+    if (!rulesStatus.isValid) {
+      setError(passwordErrors && passwordErrors.length > 0 ? passwordErrors[0] : tCommon('PASSWORD_MIN_LENGTH'));
       return false;
     }
 
@@ -72,6 +147,15 @@ export default function StaffSetup() {
     }
 
     return true;
+  };
+
+  const isFormValid = (): boolean => {
+    return (
+      password.length > 0 &&
+      confirmPassword.length > 0 &&
+      rulesStatus.isValid &&
+      password === confirmPassword
+    );
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -108,7 +192,7 @@ export default function StaffSetup() {
   }
 
   return (
-    <Container maxWidth="sm">
+    <Container maxWidth="md">
       <Box sx={{ mt: 4, mb: 4 }}>
         <Card>
           <CardContent sx={{ p: 4 }}>
@@ -154,56 +238,62 @@ export default function StaffSetup() {
                   {t('WELCOME_MESSAGE', { fullName: setupInfo.fullName || '' })}
                 </Typography>
 
-                <Box component="form" onSubmit={handleSubmit} noValidate>
-                  <TextField
-                    margin="dense"
-                    fullWidth
-                    label={t('EMAIL_ADDRESS')}
-                    type="email"
-                    value={setupInfo.email}
-                    disabled
-                    sx={{ mb: 2 }}
-                  />
-                  <TextField
-                    margin="dense"
-                    required
-                    fullWidth
-                    name="password"
-                    label={t('PASSWORD')}
-                    type="password"
-                    autoComplete="new-password"
-                    value={password}
-                    onChange={(e) => {
-                      setPassword(e.target.value);
-                      setError(null);
-                    }}
-                    disabled={submitting}
-                    helperText={t('PASSWORD_HELPER')}
-                  />
-                  <TextField
-                    margin="dense"
-                    required
-                    fullWidth
-                    name="confirmPassword"
-                    label={t('CONFIRM_PASSWORD')}
-                    type="password"
-                    autoComplete="new-password"
-                    value={confirmPassword}
-                    onChange={(e) => {
-                      setConfirmPassword(e.target.value);
-                      setError(null);
-                    }}
-                    disabled={submitting}
-                  />
-                  <Button
-                    type="submit"
-                    fullWidth
-                    variant="contained"
-                    sx={{ mt: 3, mb: 2 }}
-                    disabled={submitting}
-                  >
-                    {submitting ? <CircularProgress size={24} /> : t('COMPLETE_SETUP')}
-                  </Button>
+                <Box sx={{ display: 'flex', gap: 3 }}>
+                  <Box component="form" onSubmit={handleSubmit} noValidate sx={{ flex: 2, minWidth: 300 }}>
+                    <TextField
+                      margin="dense"
+                      fullWidth
+                      label={t('EMAIL_ADDRESS')}
+                      type="email"
+                      value={setupInfo.email}
+                      disabled
+                      sx={{ mb: 2 }}
+                    />
+                    <TextField
+                      margin="dense"
+                      required
+                      fullWidth
+                      name="password"
+                      label={t('PASSWORD')}
+                      type="password"
+                      autoComplete="new-password"
+                      value={password}
+                      onChange={(e) => {
+                        setPassword(e.target.value);
+                        setError(null);
+                        setIsPasswordValid(false);
+                        setPasswordErrors([]);
+                      }}
+                      onBlur={validatePasswordOnBlur}
+                      disabled={submitting}
+                      error={passwordErrors && passwordErrors.length > 0}
+                    />
+                    <TextField
+                      margin="dense"
+                      required
+                      fullWidth
+                      name="confirmPassword"
+                      label={t('CONFIRM_PASSWORD')}
+                      type="password"
+                      autoComplete="new-password"
+                      value={confirmPassword}
+                      onChange={(e) => {
+                        setConfirmPassword(e.target.value);
+                        setError(null);
+                      }}
+                      disabled={submitting}
+                    />
+                    <Button
+                      type="submit"
+                      fullWidth
+                      variant="contained"
+                      sx={{ mt: 3, mb: 2 }}
+                      disabled={submitting || !isFormValid() || isValidatingPassword}
+                    >
+                      {submitting ? <CircularProgress size={24} /> : t('COMPLETE_SETUP')}
+                    </Button>
+                  </Box>
+                  <PasswordRequirements rulesStatus={rulesStatus} />
                 </Box>
               </>
             ) : (

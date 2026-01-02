@@ -25,7 +25,6 @@ public class TranslationService : ITranslationService
         _resourcePath = _configuration["Localization:ResourcePath"] ?? "Resources/Translations";
         _translationCache = new Dictionary<string, Dictionary<string, string>>();
         
-        _logger.LogInformation("TranslationService initialized with language: {Language}, path: {Path}", _language, _resourcePath);
     }
 
     public string GetCurrentLanguage() => _language;
@@ -76,8 +75,6 @@ public class TranslationService : ITranslationService
                 PropertyNameCaseInsensitive = true
             });
             
-            _logger.LogInformation("Loaded {Count} translations for component: {Component}, language: {Language}", 
-                translations?.Count ?? 0, component, _language);
             
             return translations ?? new Dictionary<string, string>();
         }
