@@ -69,31 +69,7 @@ Apyvyra/
 
 4. **Run the application**
 
-   **Option A: Docker Mode (For Demo & Deployment)**
-   ```bash
-   # Start all services in containers
-   docker-compose up --build
-   ```
-   - Frontend: http://localhost:8080
-   - Backend API: http://localhost:5000
-   - Database: localhost:5432
-
-   **Features of Docker mode:**
-   - **Self-contained**: All services run in Docker containers
-   - **Consistent setup**: Same configuration across all machines
-   - **Easy deployment**: Ready for production deployment
-   - **No local setup**: No need to install Node.js or .NET SDK
-
-   **Stopping the containers**
-   ```bash
-   # Stop all services
-   docker-compose down
-
-   # To remove volumes (clears database data)
-   docker-compose down -v
-   ```
-
-   **Option B: Manual Development Setup (Recommended for Development)**
+   **Option A: Manual Development Setup (Recommended for Development)**
    ```bash
    # Terminal 1: Start database with Docker
    cd Apyvyra
@@ -116,6 +92,30 @@ Apyvyra/
    - **Hot reloading**: Both frontend and backend auto-reload
    - **Debugging**: Full debugging capabilities in IDE
    - **Source control**: Direct access to source files
+
+   **Option B: Docker Mode (For Demo & Deployment)**
+   ```bash
+   # Start all services in containers
+   docker-compose up --build
+   ```
+   - Frontend: http://localhost:8080
+   - Backend API: http://localhost:5000
+   - Database: localhost:5432
+
+   **Features of Docker mode:**
+   - **Self-contained**: All services run in Docker containers
+   - **Consistent setup**: Same configuration across all machines
+   - **Easy deployment**: Ready for production deployment
+   - **No local setup**: No need to install Node.js or .NET SDK
+
+   **Stopping the containers**
+   ```bash
+   # Stop all services
+   docker-compose down
+
+   # To remove volumes (clears database data)
+   docker-compose down -v
+   ```
 ```
 
 ## Requirements
