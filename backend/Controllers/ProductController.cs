@@ -48,6 +48,7 @@ public record ProductUrlResponse
 }
 
 [Route("api/product")]
+[Authorize]
 public class ProductController : BaseApiController
 {
     private readonly AppDbContext _context;

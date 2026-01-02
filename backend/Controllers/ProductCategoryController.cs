@@ -8,6 +8,7 @@ using backend.Models;
 namespace backend.Controllers;
 
 [Route("api/product_category")]
+[Authorize]
 public class ProductCategoryController : BaseApiController
 {
     private readonly AppDbContext _context;
