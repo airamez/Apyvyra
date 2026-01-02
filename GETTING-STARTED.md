@@ -69,50 +69,31 @@ Apyvyra/
 
 4. **Run the application**
 
-   **Option A: Development Mode with Docker (Recommended for Development)**
+   **Option A: Docker Mode (For Demo & Deployment)**
    ```bash
-   # Start all services in development mode with hot reloading
-   docker-compose -f docker-compose.dev.yml up --build
+   # Start all services in containers
+   docker-compose up --build
    ```
-   - Frontend: http://localhost:8080 - with hot reloading enabled
+   - Frontend: http://localhost:8080
    - Backend API: http://localhost:5000
    - Database: localhost:5432
 
-   **Features of development mode:**
-   - **Hot reloading**: Code changes automatically reload in the browser
-   - **Source code mounting**: Edit files locally and see changes instantly
-   - **Development servers**: Vite dev server for frontend, ASP.NET Core watch mode for backend
-   - **Volume mounting**: Preserves node_modules and prevents permission issues
+   **Features of Docker mode:**
+   - **Self-contained**: All services run in Docker containers
+   - **Consistent setup**: Same configuration across all machines
+   - **Easy deployment**: Ready for production deployment
+   - **No local setup**: No need to install Node.js or .NET SDK
 
    **Stopping the containers**
    ```bash
    # Stop all services
-   docker-compose -f docker-compose.dev.yml down
-
-   # Or for production mode
    docker-compose down
+
+   # To remove volumes (clears database data)
+   docker-compose down -v
    ```
 
-   **Docker Modes:**
-   - **Attached mode** (default): Shows logs in terminal, containers stop when you press Ctrl+C
-   - **Detached mode** (`-d` flag): Runs containers in background, returns control to terminal immediately
-
-   **To run in detached mode:**
-   ```bash
-   docker-compose -f docker-compose.dev.yml up -d --build
-   ```
-
-   **To view logs from detached containers:**
-   ```bash
-   docker-compose -f docker-compose.dev.yml logs -f
-   ```
-
-   **To stop detached containers:**
-   ```bash
-   docker-compose -f docker-compose.dev.yml down
-   ```
-
-   **Option C: Manual development setup**
+   **Option B: Manual Development Setup (Recommended for Development)**
    ```bash
    # Terminal 1: Start database with Docker
    cd Apyvyra
@@ -129,6 +110,12 @@ Apyvyra/
    - Frontend: http://localhost:8080
    - Backend API: http://localhost:5000
    - Database: localhost:5432
+
+   **Features of manual development:**
+   - **Live editing**: Code changes instantly reflected
+   - **Hot reloading**: Both frontend and backend auto-reload
+   - **Debugging**: Full debugging capabilities in IDE
+   - **Source control**: Direct access to source files
 ```
 
 ## Requirements

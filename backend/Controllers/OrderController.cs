@@ -45,21 +45,29 @@ public class OrderController : BaseApiController
         {
             var userId = GetCurrentUserId();
             var userRole = User.FindFirst(ClaimTypes.Role)?.Value;
+            
+            _logger.LogInformation("GetOrders called - UserId: {UserId}, UserRole: {UserRole}", userId, userRole);
 
             var query = _context.CustomerOrders
                 .Include(o => o.Customer)
                 .Include(o => o.OrderItems)
                 .AsQueryable();
 
+            var totalBeforeFilter = await _context.CustomerOrders.CountAsync();
+            _logger.LogInformation("Total orders in database before filtering: {Count}", totalBeforeFilter);
+
             // Customers can only see their own orders
             if (userRole == "2")
             {
                 query = query.Where(o => o.CustomerId == userId);
+                _logger.LogInformation("Filtering by CustomerId: {UserId}", userId);
             }
 
             query = Helpers.QueryFilterHelper.ApplyQueryFilters(query, Request.Query);
 
             var orders = await ExecuteLimitedQueryAsync(query.OrderByDescending(o => o.OrderDate));
+            
+            _logger.LogInformation("Orders returned after filtering: {Count}", orders.Count);
 
             var response = orders.Select(o => MapToOrderResponse(o)).ToList();
             return Ok(response);

@@ -116,7 +116,7 @@ Welcome and enjoy!!!
 | [paging_vs_filtering.md](paging_vs_filtering.md) | Comparison of traditional server-side paging vs modern filtering approaches |
 | [backend/README.md](backend/README.md) | Backend setup and development details |
 | [frontend/README.md](frontend/README.md) | Frontend setup and development details |
-| [frontend/FILTER_COMPONENT_USAGE.md](frontend/FILTER_COMPONENT_USAGE.md) | Usage guide for the FilterComponent in the frontend |
+| [FILTER_COMPONENT_USAGE.md](FILTER_COMPONENT_USAGE.md) | Usage guide for the FilterComponent in the frontend |
 | [devops/README.md](devops/README.md) | DevOps console tool documentation and database management |
 
 ## Classes

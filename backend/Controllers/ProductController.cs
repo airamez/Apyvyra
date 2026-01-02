@@ -71,6 +71,9 @@ public class ProductController : BaseApiController
     {
         try
         {
+            var totalBeforeFilter = await _context.Products.CountAsync();
+            _logger.LogInformation("GetProducts called - Total products in database: {Count}", totalBeforeFilter);
+            
             var query = _context.Products
                 .Include(p => p.Category)
                 .Include(p => p.ProductUrls)
@@ -82,6 +85,8 @@ public class ProductController : BaseApiController
             // Use modern filtering approach - limit results to MAX_RECORDS_QUERIES_COUNT
             // Headers X-Has-More-Records and X-Total-Count will be set automatically
             var products = await ExecuteLimitedQueryAsync(query);
+            
+            _logger.LogInformation("Products returned after filtering: {Count}", products.Count);
 
             var response = products.Select(p => MapToResponse(p)).ToList();
             return Ok(response);

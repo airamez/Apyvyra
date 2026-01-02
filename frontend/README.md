@@ -236,7 +236,7 @@ import { productFilterConfig } from '../config/filterConfigs';
 />
 ```
 
-See `FILTER_COMPONENT_USAGE.md` for complete documentation and examples.
+See `../FILTER_COMPONENT_USAGE.md` for complete documentation and examples.
 
 ## Server-Side Filtering
 

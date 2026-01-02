@@ -8,7 +8,7 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - db_data:/var/lib/postgresql
+      - db_data:/var/lib/postgresql/data
 
   backend:
     build: ./backend
@@ -18,13 +18,33 @@ services:
       ASPNETCORE_ENVIRONMENT: Development
       ConnectionStrings__DefaultConnection: "Host=db;Database=apyvyra;Username=apyvyra;Password=apyvyra"
       ASPNETCORE_URLS: "http://*:5000"
+      Jwt__Key: "YourSuperSecretKeyThatIsAtLeast32CharactersLongForHS256"
+      Jwt__Issuer: "ApyvyraAPI"
+      Jwt__Audience: "ApyvyraClient"
+      EmailSettings__SmtpServer: "smtp.gmail.com"
+      EmailSettings__SmtpPort: "587"
+      EmailSettings__Username: "your-email@gmail.com"
+      EmailSettings__Password: "your-app-password"
+      EmailSettings__FromEmail: "your-email@gmail.com"
+      EmailSettings__FromName: "Apyvyra"
+      EmailSettings__EnableSsl: "true"
+      EmailSettings__DevelopmentMode: "true"
+      Stripe__SecretKey: "sk_test_YOUR_STRIPE_TEST_SECRET_KEY"
+      Stripe__PublishableKey: "pk_test_YOUR_STRIPE_TEST_PUBLISHABLE_KEY"
+      Stripe__WebhookSecret: "whsec_your_webhook_secret_here"
+      Stripe__TestMode: "true"
+      Stripe__MockStripe: "true"
+      GoogleMaps__ApiKey: "YOUR_GOOGLE_MAPS_API_KEY"
+      GoogleMaps__MockAddressValidation: "true"
     ports:
       - "5000:5000"
 
   frontend:
-    build: ./frontend
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.dev
     ports:
-      - "8080:80"
+      - "8080:8080"
     depends_on:
       - backend
 
