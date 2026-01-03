@@ -134,3 +134,4 @@ Welcome and enjoy!!!
 * [Class #11: Prodcuts - Categories and Pagination](https://youtube.com/live/BCJveP8Nsz4)
 * [Class #12: Filtering, Sorting and Paging: Old vs Modern approaches](https://youtube.com/live/qVU0YBQt8Ag) - [paging_vs_filtering.md](https://github.com/airamez/Apyvyra/blob/main/paging_vs_filtering.md)
 * [Class #13: Trying Claude Code to improve Products](https://youtube.com/live/UDkrn0D2PkU)
+* [Class #14: Apyvyra MVP](https://youtu.be/cBv-CIOTnEs)
