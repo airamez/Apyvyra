@@ -15,6 +15,7 @@ builder.Services.AddOpenApi();
 // Configure Email Settings
 builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
 builder.Services.AddTransient<IEmailService, EmailService>();
+builder.Services.AddScoped<IEmailClientService, EmailClientService>();
 
 // Configure Stripe Service
 builder.Services.AddScoped<IStripeService, StripeService>();

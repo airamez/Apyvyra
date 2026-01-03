@@ -21,6 +21,7 @@ import Categories from './products/Categories';
 import Customers from './Customers';
 import Staff from './Staff';
 import OrderManagement from './orders/OrderManagement';
+import EmailClient from './EmailClient';
 import UserProfile from '../common/UserProfile';
 import { authService } from '../../services/authService';
 
@@ -31,7 +32,7 @@ interface AdminAppProps {
 }
 
 export default function AdminApp({ onLogout, toggleTheme, mode }: AdminAppProps) {
-  const [activeView, setActiveView] = useState<'dashboard' | 'products' | 'categories' | 'customers' | 'staff' | 'orders'>('dashboard');
+  const [activeView, setActiveView] = useState<'dashboard' | 'products' | 'categories' | 'customers' | 'staff' | 'orders' | 'email'>('dashboard');
   const [productsMenuAnchor, setProductsMenuAnchor] = useState<null | HTMLElement>(null);
   const [userType, setUserType] = useState<'Admin' | 'Staff' | 'Customer'>('Admin');
 
@@ -52,7 +53,7 @@ export default function AdminApp({ onLogout, toggleTheme, mode }: AdminAppProps)
     }
   }, []);
 
-  const handleNavigateToView = (view: 'dashboard' | 'products' | 'categories' | 'customers' | 'staff' | 'orders') => {
+  const handleNavigateToView = (view: 'dashboard' | 'products' | 'categories' | 'customers' | 'staff' | 'orders' | 'email') => {
     setActiveView(view);
   };
 
@@ -70,6 +71,8 @@ export default function AdminApp({ onLogout, toggleTheme, mode }: AdminAppProps)
         return <Staff />;
       case 'orders':
         return <OrderManagement />;
+      case 'email':
+        return <EmailClient />;
       default:
         return <Dashboard />;
     }
@@ -151,6 +154,13 @@ export default function AdminApp({ onLogout, toggleTheme, mode }: AdminAppProps)
               onClick={() => handleNavigateToView('orders')}
             >
               Orders
+            </Button>
+            <Button
+              color="inherit"
+              variant={activeView === 'email' ? 'outlined' : 'text'}
+              onClick={() => handleNavigateToView('email')}
+            >
+              Email
             </Button>
           </Box>
 
