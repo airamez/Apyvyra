@@ -1,0 +1,14 @@
+{
+  "TITLE": "Perfil de Usuario",
+  "EMAIL": "Correo",
+  "ROLE": "Rol",
+  "STATUS": "Estado",
+  "MEMBER_SINCE": "Miembro Desde",
+  "LAST_LOGIN": "Último Inicio de Sesión",
+  "EDIT_PROFILE": "Editar Perfil",
+  "CHANGE_PASSWORD": "Cambiar Contraseña",
+  "LOGOUT": "Cerrar Sesión",
+  "ADMIN": "Administrador",
+  "STAFF": "Personal",
+  "CUSTOMER": "Cliente"
+}

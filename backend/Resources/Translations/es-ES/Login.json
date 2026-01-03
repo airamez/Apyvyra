@@ -1,0 +1,20 @@
+{
+  "TITLE": "Iniciar Sesión",
+  "EMAIL_ADDRESS": "Dirección de Correo",
+  "PASSWORD": "Contraseña",
+  "LOGIN_BUTTON": "Iniciar Sesión",
+  "LOGGING_IN": "Iniciando sesión...",
+  "LOGIN_SUCCESS": "¡Inicio de sesión exitoso! Bienvenido de vuelta.",
+  "LOGIN_ERROR": "Ocurrió un error durante el inicio de sesión",
+  "SIGN_UP": "Registrarse",
+  "DONT_HAVE_ACCOUNT": "¿No tienes una cuenta?",
+  "SIGN_UP_HERE": "Regístrate aquí",
+  "EMAIL_CONFIRMATION_REQUIRED": "Confirmación de Correo Requerida",
+  "CHECK_INBOX_MESSAGE": "Revisa tu bandeja de entrada para el correo de confirmación. Si no lo ves, puedes solicitar uno nuevo abajo.",
+  "RESEND_CONFIRMATION_TO": "Reenviar correo de confirmación a:",
+  "RESEND_EMAIL": "Reenviar Correo",
+  "SENDING": "Enviando...",
+  "FAILED_RESEND": "Falló el reenvío del correo de confirmación. Por favor intenta de nuevo.",
+  "RESEND_ERROR": "Ocurrió un error. Por favor intenta más tarde.",
+  "PLEASE_LOGIN_TO_VALIDATE": "Por favor inicia sesión para validar tu dirección y proceder con el checkout."
+}

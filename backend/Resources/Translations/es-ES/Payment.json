@@ -1,0 +1,21 @@
+{
+  "TITLE": "Pago",
+  "BACK": "Atrás",
+  "BACK_TO_CHECKOUT": "Volver al Checkout",
+  "INITIALIZING_PAYMENT": "Inicializando pago...",
+  "FAILED_INITIALIZE": "Falló inicializar el pago",
+  "PAYMENT_NOT_CONFIGURED": "El sistema de pago no está configurado. Por favor contacta soporte.",
+  "TEST_MODE_MESSAGE": "Modo de Prueba: Usa el número de tarjeta 4242 4242 4242 4242 con cualquier fecha de vencimiento futura y cualquier CVC.",
+  "MOCK_MODE_TITLE": "Modo de Pago Simulado",
+  "MOCK_MODE_MESSAGE": "Este es un pago simulado para propósitos de prueba. No se procesará ningún pago real.",
+  "CARD_NUMBER": "Número de Tarjeta",
+  "EXPIRY_DATE": "Fecha de Vencimiento",
+  "CVC": "CVC",
+  "CARDHOLDER_NAME": "Nombre del Titular",
+  "PAY_NOW": "Pagar Ahora",
+  "PROCESSING": "Procesando...",
+  "PAYMENT_SUCCESS": "¡Pago exitoso!",
+  "PAYMENT_FAILED": "El pago falló. Por favor intenta de nuevo.",
+  "ORDER_NUMBER": "Pedido #",
+  "AMOUNT": "Monto"
+}

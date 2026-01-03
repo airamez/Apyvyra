@@ -1,0 +1,17 @@
+{
+  "TITLE": "Completa la Configuración de Tu Cuenta",
+  "TITLE_SUCCESS": "¡Bienvenido a Apyvyra!",
+  "WELCOME_MESSAGE": "¡Bienvenido, {fullName}! Por favor establece tu contraseña para completar la configuración de tu cuenta.",
+  "EMAIL_ADDRESS": "Dirección de Correo",
+  "PASSWORD": "Contraseña",
+  "PASSWORD_HELPER": "Mínimo 6 caracteres",
+  "CONFIRM_PASSWORD": "Confirmar Contraseña",
+  "COMPLETE_SETUP": "Completar Configuración",
+  "SETUP_SUCCESS": "¡Tu cuenta ha sido configurada exitosamente!",
+  "LOGIN_ACCESS_MESSAGE": "Ahora puedes iniciar sesión con tu correo y contraseña para acceder al panel de administración de Apyvyra.",
+  "GO_TO_LOGIN": "Ir a Iniciar Sesión",
+  "INVALID_LINK": "Este enlace de invitación es inválido o ha expirado.",
+  "CONTACT_ADMIN": "Por favor contacta a tu administrador para una nueva invitación.",
+  "FAILED_LOAD_INFO": "Falló cargar la información de configuración",
+  "FAILED_COMPLETE_SETUP": "Falló completar la configuración"
+}

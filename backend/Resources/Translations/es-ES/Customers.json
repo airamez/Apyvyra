@@ -1,0 +1,16 @@
+{
+  "TITLE": "Clientes",
+  "CUSTOMER_LIST": "Lista de Clientes",
+  "CUSTOMER_COUNT": "{count} clientes",
+  "NO_CUSTOMERS": "No se encontraron clientes.",
+  "FAILED_LOAD_CUSTOMERS": "Falló cargar los clientes. Por favor intenta de nuevo.",
+  "EMAIL": "Correo",
+  "STATUS": "Estado",
+  "EMAIL_CONFIRMED": "Correo Confirmado",
+  "CONFIRMED_AT": "Confirmado en",
+  "CREATED_AT": "Creado en",
+  "ACTIONS": "Acciones",
+  "PENDING_CONFIRMATION": "Confirmación Pendiente",
+  "ACTIVE": "Activo",
+  "INACTIVE": "Inactivo"
+}

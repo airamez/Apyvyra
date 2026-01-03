@@ -1,0 +1,16 @@
+{
+  "TITLE": "Crear Cuenta",
+  "TITLE_SUCCESS": "¡Cuenta Creada!",
+  "EMAIL_ADDRESS": "Dirección de Correo",
+  "PASSWORD": "Contraseña",
+  "PASSWORD_HELPER": "Mínimo 6 caracteres",
+  "CONFIRM_PASSWORD": "Confirmar Contraseña",
+  "SIGN_UP_BUTTON": "Registrarse",
+  "REGISTRATION_SUCCESS": "¡Registro exitoso! Por favor revisa tu correo para confirmar tu cuenta.",
+  "CONFIRMATION_SENT": "Hemos enviado un enlace de confirmación a tu dirección de correo. Haz clic en el enlace para activar tu cuenta.",
+  "CHECK_SPAM": "Si no ves el correo, revisa tu carpeta de spam.",
+  "AFTER_CONFIRMING_LOGIN": "Después de confirmar, haz clic aquí para iniciar sesión",
+  "ALREADY_HAVE_ACCOUNT": "¿Ya tienes una cuenta?",
+  "SIGN_IN": "Iniciar sesión",
+  "REGISTRATION_ERROR": "Ocurrió un error durante el registro"
+}

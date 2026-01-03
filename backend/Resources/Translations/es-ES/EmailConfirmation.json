@@ -1,0 +1,22 @@
+{
+  "CONFIRMING_EMAIL": "Confirmando tu correo...",
+  "PLEASE_WAIT": "Por favor espera mientras activamos tu cuenta.",
+  "WELCOME_TITLE": "¡Bienvenido a Apyvyra!",
+  "ACCOUNT_ACTIVATED": "¡Tu cuenta ha sido activada exitosamente!",
+  "THANK_YOU_MESSAGE": "Gracias por confirmar tu dirección de correo. Tu cuenta ahora está activa y lista para usar. Ahora puedes iniciar sesión y comenzar a gestionar tu inventario con las poderosas herramientas de Apyvyra.",
+  "GO_TO_LOGIN": "Ir a Iniciar Sesión",
+  "ALREADY_CONFIRMED_TITLE": "Ya Confirmado",
+  "EMAIL_ALREADY_CONFIRMED": "¡Tu correo ya fue confirmado!",
+  "LINK_EXPIRED_TITLE": "Enlace Expirado",
+  "LINK_EXPIRED_MESSAGE": "Tu enlace de confirmación ha expirado",
+  "LINK_EXPIRED_DESCRIPTION": "Tu enlace de confirmación ha expirado. Por favor solicita un nuevo correo de confirmación.",
+  "REQUEST_NEW_EMAIL": "Solicitar Nuevo Correo",
+  "INVALID_LINK_TITLE": "Enlace Inválido",
+  "INVALID_LINK_MESSAGE": "No pudimos validar tu enlace de confirmación",
+  "INVALID_LINK_DESCRIPTION": "Enlace de confirmación inválido. Por favor revisa tu correo o solicita una nueva confirmación.",
+  "CREATE_NEW_ACCOUNT": "Crear Nueva Cuenta",
+  "CONFIRMATION_FAILED_TITLE": "Confirmación Fallida",
+  "CONFIRMATION_FAILED_MESSAGE": "No pudimos confirmar tu correo",
+  "CONFIRMATION_ERROR": "Ocurrió un error al confirmar tu correo. Por favor intenta más tarde.",
+  "EMAIL_CONFIRMED_SUCCESS": "¡Tu correo ha sido confirmado! Tu cuenta ahora está activa. Puedes iniciar sesión."
+}

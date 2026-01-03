@@ -1,0 +1,20 @@
+{
+  "TITLE": "Mis Pedidos",
+  "NO_ORDERS": "Aún no has realizado ningún pedido.",
+  "FAILED_LOAD_ORDERS": "Falló cargar los pedidos",
+  "ORDER_NUMBER": "Pedido #",
+  "DATE": "Fecha",
+  "STATUS": "Estado",
+  "ITEMS": "Artículos",
+  "TOTAL": "Total",
+  "ORDER_ITEMS": "Artículos del Pedido",
+  "PRODUCT": "Producto",
+  "QTY": "Cant.",
+  "UNIT_PRICE": "Precio Unitario",
+  "TAX": "Impuesto",
+  "SHIPPING_ADDRESS": "Dirección de Envío",
+  "SUBTOTAL": "Subtotal:",
+  "TAX_LABEL": "Impuesto:",
+  "TOTAL_LABEL": "Total:",
+  "NOTES": "Notas"
+}

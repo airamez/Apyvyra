@@ -1,0 +1,20 @@
+{
+  "SEARCH_PRODUCTS": "Buscar productos...",
+  "CATEGORY": "Categoría",
+  "ALL_CATEGORIES": "Todas las Categorías",
+  "BRAND_PLACEHOLDER": "Marca...",
+  "MANUFACTURER_PLACEHOLDER": "Fabricante...",
+  "SEARCH": "Buscar",
+  "RESET": "Restablecer",
+  "CART": "Carrito",
+  "ADD": "Agregar",
+  "NO_DESCRIPTION": "Sin descripción",
+  "LOADING_PRODUCTS": "Cargando productos...",
+  "NO_PRODUCTS_FOUND": "No se encontraron productos. Intenta ajustar tu búsqueda.",
+  "ADDED_TO_CART": "Agregado {quantity} x {productName} al carrito",
+  "RESOURCES": "Recursos:",
+  "IMAGE": "Imagen",
+  "VIDEO": "Video",
+  "MANUAL": "Manual",
+  "RESOURCE": "Recurso {index}"
+}

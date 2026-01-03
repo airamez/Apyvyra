@@ -1,0 +1,18 @@
+{
+  "COMPANY_NAME": "Nombre de Tu Empresa",
+  "COMPANY_URL": "https://tuempresa.com",
+  "COMPANY_DESCRIPTION": "Proporcionamos productos de alta calidad y un servicio excepcional para satisfacer todas tus necesidades. Nuestro compromiso con la excelencia asegura que obtengas el mejor valor para tu inversión.",
+  "COMPANY_CONTACT_EMAIL": "info@tuempresa.com",
+  "COMPANY_PHONE": "+1 (555) 123-4567",
+  "COMPANY_ADDRESS": "123 Calle Empresarial, Ciudad, Estado 12345",
+  "WHY_CHOOSE_US_TITLE": "Por Qué Elegirnos",
+  "WHY_CHOOSE_US_DESCRIPTION": "Estamos comprometidos a proporcionar la mejor experiencia de productos y servicio",
+  "QUALITY_PRODUCTS_TITLE": "Productos de Calidad",
+  "QUALITY_PRODUCTS_DESCRIPTION": "Obtenemos solo los productos de más alta calidad de fabricantes confiables",
+  "FAST_DELIVERY_TITLE": "Entrega Rápida",
+  "FAST_DELIVERY_DESCRIPTION": "Envío rápido y confiable para obtener tus productos cuando los necesites",
+  "EXPERT_SUPPORT_TITLE": "Soporte Experto",
+  "EXPERT_SUPPORT_DESCRIPTION": "Nuestro equipo conocedor está aquí para ayudarte con cualquier pregunta",
+  "FOOTER_COPYRIGHT": "© 2024 {companyName}. Todos los derechos reservados.",
+  "FOOTER_POWERED_BY": "Desarrollado por el Sistema ERP Apyvyra"
+}

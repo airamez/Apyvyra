@@ -1,0 +1,20 @@
+{
+  "TITLE": "Apyvyra ERP",
+  "SWITCH_THEME": "Cambiar a modo {mode}",
+  "SIGN_UP": "Registrarse",
+  "HOME": "Inicio",
+  "DASHBOARD": "Panel de Control",
+  "STORE": "Tienda",
+  "CART": "Carrito",
+  "MY_ORDERS": "Mis Pedidos",
+  "PROFILE": "Perfil",
+  "PRODUCTS": "Productos",
+  "CATEGORIES": "Categorías",
+  "CUSTOMERS": "Clientes",
+  "STAFF": "Personal",
+  "ORDERS": "Pedidos",
+  "SETTINGS": "Configuración",
+  "LOGOUT": "Cerrar Sesión",
+  "LOGIN": "Iniciar Sesión",
+  "REGISTER": "Registrarse"
+}

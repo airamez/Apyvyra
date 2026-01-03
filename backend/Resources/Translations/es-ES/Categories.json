@@ -1,0 +1,21 @@
+{
+  "TITLE": "Categorías",
+  "ADD_CATEGORY": "Agregar Categoría",
+  "CATEGORY_LIST": "Lista de Categorías",
+  "CATEGORY_COUNT": "{count} categorías",
+  "NO_CATEGORIES": "No se encontraron categorías. Comienza agregando tu primera categoría.",
+  "FAILED_LOAD_CATEGORIES": "Falló cargar las categorías. Por favor intenta de nuevo.",
+  "NAME": "Nombre",
+  "DESCRIPTION": "Descripción",
+  "PARENT_CATEGORY": "Categoría Padre",
+  "STATUS": "Estado",
+  "ACTIVE": "Activo",
+  "INACTIVE": "Inactivo",
+  "ACTIONS": "Acciones",
+  "ADD_DIALOG_TITLE": "Agregar Nueva Categoría",
+  "EDIT_DIALOG_TITLE": "Editar Categoría",
+  "DELETE_DIALOG_TITLE": "Eliminar Categoría",
+  "DELETE_CONFIRM": "¿Estás seguro de que quieres eliminar {name}?",
+  "FAILED_DELETE_CATEGORY": "Falló eliminar la categoría",
+  "FAILED_SAVE_CATEGORY": "Falló guardar la categoría"
+}

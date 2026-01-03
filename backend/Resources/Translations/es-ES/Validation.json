@@ -1,0 +1,13 @@
+{
+  "REQUIRED": "Este campo es obligatorio",
+  "INVALID_EMAIL": "Por favor ingrese una dirección de correo válida",
+  "PASSWORD_MIN_LENGTH": "La contraseña debe tener al menos 6 caracteres",
+  "PASSWORDS_NOT_MATCH": "Las contraseñas no coinciden",
+  "ALL_FIELDS_REQUIRED": "Todos los campos son obligatorios",
+  "INVALID_PHONE": "Por favor ingrese un número de teléfono válido",
+  "INVALID_URL": "Por favor ingrese una URL válida",
+  "MIN_VALUE": "El valor debe ser al menos {min}",
+  "MAX_VALUE": "El valor debe ser como máximo {max}",
+  "MIN_LENGTH": "Debe tener al menos {min} caracteres",
+  "MAX_LENGTH": "Debe tener como máximo {max} caracteres"
+}
