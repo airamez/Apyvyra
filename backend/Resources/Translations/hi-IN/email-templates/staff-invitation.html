@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Staff Invitation - Apyvyra</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f4f4f4;
+        }
+        
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 40px 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            color: #ffffff;
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            color: #e0e0e0;
+            font-size: 16px;
+        }
+        
+        .content {
+            padding: 40px 30px;
+        }
+        
+        .welcome-message {
+            margin-bottom: 30px;
+        }
+        
+        .welcome-message h2 {
+            color: #333;
+            font-size: 24px;
+            margin-bottom: 15px;
+        }
+        
+        .welcome-message p {
+            color: #666;
+            font-size: 16px;
+            line-height: 1.6;
+        }
+        
+        .invitation-box {
+            background-color: #f8f9fa;
+            border-left: 4px solid #667eea;
+            padding: 25px;
+            margin: 30px 0;
+            border-radius: 8px;
+        }
+        
+        .invitation-box p {
+            color: #555;
+            font-size: 16px;
+            margin-bottom: 20px;
+        }
+        
+        .setup-button {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #ffffff;
+            padding: 15px 30px;
+            text-decoration: none;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 16px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        
+        .setup-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+        }
+        
+        .info-box {
+            background-color: #e8f5e9;
+            border: 1px solid #c8e6c9;
+            padding: 20px;
+            margin: 30px 0;
+            border-radius: 8px;
+        }
+        
+        .info-box h3 {
+            color: #2e7d32;
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+        
+        .info-box p {
+            color: #2e7d32;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        
+        .info-box ul {
+            color: #2e7d32;
+            font-size: 14px;
+            margin-top: 10px;
+            padding-left: 20px;
+        }
+        
+        .info-box li {
+            margin-bottom: 5px;
+        }
+        
+        .security-info {
+            background-color: #e3f2fd;
+            border: 1px solid #bbdefb;
+            padding: 20px;
+            margin: 30px 0;
+            border-radius: 8px;
+        }
+        
+        .security-info h3 {
+            color: #1565c0;
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+        
+        .security-info p {
+            color: #1565c0;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        
+        .expiry-info {
+            background-color: #fff3e0;
+            border: 1px solid #ffe0b2;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 8px;
+            font-size: 14px;
+            color: #e65100;
+        }
+        
+        .footer {
+            background-color: #f8f9fa;
+            padding: 30px;
+            text-align: center;
+            border-top: 1px solid #e9ecef;
+        }
+        
+        .footer p {
+            color: #6c757d;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+        
+        .footer .links {
+            margin-top: 15px;
+        }
+        
+        .footer .links a {
+            color: #667eea;
+            text-decoration: none;
+            margin: 0 10px;
+            font-size: 14px;
+        }
+        
+        .footer .links a:hover {
+            text-decoration: underline;
+        }
+        
+        @media only screen and (max-width: 600px) {
+            .container {
+                width: 100%;
+            }
+            
+            .header, .content, .footer {
+                padding: 20px 15px;
+            }
+            
+            .header h1 {
+                font-size: 28px;
+            }
+            
+            .setup-button {
+                display: block;
+                width: 100%;
+                margin: 10px 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Welcome to the Team!</h1>
+            <p>You've been invited to join Apyvyra as a staff member</p>
+        </div>
+        
+        <div class="content">
+            
+            <div class="welcome-message">
+                <h2>Hello {{full_name}}!</h2>
+                <p>An administrator has invited you to join Apyvyra as a staff member. As part of our team, you'll have access to manage products, categories, and help run our operations.</p>
+            </div>
+            
+            <div class="invitation-box">
+                <p>To complete your account setup and set your password, please click the button below:</p>
+                <a href="{{setup_url}}" class="setup-button">Set Up My Account</a>
+            </div>
+            
+            <div class="info-box">
+                <h3>✨ What you'll be able to do:</h3>
+                <ul>
+                    <li>Manage product inventory</li>
+                    <li>Update product categories</li>
+                    <li>Access the admin dashboard</li>
+                    <li>And much more!</li>
+                </ul>
+            </div>
+            
+            <div class="expiry-info">
+                <strong>⏰ Important:</strong> This invitation link will expire in 72 hours for security reasons. If you don't complete the setup in time, please contact your administrator for a new invitation.
+            </div>
+            
+            <div class="security-info">
+                <h3>🔒 Security Notice</h3>
+                <p>If you weren't expecting this invitation or don't recognize the sender, please ignore this email. Never share your password or this setup link with anyone.</p>
+            </div>
+            
+            <p style="margin-top: 30px; color: #666; font-size: 14px;">
+                If the button above doesn't work, you can copy and paste this link into your browser:<br>
+                <a href="{{setup_url}}" style="word-break: break-all; color: #667eea;">{{setup_url}}</a>
+            </p>
+        </div>
+        
+        <div class="footer">
+            <p><strong>Apyvyra</strong></p>
+            <p>© 2025 Apyvyra. All rights reserved.</p>
+            <div class="links">
+                <a href="#">Privacy Policy</a>
+                <a href="#">Terms of Service</a>
+                <a href="#">Support</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

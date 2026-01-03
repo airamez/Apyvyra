@@ -1,0 +1,20 @@
+{
+  "TITLE": "अपव्य्रा ERP",
+  "SWITCH_THEME": "{mode} मोड में स्विच करें",
+  "SIGN_UP": "साइन अप",
+  "HOME": "होम",
+  "DASHBOARD": "डैशबोर्ड",
+  "STORE": "स्टोर",
+  "CART": "कार्ट",
+  "MY_ORDERS": "मेरे ऑर्डर",
+  "PROFILE": "प्रोफाइल",
+  "PRODUCTS": "उत्पाद",
+  "CATEGORIES": "श्रेणियां",
+  "CUSTOMERS": "ग्राहक",
+  "STAFF": "स्टाफ",
+  "ORDERS": "ऑर्डर",
+  "SETTINGS": "सेटिंग्स",
+  "LOGOUT": "लॉग आउट",
+  "LOGIN": "लॉग इन",
+  "REGISTER": "रजिस्टर"
+}

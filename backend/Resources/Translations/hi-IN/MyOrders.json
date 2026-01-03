@@ -1,0 +1,20 @@
+{
+  "TITLE": "मेरे ऑर्डर",
+  "NO_ORDERS": "आपने अभी तक कोई ऑर्डर नहीं दिया है।",
+  "FAILED_LOAD_ORDERS": "ऑर्डर लोड करने में विफल",
+  "ORDER_NUMBER": "ऑर्डर #",
+  "DATE": "दिनांक",
+  "STATUS": "स्थिति",
+  "ITEMS": "वस्तुएं",
+  "TOTAL": "कुल",
+  "ORDER_ITEMS": "ऑर्डर वस्तुएं",
+  "PRODUCT": "उत्पाद",
+  "QTY": "मात्रा",
+  "UNIT_PRICE": "इकाई मूल्य",
+  "TAX": "कर",
+  "SHIPPING_ADDRESS": "शिपिंग पता",
+  "SUBTOTAL": "उप-योग:",
+  "TAX_LABEL": "कर:",
+  "TOTAL_LABEL": "कुल:",
+  "NOTES": "टिप्पणियां"
+}

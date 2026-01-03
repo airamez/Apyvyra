@@ -1,0 +1,16 @@
+{
+  "TITLE": "शॉपिंग कार्ट",
+  "CONTINUE_SHOPPING": "खरीदारी जारी रखें",
+  "CLEAR_CART": "कार्ट साफ करें",
+  "EMPTY_CART": "आपका कार्ट खाली है। वस्तुएं जोड़ने के लिए खरीदारी शुरू करें!",
+  "PRODUCT": "उत्पाद",
+  "PRICE": "मूल्य",
+  "QTY": "मात्रा",
+  "TAX": "कर",
+  "TOTAL": "कुल",
+  "ORDER_SUMMARY": "ऑर्डर सारांश",
+  "SUBTOTAL": "उप-योग:",
+  "TAX_LABEL": "कर:",
+  "TOTAL_LABEL": "कुल:",
+  "PROCEED_TO_CHECKOUT": "चेकआउट पर जाएं"
+}

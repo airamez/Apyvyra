@@ -1,0 +1,21 @@
+{
+  "TITLE": "श्रेणियां",
+  "ADD_CATEGORY": "श्रेणी जोड़ें",
+  "CATEGORY_LIST": "श्रेणी सूची",
+  "CATEGORY_COUNT": "{count} श्रेणियां",
+  "NO_CATEGORIES": "कोई श्रेणी नहीं मिली। अपनी पहली श्रेणी जोड़कर शुरू करें।",
+  "FAILED_LOAD_CATEGORIES": "श्रेणियां लोड करने में विफल। कृपया फिर से प्रयास करें।",
+  "NAME": "नाम",
+  "DESCRIPTION": "विवरण",
+  "PARENT_CATEGORY": "मूल श्रेणी",
+  "STATUS": "स्थिति",
+  "ACTIVE": "सक्रिय",
+  "INACTIVE": "निष्क्रिय",
+  "ACTIONS": "क्रियाएं",
+  "ADD_DIALOG_TITLE": "नई श्रेणी जोड़ें",
+  "EDIT_DIALOG_TITLE": "श्रेणी संपादित करें",
+  "DELETE_DIALOG_TITLE": "श्रेणी हटाएं",
+  "DELETE_CONFIRM": "क्या आप वाकई {name} को हटाना चाहते हैं?",
+  "FAILED_DELETE_CATEGORY": "श्रेणी हटाने में विफल",
+  "FAILED_SAVE_CATEGORY": "श्रेणी सेव करने में विफल"
+}

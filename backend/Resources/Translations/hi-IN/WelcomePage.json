@@ -1,0 +1,18 @@
+{
+  "COMPANY_NAME": "आपकी कंपनी का नाम",
+  "COMPANY_URL": "https://yourcompany.com",
+  "COMPANY_DESCRIPTION": "हम आपकी सभी आवश्यकताओं को पूरा करने के लिए उच्च गुणवत्ता वाले उत्पाद और असाधारण सेवा प्रदान करते हैं। उत्कृष्टता के प्रति हमारी प्रतिबद्धता सुनिश्चित करती है कि आप अपने निवेश के लिए सर्वोत्तम मूल्य प्राप्त करें।",
+  "COMPANY_CONTACT_EMAIL": "info@yourcompany.com",
+  "COMPANY_PHONE": "+1 (555) 123-4567",
+  "COMPANY_ADDRESS": "123 बिजनेस स्ट्रीट, शहर, राज्य 12345",
+  "WHY_CHOOSE_US_TITLE": "हमें क्यों चुनें",
+  "WHY_CHOOSE_US_DESCRIPTION": "हम सर्वोत्तम उत्पाद और सेवा अनुभव प्रदान करने के लिए प्रतिबद्ध हैं",
+  "QUALITY_PRODUCTS_TITLE": "गुणवत्ता उत्पाद",
+  "QUALITY_PRODUCTS_DESCRIPTION": "हम केवल विश्वसनीय निर्माताओं से उच्चतम गुणवत्ता वाले उत्पादों का स्रोत करते हैं",
+  "FAST_DELIVERY_TITLE": "तेज़ डिलीवरी",
+  "FAST_DELIVERY_DESCRIPTION": "आपको अपने उत्पाद जब चाहिए तब प्राप्त करने के लिए तेज़ और विश्वसनीय शिपिंग",
+  "EXPERT_SUPPORT_TITLE": "विशेषज्ञ समर्थन",
+  "EXPERT_SUPPORT_DESCRIPTION": "हमारी ज्ञानवान टीम किसी भी प्रश्न के साथ आपकी सहायता के लिए यहाँ है",
+  "FOOTER_COPYRIGHT": "© 2024 {companyName}. सभी अधिकार सुरक्षित।",
+  "FOOTER_POWERED_BY": "अपव्य्रा ERP सिस्टम द्वारा संचालित"
+}

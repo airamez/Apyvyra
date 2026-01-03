@@ -1,0 +1,20 @@
+{
+  "SEARCH_PRODUCTS": "उत्पाद खोजें...",
+  "CATEGORY": "श्रेणी",
+  "ALL_CATEGORIES": "सभी श्रेणियां",
+  "BRAND_PLACEHOLDER": "ब्रांड...",
+  "MANUFACTURER_PLACEHOLDER": "निर्माता...",
+  "SEARCH": "खोजें",
+  "RESET": "रीसेट करें",
+  "CART": "कार्ट",
+  "ADD": "जोड़ें",
+  "NO_DESCRIPTION": "कोई विवरण नहीं",
+  "LOADING_PRODUCTS": "उत्पाद लोड हो रहे हैं...",
+  "NO_PRODUCTS_FOUND": "कोई उत्पाद नहीं मिला। अपनी खोज समायोजित करने का प्रयास करें।",
+  "ADDED_TO_CART": "कार्ट में {quantity} x {productName} जोड़ा गया",
+  "RESOURCES": "संसाधन:",
+  "IMAGE": "चित्र",
+  "VIDEO": "वीडियो",
+  "MANUAL": "मैनुअल",
+  "RESOURCE": "संसाधन {index}"
+}

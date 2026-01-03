@@ -1,0 +1,16 @@
+{
+  "TITLE": "ग्राहक",
+  "CUSTOMER_LIST": "ग्राहक सूची",
+  "CUSTOMER_COUNT": "{count} ग्राहक",
+  "NO_CUSTOMERS": "कोई ग्राहक नहीं मिला।",
+  "FAILED_LOAD_CUSTOMERS": "ग्राहक लोड करने में विफल। कृपया फिर से प्रयास करें।",
+  "EMAIL": "ईमेल",
+  "STATUS": "स्थिति",
+  "EMAIL_CONFIRMED": "ईमेल पुष्टि हुआ",
+  "CONFIRMED_AT": "पुष्टि की गई",
+  "CREATED_AT": "बनाया गया",
+  "ACTIONS": "क्रियाएं",
+  "PENDING_CONFIRMATION": "पुष्टि प्रतीक्षारत",
+  "ACTIVE": "सक्रिय",
+  "INACTIVE": "निष्क्रिय"
+}

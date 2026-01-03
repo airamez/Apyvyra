@@ -1,0 +1,18 @@
+{
+  "TITLE": "डैशबोर्ड",
+  "LOADING": "डैशबोर्ड डेटा लोड हो रहा है...",
+  "ORDERS_OVERVIEW": "ऑर्डर अवलोकन",
+  "TOTAL_ORDERS": "कुल ऑर्डर",
+  "PENDING_PAYMENT": "भुगतान प्रतीक्षारत",
+  "PAID": "भुगतान किया गया",
+  "CONFIRMED": "पुष्टि हुआ",
+  "PROCESSING": "प्रसंस्करण में",
+  "SHIPPED": "भेजा गया",
+  "COMPLETED": "पूर्ण हुआ",
+  "CANCELLED": "रद्द किया गया",
+  "ON_HOLD": "रोका गया",
+  "TOTAL_REVENUE": "कुल राजस्व",
+  "CUSTOMERS": "ग्राहक",
+  "TOTAL_CUSTOMERS": "कुल ग्राहक",
+  "REGISTERED_CUSTOMERS": "पंजीकृत ग्राहक"
+}
