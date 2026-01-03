@@ -2,7 +2,7 @@
 
 ## Project Overview
 
-Apyvyra is a modern e-commerce platform built with **multi-tier architecture**, featuring separate layers for frontend, backend, database, and DevOps tooling. The application supports multiple languages (English and Brazilian Portuguese already configured), integrates with Stripe for payments, and includes Google Maps for address validation.
+Apyvyra is a modern e-commerce platform built with **multi-tier architecture**, featuring separate layers for frontend, backend, database, and DevOps tooling. The application supports multiple languages (English, Brazilian Portuguese, Spanish, and Hindi already configured), integrates with Stripe for payments, and includes Google Maps for address validation.
 
 ### Project Structure
 
@@ -130,7 +130,7 @@ Apyvyra/
 
 ### Language & Translation Configuration
 
-Apyvyra includes a **backend-driven translation system** that allows the application to be deployed in different languages. Currently supports English (`en-US`) and Brazilian Portuguese (`pt-BR`).
+Apyvyra includes a **backend-driven translation system** that allows the application to be deployed in different languages. Currently supports English (`en-US`), Brazilian Portuguese (`pt-BR`), Spanish (`es-ES`), and Hindi (`hi-IN`).
 
 **Backend Configuration** (`backend/appsettings.json`):
 ```json
@@ -148,7 +148,13 @@ backend/Resources/Translations/
 ├── en-US/              # English translations
 │   ├── email-templates/    # Email templates
 │   └── *.json             # UI translation files
-└── pt-BR/              # Portuguese translations
+├── pt-BR/              # Portuguese translations
+│   ├── email-templates/    # Email templates
+│   └── *.json             # UI translation files
+├── es-ES/              # Spanish translations
+│   ├── email-templates/    # Email templates
+│   └── *.json             # UI translation files
+└── hi-IN/              # Hindi translations
     ├── email-templates/    # Email templates
     └── *.json             # UI translation files
 ```
@@ -221,9 +227,41 @@ For live applications with real payments.
 }
 ```
 
+### JWT Authentication Settings
+
+Apyvyra uses **JSON Web Tokens (JWT)** for secure authentication and authorization. JWT tokens are issued upon successful login and must be included in API requests.
+
+**Configuration** (`backend/appsettings.json`):
+```json
+{
+  "Jwt": {
+    "Key": "YourSuperSecretKeyThatIsAtLeast32CharactersLongForHS256",
+    "Issuer": "ApyvyraAPI",
+    "Audience": "ApyvyraClient",
+    "ExpiresInMinutes": 60
+  }
+}
+```
+
+**Settings Explained:**
+- **`Key`**: Secret key used to sign and verify JWT tokens (must be at least 32 characters long)
+- **`Issuer`**: Identifies the token issuer (typically your API)
+- **`Audience`**: Identifies the intended recipient of the token (typically your frontend)
+- **`ExpiresInMinutes`**: Token expiration time (default: 60 minutes)
+
+**Security Notes:**
+- 🔐 **Never commit the JWT key** to version control
+- 🔐 Use environment variables in production: `"Jwt__Key": "your-secure-key"`
+- 🔄 **Rotate keys regularly** in production
+- ⚡ **Keep expiration time reasonable** to balance security and user experience
+
 ### Email Configuration (SMTP)
 
-Email configuration is handled through the backend `appsettings.json` file.
+Email configuration is handled through the backend `appsettings.json` file. Apyvyra supports both real SMTP email delivery and a test mode for development.
+
+#### Option 1: Test Mode (Recommended for Local Development)
+
+In test mode, emails are printed to the backend console instead of being sent via SMTP. This is perfect for development and testing without requiring email credentials.
 
 **Configuration**:
 ```json
@@ -240,6 +278,147 @@ Email configuration is handled through the backend `appsettings.json` file.
   }
 }
 ```
+
+**Features of Test Mode:**
+- 🖨️ **Console Output**: All emails are printed to the backend console
+- 🚀 **Fast Development**: No network calls or email server dependencies
+- 🔍 **Easy Debugging**: Email content is immediately visible in logs
+- 📧 **Template Testing**: Perfect for testing email templates and placeholders
+
+#### Option 2: SMTP Mode
+
+For real email delivery using traditional SMTP servers. Supports any email provider that offers SMTP access.
+
+**Common SMTP Providers:**
+
+**Gmail:**
+```json
+{
+  "EmailSettings": {
+    "SmtpServer": "smtp.gmail.com",
+    "SmtpPort": 587,
+    "Username": "your-email@gmail.com",
+    "Password": "your-app-password",
+    "FromEmail": "your-email@gmail.com",
+    "FromName": "Apyvyra",
+    "EnableSsl": true,
+    "DevelopmentMode": false
+  }
+}
+```
+
+**Outlook/Office 365:**
+```json
+{
+  "EmailSettings": {
+    "SmtpServer": "smtp.office365.com",
+    "SmtpPort": 587,
+    "Username": "your-email@outlook.com",
+    "Password": "your-password",
+    "FromEmail": "your-email@outlook.com",
+    "FromName": "Apyvyra",
+    "EnableSsl": true,
+    "DevelopmentMode": false
+  }
+}
+```
+
+**Yahoo Mail:**
+```json
+{
+  "EmailSettings": {
+    "SmtpServer": "smtp.mail.yahoo.com",
+    "SmtpPort": 587,
+    "Username": "your-email@yahoo.com",
+    "Password": "your-app-password",
+    "FromEmail": "your-email@yahoo.com",
+    "FromName": "Apyvyra",
+    "EnableSsl": true,
+    "DevelopmentMode": false
+  }
+}
+```
+
+**Custom SMTP Server:**
+```json
+{
+  "EmailSettings": {
+    "SmtpServer": "mail.yourdomain.com",
+    "SmtpPort": 587,
+    "Username": "noreply@yourdomain.com",
+    "Password": "your-smtp-password",
+    "FromEmail": "noreply@yourdomain.com",
+    "FromName": "Apyvyra",
+    "EnableSsl": true,
+    "DevelopmentMode": false
+  }
+}
+```
+
+**Settings Explained:**
+- **`SmtpServer`**: SMTP server address (varies by provider)
+- **`SmtpPort`**: SMTP port (typically 587 for TLS, 465 for SSL, 25 for unencrypted)
+- **`Username`**: Email address for SMTP authentication
+- **`Password`**: Email password or app-specific password
+- **`FromEmail`**: Email address that appears as sender
+- **`FromName`**: Display name for the sender
+- **`EnableSsl`**: Enable SSL/TLS encryption for SMTP
+- **`DevelopmentMode`**: When `true`, prints emails to console instead of sending
+
+**Provider-Specific Notes:**
+- **Gmail**: Requires App Password setup. See configuration below.
+- **Outlook**: May require "Authenticated SMTP" setting
+- **Yahoo**: Requires "App Password" for third-party access
+- **Custom**: Check your hosting provider's SMTP settings
+
+**Gmail Configuration with App Password:**
+
+Gmail requires App Passwords for third-party applications. This is Google's security requirement and provides better protection for your account.
+
+**Setup Steps:**
+1. **Enable 2-Step Verification** (Required):
+   - Go to [Google Account Security](https://myaccount.google.com/security)
+   - Enable **2-Step Verification**
+
+2. **Create App Password**:
+   - Go to **App Passwords**: https://myaccount.google.com/apppasswords
+   - Select "Mail" for app and "Other (Custom name)" for device
+   - Enter "Apyvyra" as the custom name
+   - Copy the 16-character password (e.g., `abcd efgh ijkl mnop`)
+
+3. **Configure Application**:
+   - Use the App Password in your `appsettings.json`
+
+**Gmail SMTP Configuration:**
+```json
+{
+  "EmailSettings": {
+    "SmtpServer": "smtp.gmail.com",
+    "SmtpPort": 587,
+    "Username": "your-email@gmail.com",
+    "Password": "abcd efgh ijkl mnop",  // App Password (remove spaces if needed)
+    "FromEmail": "your-email@gmail.com",
+    "FromName": "Apyvyra",
+    "EnableSsl": true,
+    "DevelopmentMode": false
+  }
+}
+```
+
+**Gmail SMTP Settings Reference:**
+```
+Server: smtp.gmail.com
+Port: 587 (TLS) or 465 (SSL)
+Username: your-full-email@gmail.com
+Password: [16-character App Password]
+SSL/TLS: Enabled
+```
+
+**Important Notes:**
+- App Passwords are required even without 2FA enabled
+- Regular Gmail passwords will not work for SMTP
+- Each App Password can only be used once
+- You can revoke App Passwords anytime from Google Account settings
 
 ### Address Validation (Google Maps)
 
@@ -277,33 +456,6 @@ Real Google Maps integration for comprehensive address validation.
 }
 ```
 
-### JWT Authentication Settings
-
-Apyvyra uses **JSON Web Tokens (JWT)** for secure authentication and authorization. JWT tokens are issued upon successful login and must be included in API requests.
-
-**Configuration** (`backend/appsettings.json`):
-```json
-{
-  "Jwt": {
-    "Key": "YourSuperSecretKeyThatIsAtLeast32CharactersLongForHS256",
-    "Issuer": "ApyvyraAPI",
-    "Audience": "ApyvyraClient",
-    "ExpiresInMinutes": 60
-  }
-}
-```
-
-**Settings Explained:**
-- **`Key`**: Secret key used to sign and verify JWT tokens (must be at least 32 characters long)
-- **`Issuer`**: Identifies the token issuer (typically your API)
-- **`Audience`**: Identifies the intended recipient of the token (typically your frontend)
-- **`ExpiresInMinutes`**: Token expiration time (default: 60 minutes)
-
-**Security Notes:**
-- 🔐 **Never commit the JWT key** to version control
-- 🔐 Use environment variables in production: `"Jwt__Key": "your-secure-key"`
-- 🔄 **Rotate keys regularly** in production
-- ⚡ **Keep expiration time reasonable** to balance security and user experience
 
 ⚠️ **SECURITY WARNING: Sensitive Configuration**
 
