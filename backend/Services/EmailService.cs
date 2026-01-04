@@ -147,7 +147,8 @@ public class EmailService : IEmailService
                 .Replace("{{subtotal}}", order.Subtotal.ToString("F2"))
                 .Replace("{{tax_amount}}", order.TaxAmount.ToString("F2"))
                 .Replace("{{total_amount}}", order.TotalAmount.ToString("F2"))
-                .Replace("{{shipping_address}}", order.ShippingAddress.Replace("\n", "<br>"));
+                .Replace("{{shipping_address}}", order.ShippingAddress.Replace("\n", "<br>"))
+                .Replace("{{support_email}}", _emailSettings.FromEmail);
 
             var subject = _translationService.Translate("OrderConfirmationEmail", "SUBJECT");
             await SendEmailAsync(toEmail, subject, emailBody);
@@ -194,7 +195,8 @@ public class EmailService : IEmailService
                 .Replace("{{tax_amount}}", order.TaxAmount.ToString("F2"))
                 .Replace("{{total_amount}}", order.TotalAmount.ToString("F2"))
                 .Replace("{{shipping_address}}", order.ShippingAddress.Replace("\n", "<br>"))
-                .Replace("{{shipping_details}}", formattedShippingDetails);
+                .Replace("{{shipping_details}}", formattedShippingDetails)
+                .Replace("{{support_email}}", _emailSettings.FromEmail);
 
             var subject = _translationService.Translate("OrderShippedEmail", "SUBJECT");
             await SendEmailAsync(toEmail, subject, emailBody);
