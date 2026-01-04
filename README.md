@@ -119,19 +119,20 @@ Welcome and enjoy!!!
 | [FILTER_COMPONENT_USAGE.md](FILTER_COMPONENT_USAGE.md) | Usage guide for the FilterComponent in the frontend |
 | [devops/README.md](devops/README.md) | DevOps console tool documentation and database management |
 
-## Classes
+## Videos
 
-* [Class #1: Project Intro](https://www.youtube.com/live/frmYWxotqzc)
-* [Class #2: Project Initialization - Frontend and Backend](https://www.youtube.com/live/Gfb2D8uVr08)
-* [Class #3: Docker configuration](https://www.youtube.com/live/akO3wHmpjes)
-* [Class #4: Database creation and User Controller](https://youtube.com/live/WJH4EvnNUfU)
-* [Class #5: Third-party React components](https://youtube.com/live/raYyNkPZ2w8)
-* [Class #6: Customer Regitration - frontend - UI](https://www.youtube.com/live/aZqesjmP4DQ)
-* [Class #7: Customer Regitration - Encrypting the password](https://www.youtube.com/live/kkm1WHAEl2E)
-* [Class #8: Login with JWT](https://www.youtube.com/live/noAAIkmSbHA)
-* [Class #9: Code Review and Refactoring](https://youtube.com/live/jJbiBe6XsOU)
-* [Class #10: Prodcuts](https://youtube.com/live/KOWKq2kz4k8)
-* [Class #11: Prodcuts - Categories and Pagination](https://youtube.com/live/BCJveP8Nsz4)
-* [Class #12: Filtering, Sorting and Paging: Old vs Modern approaches](https://youtube.com/live/qVU0YBQt8Ag) - [paging_vs_filtering.md](https://github.com/airamez/Apyvyra/blob/main/paging_vs_filtering.md)
-* [Class #13: Trying Claude Code to improve Products](https://youtube.com/live/UDkrn0D2PkU)
-* [Class #14: Apyvyra MVP](https://youtu.be/cBv-CIOTnEs)
+* [#1: Project Intro](https://www.youtube.com/live/frmYWxotqzc)
+* [#2: Project Initialization - Frontend and Backend](https://www.youtube.com/live/Gfb2D8uVr08)
+* [#3: Docker configuration](https://www.youtube.com/live/akO3wHmpjes)
+* [#4: Database creation and User Controller](https://youtube.com/live/WJH4EvnNUfU)
+* [#5: Third-party React components](https://youtube.com/live/raYyNkPZ2w8)
+* [#6: Customer Regitration - frontend - UI](https://www.youtube.com/live/aZqesjmP4DQ)
+* [#7: Customer Regitration - Encrypting the password](https://www.youtube.com/live/kkm1WHAEl2E)
+* [#8: Login with JWT](https://www.youtube.com/live/noAAIkmSbHA)
+* [#9: Code Review and Refactoring](https://youtube.com/live/jJbiBe6XsOU)
+* [#10: Prodcuts](https://youtube.com/live/KOWKq2kz4k8)
+* [#11: Prodcuts - Categories and Pagination](https://youtube.com/live/BCJveP8Nsz4)
+* [#12: Filtering, Sorting and Paging: Old vs Modern approaches](https://youtube.com/live/qVU0YBQt8Ag) - [paging_vs_filtering.md](https://github.com/airamez/Apyvyra/blob/main/paging_vs_filtering.md)
+* [#13: Trying Claude Code to improve Products](https://youtube.com/live/UDkrn0D2PkU)
+* [#14: Apyvyra MVP](https://youtu.be/cBv-CIOTnEs)
+* [#15: Apyvyra MVP - portuguese](https://youtu.be/4od5NBcwAgA)
