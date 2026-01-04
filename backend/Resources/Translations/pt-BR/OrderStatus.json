@@ -1,0 +1,11 @@
+{
+  "ORDER_STATUS_PENDING_PAYMENT": "Pagamento Pendente",
+  "ORDER_STATUS_PAID": "Pago",
+  "ORDER_STATUS_CONFIRMED": "Confirmado",
+  "ORDER_STATUS_PROCESSING": "Em Processamento",
+  "ORDER_STATUS_SHIPPED": "Enviado",
+  "ORDER_STATUS_COMPLETED": "Concluído",
+  "ORDER_STATUS_CANCELLED": "Cancelado",
+  "ORDER_STATUS_ON_HOLD": "Em Espera",
+  "ORDER_STATUS_UNKNOWN": "Desconhecido"
+}

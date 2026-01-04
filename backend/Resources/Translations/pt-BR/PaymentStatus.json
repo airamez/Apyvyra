@@ -1,0 +1,7 @@
+{
+  "PAYMENT_STATUS_PENDING": "Pendente",
+  "PAYMENT_STATUS_SUCCEEDED": "Sucesso",
+  "PAYMENT_STATUS_FAILED": "Falhou",
+  "PAYMENT_STATUS_REFUNDED": "Reembolsado",
+  "PAYMENT_STATUS_UNKNOWN": "Desconhecido"
+}

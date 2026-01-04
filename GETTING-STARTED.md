@@ -535,6 +535,245 @@ Create a `.env` file in the `frontend` directory:
 VITE_API_URL=http://localhost:5000
 ```
 
+## Translating Database Status Fields
+
+Apyvyra provides a robust system for translating status fields from database tables into localized text. This allows you to store integer status codes in your database while displaying user-friendly, multilingual text in your application.
+
+### How It Works
+
+The translation system uses a three-layer approach:
+1. **Database Layer**: Stores integer status codes (e.g., `0`, `1`, `2`)
+2. **Enum Layer**: Maps integers to translation keys (e.g., `"ORDER_STATUS_PENDING"`)
+3. **Translation Layer**: Maps keys to localized text (e.g., "Pending Payment", "Pagamento Pendente")
+
+### Example: Order Status Implementation
+
+#### 1. Database Table Definition
+
+```sql
+-- customer_order table with status fields
+CREATE TABLE customer_order (
+    id SERIAL PRIMARY KEY,
+    order_number VARCHAR(50) NOT NULL,
+    status INTEGER NOT NULL DEFAULT 0,           -- Order status
+    payment_status INTEGER NOT NULL DEFAULT 0,    -- Payment status
+    -- ... other fields
+);
+```
+
+#### 2. Enum Classes (Backend/Enums/)
+
+**OrderStatus.cs**:
+```csharp
+namespace backend.Enums;
+
+public static class OrderStatus
+{
+    public const int PendingPayment = 0;
+    public const int Paid = 1;
+    public const int Confirmed = 2;
+    public const int Processing = 3;
+    public const int Shipped = 4;
+    public const int Completed = 5;
+    public const int Cancelled = 6;
+    public const int OnHold = 7;
+
+    public static readonly string[] Names = {
+        "ORDER_STATUS_PENDING_PAYMENT",
+        "ORDER_STATUS_PAID",
+        "ORDER_STATUS_CONFIRMED",
+        "ORDER_STATUS_PROCESSING",
+        "ORDER_STATUS_SHIPPED",
+        "ORDER_STATUS_COMPLETED",
+        "ORDER_STATUS_CANCELLED",
+        "ORDER_STATUS_ON_HOLD"
+    };
+
+    public static string GetName(int status)
+    {
+        return status >= 0 && status < Names.Length ? Names[status] : "ORDER_STATUS_UNKNOWN";
+    }
+}
+```
+
+**PaymentStatus.cs**:
+```csharp
+namespace backend.Enums;
+
+public static class PaymentStatus
+{
+    public const int Pending = 0;
+    public const int Succeeded = 1;
+    public const int Failed = 2;
+    public const int Refunded = 3;
+
+    public static readonly string[] Names = {
+        "PAYMENT_STATUS_PENDING",
+        "PAYMENT_STATUS_SUCCEEDED",
+        "PAYMENT_STATUS_FAILED",
+        "PAYMENT_STATUS_REFUNDED"
+    };
+
+    public static string GetName(int status)
+    {
+        return status >= 0 && status < Names.Length ? Names[status] : "PAYMENT_STATUS_UNKNOWN";
+    }
+}
+```
+
+#### 3. Translation Files (Backend/Resources/Translations/)
+
+**English (en-US/OrderStatus.json)**:
+```json
+{
+  "ORDER_STATUS_PENDING_PAYMENT": "Pending Payment",
+  "ORDER_STATUS_PAID": "Paid",
+  "ORDER_STATUS_CONFIRMED": "Confirmed",
+  "ORDER_STATUS_PROCESSING": "Processing",
+  "ORDER_STATUS_SHIPPED": "Shipped",
+  "ORDER_STATUS_COMPLETED": "Completed",
+  "ORDER_STATUS_CANCELLED": "Cancelled",
+  "ORDER_STATUS_ON_HOLD": "On Hold",
+  "ORDER_STATUS_UNKNOWN": "Unknown"
+}
+```
+
+**Portuguese (pt-BR/OrderStatus.json)**:
+```json
+{
+  "ORDER_STATUS_PENDING_PAYMENT": "Pagamento Pendente",
+  "ORDER_STATUS_PAID": "Pago",
+  "ORDER_STATUS_CONFIRMED": "Confirmado",
+  "ORDER_STATUS_PROCESSING": "Em Processamento",
+  "ORDER_STATUS_SHIPPED": "Enviado",
+  "ORDER_STATUS_COMPLETED": "Concluído",
+  "ORDER_STATUS_CANCELLED": "Cancelado",
+  "ORDER_STATUS_ON_HOLD": "Em Espera",
+  "ORDER_STATUS_UNKNOWN": "Desconhecido"
+}
+```
+
+**English (en-US/PaymentStatus.json)**:
+```json
+{
+  "PAYMENT_STATUS_PENDING": "Pending",
+  "PAYMENT_STATUS_SUCCEEDED": "Succeeded",
+  "PAYMENT_STATUS_FAILED": "Failed",
+  "PAYMENT_STATUS_REFUNDED": "Refunded",
+  "PAYMENT_STATUS_UNKNOWN": "Unknown"
+}
+```
+
+#### 4. Translation Service (Backend/Services/TranslationService.cs)
+
+The `TranslationService` handles loading and retrieving translations:
+
+```csharp
+public interface ITranslationService
+{
+    string GetCurrentLanguage();
+    Dictionary<string, string> GetTranslations(string component);
+    string Translate(string component, string key);
+}
+```
+
+#### 5. Controller Implementation (Backend/Controllers/OrderController.cs)
+
+Inject the translation service and use it for status names:
+
+```csharp
+public class OrderController : BaseApiController
+{
+    private readonly ITranslationService _translationService;
+
+    public OrderController(
+        AppDbContext context,
+        ILogger<OrderController> logger,
+        IEmailService emailService,
+        IConfiguration configuration,
+        ITranslationService translationService)
+    {
+        _context = context;
+        _logger = logger;
+        _emailService = emailService;
+        _configuration = configuration;
+        _translationService = translationService;
+    }
+
+    private string GetStatusName(int status)
+    {
+        var key = OrderStatus.GetName(status);
+        return _translationService.Translate("OrderStatus", key);
+    }
+
+    private string GetPaymentStatusName(int paymentStatus)
+    {
+        var key = PaymentStatus.GetName(paymentStatus);
+        return _translationService.Translate("PaymentStatus", key);
+    }
+
+    private OrderResponse MapToOrderResponse(CustomerOrder order)
+    {
+        return new OrderResponse
+        {
+            Id = order.Id,
+            Status = order.Status,
+            StatusName = GetStatusName(order.Status),           // Translated text
+            PaymentStatus = order.PaymentStatus,
+            PaymentStatusName = GetPaymentStatusName(order.PaymentStatus), // Translated text
+            // ... other fields
+        };
+    }
+}
+```
+
+### Benefits of This Approach
+
+1. **Database Efficiency**: Store small integers instead of long text strings
+2. **Performance**: Integer comparisons are faster than string comparisons
+3. **Consistency**: Same status values across all languages
+4. **Flexibility**: Easy to add new languages without database changes
+5. **Maintainability**: Translation logic is centralized and reusable
+
+### Adding New Status Values
+
+1. **Add constant to enum**: `public const int NewStatus = 8;`
+2. **Add translation key to Names array**: `"ORDER_STATUS_NEW_STATUS"`
+3. **Add translations to all language files**
+4. **Update any business logic that references the status**
+
+### Supporting New Languages
+
+1. **Create new language folder**: `backend/Resources/Translations/fr-FR/`
+2. **Copy existing translation files**: `OrderStatus.json`, `PaymentStatus.json`
+3. **Translate all keys**: Replace English text with French translations
+4. **Update configuration**: Set `"Language": "fr-FR"` in appsettings.json
+
+### API Response Example
+
+With the translation system active, API responses include both the raw status code and the translated text:
+
+```json
+{
+  "id": 123,
+  "status": 1,
+  "statusName": "Paid",
+  "paymentStatus": 1,
+  "paymentStatusName": "Succeeded"
+}
+```
+
+When configured for Portuguese:
+```json
+{
+  "id": 123,
+  "status": 1,
+  "statusName": "Pago",
+  "paymentStatus": 1,
+  "paymentStatusName": "Sucesso"
+}
+```
+
 ## Additional Resources
 
 - [Main README](README.md)

@@ -1,0 +1,7 @@
+{
+  "PAYMENT_STATUS_PENDING": "लंबित",
+  "PAYMENT_STATUS_SUCCEEDED": "सफल",
+  "PAYMENT_STATUS_FAILED": "विफल",
+  "PAYMENT_STATUS_REFUNDED": "वापस किया गया",
+  "PAYMENT_STATUS_UNKNOWN": "अज्ञात"
+}

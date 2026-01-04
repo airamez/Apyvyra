@@ -17,17 +17,20 @@ public class OrderController : BaseApiController
     private readonly ILogger<OrderController> _logger;
     private readonly IEmailService _emailService;
     private readonly IConfiguration _configuration;
+    private readonly ITranslationService _translationService;
 
     public OrderController(
         AppDbContext context,
         ILogger<OrderController> logger,
         IEmailService emailService,
-        IConfiguration configuration)
+        IConfiguration configuration,
+        ITranslationService translationService)
     {
         _context = context;
         _logger = logger;
         _emailService = emailService;
         _configuration = configuration;
+        _translationService = translationService;
     }
 
     private int GetCurrentUserId()
@@ -383,7 +386,7 @@ public class OrderController : BaseApiController
         return $"ORD-{timestamp}-{random}";
     }
 
-    private static OrderResponse MapToOrderResponse(CustomerOrder order)
+    private OrderResponse MapToOrderResponse(CustomerOrder order)
     {
         return new OrderResponse
         {
@@ -422,14 +425,16 @@ public class OrderController : BaseApiController
         };
     }
 
-    private static string GetStatusName(int status)
+    private string GetStatusName(int status)
     {
-        return OrderStatus.GetName(status);
+        var key = OrderStatus.GetName(status);
+        return _translationService.Translate("OrderStatus", key);
     }
 
-    private static string GetPaymentStatusName(int paymentStatus)
+    private string GetPaymentStatusName(int paymentStatus)
     {
-        return PaymentStatus.GetName(paymentStatus);
+        var key = PaymentStatus.GetName(paymentStatus);
+        return _translationService.Translate("PaymentStatus", key);
     }
 }
 

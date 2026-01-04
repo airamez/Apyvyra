@@ -1,0 +1,7 @@
+{
+  "PAYMENT_STATUS_PENDING": "Pending",
+  "PAYMENT_STATUS_SUCCEEDED": "Succeeded",
+  "PAYMENT_STATUS_FAILED": "Failed",
+  "PAYMENT_STATUS_REFUNDED": "Refunded",
+  "PAYMENT_STATUS_UNKNOWN": "Unknown"
+}

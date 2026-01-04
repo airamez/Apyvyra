@@ -1,0 +1,11 @@
+{
+  "ORDER_STATUS_PENDING_PAYMENT": "भुगतान लंबित",
+  "ORDER_STATUS_PAID": "भुगतान किया गया",
+  "ORDER_STATUS_CONFIRMED": "पुष्टि की गई",
+  "ORDER_STATUS_PROCESSING": "प्रसंस्करण में",
+  "ORDER_STATUS_SHIPPED": "भेज दिया गया",
+  "ORDER_STATUS_COMPLETED": "पूर्ण",
+  "ORDER_STATUS_CANCELLED": "रद्द",
+  "ORDER_STATUS_ON_HOLD": "रोक पर",
+  "ORDER_STATUS_UNKNOWN": "अज्ञात"
+}
