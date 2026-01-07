@@ -18,6 +18,7 @@ import { useTranslation } from '../../hooks/useTranslation';
 import { passwordValidationService, type PasswordRulesStatus } from '../../services/passwordValidationService';
 import PasswordRequirements from '../common/PasswordRequirements';
 import { API_ENDPOINTS } from '../../config/api';
+import { useAuth } from '../../contexts/AuthContext';
 
 interface ResetInfo {
   email: string;
@@ -28,6 +29,7 @@ interface ResetInfo {
 export default function PasswordReset() {
   const { t } = useTranslation('PasswordReset');
   const { t: tCommon } = useTranslation('Common');
+  const { logout } = useAuth();
   
   const { token } = useParams<{ token: string }>();
   const navigate = useNavigate();
@@ -233,6 +235,8 @@ export default function PasswordReset() {
       const data = await response.json();
       
       if (response.ok) {
+        // Logout the user after successful password reset
+        logout();
         setSuccess(true);
       } else {
         setError(data.error || data.message || t('FAILED_RESET'));
@@ -284,7 +288,10 @@ export default function PasswordReset() {
                   <Typography variant="body1" sx={{ mb: 1 }}>
                     {t('RESET_SUCCESS')}
                   </Typography>
-                  <Typography variant="body2" sx={{ mb: 2 }}>
+                  <Typography variant="body2" sx={{ mb: 1 }}>
+                    {t('LOGGED_OUT')}
+                  </Typography>
+                  <Typography variant="body2">
                     {t('LOGIN_MESSAGE')}
                   </Typography>
                 </Alert>

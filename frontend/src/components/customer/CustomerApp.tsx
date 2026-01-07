@@ -24,6 +24,7 @@ import UserProfile from '../common/UserProfile';
 import { cartService } from '../../services/cartService';
 import { authService } from '../../services/authService';
 import { useTranslation } from '../../hooks/useTranslation';
+import { useAuth } from '../../contexts/AuthContext';
 
 interface CustomerAppProps {
   onLogout: () => void;
@@ -33,6 +34,7 @@ interface CustomerAppProps {
 
 export default function CustomerApp({ onLogout, toggleTheme, mode }: CustomerAppProps) {
   const { t } = useTranslation('Navigation');
+  const { logout } = useAuth();
   const [activeView, setActiveView] = useState<'store' | 'cart' | 'checkout' | 'orders'>('store');
   const [cartItemCount, setCartItemCount] = useState(0);
   const [userType, setUserType] = useState<'Admin' | 'Staff' | 'Customer'>('Customer');
@@ -128,7 +130,7 @@ export default function CustomerApp({ onLogout, toggleTheme, mode }: CustomerApp
 
           <UserProfile />
 
-          <Button color="inherit" onClick={onLogout} startIcon={<LogoutIcon />}>
+          <Button color="inherit" onClick={logout} startIcon={<LogoutIcon />}>
             {t('LOGOUT')}
           </Button>
         </Toolbar>

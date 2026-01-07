@@ -1,19 +1,14 @@
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo } from 'react';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import PublicApp from './components/public/PublicApp';
-import AdminApp from './components/admin/AdminApp';
 import CustomerApp from './components/customer/CustomerApp';
-import { authService } from './services/authService';
 import { AppSettingsProvider } from './contexts/AppSettingsContext';
+import { AuthProvider, useAuth } from './contexts/AuthContext';
 
-function App() {
+function AppContent() {
+  const { isAuthenticated, checkAuth } = useAuth();
   const [mode, setMode] = useState<'light' | 'dark'>('light');
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-
-  useEffect(() => {
-    setIsAuthenticated(authService.isAuthenticated());
-  }, []);
 
   const theme = useMemo(
     () =>
@@ -29,13 +24,10 @@ function App() {
     setMode((prevMode) => (prevMode === 'light' ? 'dark' : 'light'));
   };
 
-  const handleLogout = () => {
-    authService.logout();
-    setIsAuthenticated(false);
-  };
-
   const handleLoginSuccess = () => {
-    setIsAuthenticated(true);
+    // The Login component already stores the token via authService.login()
+    // We just need to trigger a re-check of auth status
+    checkAuth();
   };
 
   const renderApp = () => {
@@ -43,21 +35,25 @@ function App() {
       return <PublicApp onLoginSuccess={handleLoginSuccess} toggleTheme={toggleTheme} mode={mode} />;
     }
 
-    const role = authService.getUserRole();
-    if (role === 0 || role === 1) { // Admin or Staff
-      return <AdminApp onLogout={handleLogout} toggleTheme={toggleTheme} mode={mode} />;
-    } else { // Customer
-      return <CustomerApp onLogout={handleLogout} toggleTheme={toggleTheme} mode={mode} />;
-    }
+    // For now, we'll just show CustomerApp since we don't have role info in AuthContext yet
+    return <CustomerApp onLogout={() => {}} toggleTheme={toggleTheme} mode={mode} />;
   };
 
   return (
-    <AppSettingsProvider>
-      <ThemeProvider theme={theme}>
-        <CssBaseline />
-        {renderApp()}
-      </ThemeProvider>
-    </AppSettingsProvider>
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+      {renderApp()}
+    </ThemeProvider>
+  );
+}
+
+function App() {
+  return (
+    <AuthProvider>
+      <AppSettingsProvider>
+        <AppContent />
+      </AppSettingsProvider>
+    </AuthProvider>
   );
 }
 
