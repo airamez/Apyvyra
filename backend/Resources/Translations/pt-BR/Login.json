@@ -16,5 +16,6 @@
   "SENDING": "Enviando...",
   "FAILED_RESEND": "Falha ao reenviar email de confirmação. Tente novamente.",
   "RESEND_ERROR": "Ocorreu um erro. Tente novamente mais tarde.",
-  "PLEASE_LOGIN_TO_VALIDATE": "Faça login para validar seu endereço e continuar com a finalização da compra."
+  "PLEASE_LOGIN_TO_VALIDATE": "Faça login para validar seu endereço e continuar com a finalização da compra.",
+  "FORGOT_PASSWORD": "Esqueceu a senha?"
 }

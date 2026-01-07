@@ -15,6 +15,9 @@ export const API_ENDPOINTS = {
     ME: `${API_BASE_URL}/api/app_user/me`,
     CONFIRM_EMAIL: `${API_BASE_URL}/api/app_user/confirm`,
     RESEND_CONFIRMATION: `${API_BASE_URL}/api/app_user/resend-confirmation`,
+    FORGOT_PASSWORD: `${API_BASE_URL}/api/app_user/forgot-password`,
+    RESET_PASSWORD: `${API_BASE_URL}/api/app_user/reset-password`,
+    VALIDATE_RESET_TOKEN: `${API_BASE_URL}/api/app_user/validate-reset-token`,
   },
   USER: {
     LIST: `${API_BASE_URL}/api/app_user`,

@@ -16,5 +16,6 @@
   "SENDING": "Sending...",
   "FAILED_RESEND": "Failed to resend confirmation email. Please try again.",
   "RESEND_ERROR": "An error occurred. Please try again later.",
-  "PLEASE_LOGIN_TO_VALIDATE": "Please log in to validate your address and proceed with checkout."
+  "PLEASE_LOGIN_TO_VALIDATE": "Please log in to validate your address and proceed with checkout.",
+  "FORGOT_PASSWORD": "Forgot Password?"
 }

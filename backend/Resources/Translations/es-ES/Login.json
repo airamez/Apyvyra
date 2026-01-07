@@ -16,5 +16,6 @@
   "SENDING": "Enviando...",
   "FAILED_RESEND": "Falló el reenvío del correo de confirmación. Por favor intenta de nuevo.",
   "RESEND_ERROR": "Ocurrió un error. Por favor intenta más tarde.",
-  "PLEASE_LOGIN_TO_VALIDATE": "Por favor inicia sesión para validar tu dirección y proceder con el checkout."
+  "PLEASE_LOGIN_TO_VALIDATE": "Por favor inicia sesión para validar tu dirección y proceder con el checkout.",
+  "FORGOT_PASSWORD": "¿Olvidaste tu contraseña?"
 }

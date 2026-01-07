@@ -24,6 +24,7 @@ import { useTranslation } from '../../hooks/useTranslation';
 interface LoginProps {
   onNavigateToRegister?: () => void;
   onLoginSuccess?: () => void;
+  onNavigateToForgotPassword?: () => void;
 }
 
 interface LoginFormData {
@@ -31,7 +32,7 @@ interface LoginFormData {
   password: string;
 }
 
-export default function Login({ onNavigateToRegister, onLoginSuccess }: LoginProps) {
+export default function Login({ onNavigateToRegister, onLoginSuccess, onNavigateToForgotPassword }: LoginProps) {
   const { t } = useTranslation('Login');
   const { t: tCommon } = useTranslation('Common');
   
@@ -200,6 +201,20 @@ export default function Login({ onNavigateToRegister, onLoginSuccess }: LoginPro
                 onChange={handleChange}
                 disabled={loading || success}
               />
+
+              <Box sx={{ textAlign: 'right', mt: 1 }}>
+                <Link
+                  component="button"
+                  variant="body2"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    onNavigateToForgotPassword?.();
+                  }}
+                  sx={{ cursor: 'pointer' }}
+                >
+                  {t('FORGOT_PASSWORD')}
+                </Link>
+              </Box>
 
               <Button
                 type="submit"

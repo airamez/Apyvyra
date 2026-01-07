@@ -12,6 +12,7 @@ public interface IEmailService
     Task SendStaffInvitationEmailAsync(string toEmail, string fullName, string setupUrl);
     Task SendOrderConfirmationEmailAsync(string toEmail, string customerName, backend.Models.CustomerOrder order, List<backend.Models.OrderItem> items);
     Task SendOrderShippedEmailAsync(string toEmail, string customerName, backend.Models.CustomerOrder order, List<backend.Models.OrderItem> items, string shippingDetails);
+    Task SendPasswordResetEmailAsync(string toEmail, string resetUrl);
 }
 
 public class EmailService : IEmailService
@@ -238,6 +239,58 @@ public class EmailService : IEmailService
 
         await client.SendMailAsync(mailMessage);
         _logger.LogInformation("Email sent successfully to {Email}", toEmail);
+    }
+
+    public async Task SendPasswordResetEmailAsync(string toEmail, string resetUrl)
+    {
+        var template = _translationService.GetTranslations("PasswordResetEmail");
+        
+        var subject = template.GetValueOrDefault("SUBJECT") ?? "Password Reset Request";
+        var title = template.GetValueOrDefault("TITLE") ?? "Reset Your Password";
+        var greeting = template.GetValueOrDefault("GREETING") ?? "Hello,";
+        var body = template.GetValueOrDefault("BODY") ?? "You requested to reset your password. Click the link below to set a new password:";
+        var resetButton = template.GetValueOrDefault("RESET_BUTTON") ?? "Reset Password";
+        var expiryNotice = template.GetValueOrDefault("EXPIRY_NOTICE") ?? "This link will expire in 1 hour for security reasons.";
+        var ignoreMessage = template.GetValueOrDefault("IGNORE_MESSAGE") ?? "If you didn't request this password reset, you can safely ignore this email.";
+        var signature = template.GetValueOrDefault("SIGNATURE") ?? "The Apyvyra Team";
+
+        var htmlBody = $@"
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset='utf-8'>
+    <title>{subject}</title>
+    <style>
+        body {{ font-family: Arial, sans-serif; line-height: 1.6; color: #333; }}
+        .container {{ max-width: 600px; margin: 0 auto; padding: 20px; }}
+        .header {{ background-color: #007bff; color: white; padding: 20px; text-align: center; }}
+        .content {{ padding: 20px; background-color: #f9f9f9; }}
+        .button {{ display: inline-block; padding: 12px 24px; background-color: #007bff; color: white; text-decoration: none; border-radius: 4px; margin: 20px 0; }}
+        .footer {{ padding: 20px; text-align: center; color: #666; font-size: 12px; }}
+    </style>
+</head>
+<body>
+    <div class='container'>
+        <div class='header'>
+            <h2>{title}</h2>
+        </div>
+        <div class='content'>
+            <p>{greeting}</p>
+            <p>{body}</p>
+            <p style='text-align: center;'>
+                <a href='{resetUrl}' class='button'>{resetButton}</a>
+            </p>
+            <p><strong>{expiryNotice}</strong></p>
+            <p>{ignoreMessage}</p>
+        </div>
+        <div class='footer'>
+            <p>{signature}</p>
+        </div>
+    </div>
+</body>
+</html>";
+
+        await SendEmailAsync(toEmail, subject, htmlBody);
     }
 }
 

@@ -20,14 +20,16 @@ public class AppUserController : BaseApiController
     private readonly IConfiguration _configuration;
     private readonly IEmailService _emailService;
     private readonly IPasswordValidationService _passwordValidationService;
+    private readonly ITranslationService _translationService;
 
-    public AppUserController(AppDbContext context, ILogger<AppUserController> logger, IConfiguration configuration, IEmailService emailService, IPasswordValidationService passwordValidationService)
+    public AppUserController(AppDbContext context, ILogger<AppUserController> logger, IConfiguration configuration, IEmailService emailService, IPasswordValidationService passwordValidationService, ITranslationService translationService)
     {
         _context = context;
         _logger = logger;
         _configuration = configuration;
         _emailService = emailService;
         _passwordValidationService = passwordValidationService;
+        _translationService = translationService;
     }
 
     // POST: api/app_user
@@ -46,7 +48,7 @@ public class AppUserController : BaseApiController
 
             if (await _context.AppUsers.AnyAsync(u => u.Email == request.Email))
             {
-                return ConflictWithError("Email already exists");
+                return ConflictWithError(_translationService.Translate("Common", "EMAIL_ALREADY_EXISTS"));
             }
 
             var confirmationToken = GenerateConfirmationToken();
@@ -87,12 +89,12 @@ public class AppUserController : BaseApiController
             }
 
             // Return JSON with message indicating email confirmation required
-            return Created(string.Empty, new { message = "Registration successful. Please check your email to confirm your account.", id = user.Id });
+            return Created(string.Empty, new { message = _translationService.Translate("Common", "REGISTRATION_SUCCESSFUL"), id = user.Id });
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error creating user");
-            return InternalServerErrorWithError($"An error occurred while creating the user: {ex.Message}");
+            return InternalServerErrorWithError(_translationService.Translate("Common", "ERROR_CREATING_USER"));
         }
     }
 
@@ -136,7 +138,7 @@ public class AppUserController : BaseApiController
 
         if (user == null)
         {
-            return NotFoundWithError("User not found");
+            return NotFoundWithError(_translationService.Translate("Common", "USER_NOT_FOUND"));
         }
 
         return new UserResponse
@@ -158,7 +160,7 @@ public class AppUserController : BaseApiController
 
             if (user == null || !BCrypt.Net.BCrypt.Verify(request.Password, user.Password))
             {
-                return BadRequestWithErrors("Invalid email or password");
+                return BadRequestWithErrors(_translationService.Translate("Common", "INVALID_EMAIL_OR_PASSWORD"));
             }
 
             // Check user status
@@ -170,13 +172,13 @@ public class AppUserController : BaseApiController
                     Email = user.Email,
                     Role = user.UserType,
                     Token = "",
-                    Message = "Email confirmation required. Please check your inbox for the confirmation email or request a new one."
+                    Message = _translationService.Translate("Common", "EMAIL_CONFIRMATION_REQUIRED")
                 });
             }
 
             if (user.Status == 2) // inactive
             {
-                return BadRequestWithErrors("Your account has been deactivated. Please contact support.");
+                return BadRequestWithErrors(_translationService.Translate("Common", "ACCOUNT_DEACTIVATED"));
             }
 
             // Generate JWT token
@@ -189,7 +191,7 @@ public class AppUserController : BaseApiController
                 Email = user.Email,
                 Role = user.UserType,
                 Token = token,
-                Message = "Login successful"
+                Message = _translationService.Translate("Common", "LOGIN_SUCCESSFUL")
             });
         }
         catch (Exception ex)
@@ -218,7 +220,7 @@ public class AppUserController : BaseApiController
 
             if (user == null)
             {
-                return NotFoundWithError("User not found");
+                return NotFoundWithError(_translationService.Translate("Common", "USER_NOT_FOUND"));
             }
 
             return new UserResponse
@@ -254,7 +256,7 @@ public class AppUserController : BaseApiController
 
             if (user == null)
             {
-                return NotFoundWithError("User not found");
+                return NotFoundWithError(_translationService.Translate("Common", "USER_NOT_FOUND"));
             }
 
             // Update user profile
@@ -406,6 +408,138 @@ public class AppUserController : BaseApiController
         {
             _logger.LogError(ex, "Error resending confirmation email");
             return StatusCode(500, "An error occurred while resending the confirmation email.");
+        }
+    }
+
+    // ==================== PASSWORD RESET ENDPOINTS ====================
+
+    // POST: api/app_user/forgot-password
+    [AllowAnonymous]
+    [HttpPost("forgot-password")]
+    public async Task<IActionResult> ForgotPassword(ForgotPasswordRequest request)
+    {
+        try
+        {
+            // Find user by email (case insensitive with citext)
+            var user = await _context.AppUsers.FirstOrDefaultAsync(u => u.Email == request.Email);
+            
+            if (user == null)
+            {
+                // Don't reveal that email doesn't exist
+                return Ok("If an account with that email exists, a password reset link has been sent.");
+            }
+
+            // Generate new reset token
+            var resetToken = GenerateConfirmationToken();
+            var tokenExpiry = DateTime.UtcNow.AddHours(1); // Reset tokens expire in 1 hour
+
+            user.ConfirmationToken = resetToken;
+            user.ConfirmationTokenExpiresAt = tokenExpiry;
+            user.UpdatedAt = DateTime.UtcNow;
+            
+            await _context.SaveChangesAsync();
+
+            // Send password reset email
+            try
+            {
+                var resetUrl = $"{_configuration["BaseUrl"]}/reset-password/{resetToken}";
+                await _emailService.SendPasswordResetEmailAsync(user.Email, resetUrl);
+            }
+            catch (Exception emailEx)
+            {
+                _logger.LogError(emailEx, "Failed to send password reset email to {Email}", user.Email);
+                return InternalServerErrorWithError(_translationService.Translate("ForgotPassword", "SEND_ERROR"));
+            }
+
+            return Ok(new { message = _translationService.Translate("ForgotPassword", "SUCCESS_MESSAGE") });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error processing forgot password request");
+            return InternalServerErrorWithError(_translationService.Translate("ForgotPassword", "SEND_ERROR"));
+        }
+    }
+
+    // POST: api/app_user/reset-password
+    [AllowAnonymous]
+    [HttpPost("reset-password")]
+    public async Task<IActionResult> ResetPassword(ResetPasswordRequest request)
+    {
+        try
+        {
+            // Find user by valid reset token
+            var user = await _context.AppUsers
+                .FirstOrDefaultAsync(u => u.ConfirmationToken == request.Token && 
+                                       u.ConfirmationTokenExpiresAt > DateTime.UtcNow);
+
+            if (user == null)
+            {
+                return BadRequestWithErrors(_translationService.Translate("PasswordReset", "INVALID_TOKEN"));
+            }
+
+            // Validate new password
+            var passwordValidation = _passwordValidationService.ValidatePassword(request.Password);
+            if (!passwordValidation.IsValid)
+            {
+                return BadRequestWithErrors(passwordValidation.Errors);
+            }
+
+            // Update password and clear token
+            user.Password = BCrypt.Net.BCrypt.HashPassword(request.Password);
+            user.ConfirmationToken = null;
+            user.ConfirmationTokenExpiresAt = null;
+            user.UpdatedAt = DateTime.UtcNow;
+            
+            await _context.SaveChangesAsync();
+
+            return Ok(new { message = _translationService.Translate("PasswordReset", "RESET_SUCCESS") });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error resetting password");
+            return InternalServerErrorWithError(_translationService.Translate("PasswordReset", "FAILED_RESET"));
+        }
+    }
+
+    // GET: api/app_user/validate-reset-token
+    [AllowAnonymous]
+    [HttpGet("validate-reset-token")]
+    public async Task<IActionResult> ValidateResetToken([FromQuery] string token)
+    {
+        try
+        {
+            _logger.LogInformation("ValidateResetToken called with token: {Token}", token?.Substring(0, Math.Min(10, token?.Length ?? 0)) + "...");
+            
+            if (string.IsNullOrEmpty(token))
+            {
+                _logger.LogWarning("Token is null or empty");
+                var tokenRequiredMessage = _translationService.Translate("PasswordReset", "TOKEN_REQUIRED");
+                HttpContext.Items["Errors"] = new List<string> { tokenRequiredMessage };
+                return Ok(new { success = false, message = tokenRequiredMessage, errors = new[] { tokenRequiredMessage } });
+            }
+
+            // Find user by valid reset token
+            var user = await _context.AppUsers
+                .FirstOrDefaultAsync(u => u.ConfirmationToken == token && 
+                                       u.ConfirmationTokenExpiresAt > DateTime.UtcNow);
+
+            if (user == null)
+            {
+                _logger.LogWarning("No user found for token or token expired. Token: {Token}", token?.Substring(0, Math.Min(10, token?.Length ?? 0)) + "...");
+                HttpContext.Items["Errors"] = new List<string> { _translationService.Translate("PasswordReset", "INVALID_TOKEN") };
+                return Ok(new { success = false, message = _translationService.Translate("PasswordReset", "INVALID_TOKEN"), errors = new[] { _translationService.Translate("PasswordReset", "INVALID_TOKEN") } });
+            }
+
+            _logger.LogInformation("Token validated successfully for user: {Email}", user.Email);
+            return OkWithSuccess(new { 
+                isValid = true, 
+                email = user.Email 
+            });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error validating reset token");
+            return InternalServerErrorWithError(_translationService.Translate("PasswordReset", "TOKEN_ERROR"));
         }
     }
 
@@ -963,4 +1097,15 @@ public record StaffSetupInfoResponse
 public record UpdateProfileRequest
 {
     public string? FullName { get; init; }
+}
+
+public record ForgotPasswordRequest
+{
+    public string Email { get; init; } = string.Empty;
+}
+
+public record ResetPasswordRequest
+{
+    public string Token { get; init; } = string.Empty;
+    public string Password { get; init; } = string.Empty;
 }

@@ -16,6 +16,8 @@ import Login from './Login';
 import WelcomePage from './WelcomePage';
 import EmailConfirmation from './EmailConfirmation';
 import StaffSetup from './StaffSetup';
+import ForgotPassword from './ForgotPassword';
+import PasswordReset from './PasswordReset';
 import { useTranslation } from '../../hooks/useTranslation';
 
 interface PublicAppProps {
@@ -38,12 +40,16 @@ function PublicAppContent({ onLoginSuccess, toggleTheme, mode }: PublicAppProps)
     navigate('/register');
   };
 
+  const handleNavigateToForgotPassword = () => {
+    navigate('/forgot-password');
+  };
+
   const handleLoginSuccessInternal = () => {
     onLoginSuccess();
     navigate('/'); // Redirect to home/store page after login
   };
 
-  const isAuthPage = location.pathname === '/login' || location.pathname === '/register' || location.pathname.startsWith('/confirm') || location.pathname.startsWith('/staff-setup');
+  const isAuthPage = location.pathname === '/login' || location.pathname === '/register' || location.pathname.startsWith('/confirm') || location.pathname.startsWith('/staff-setup') || location.pathname === '/forgot-password' || location.pathname.startsWith('/reset-password');
 
   return (
     <Box sx={{ flexGrow: 1 }}>
@@ -81,9 +87,11 @@ function PublicAppContent({ onLoginSuccess, toggleTheme, mode }: PublicAppProps)
       <Routes>
         <Route path="/" element={<WelcomePage />} />
         <Route path="/register" element={<Register onNavigateToLogin={handleNavigateToLogin} />} />
-        <Route path="/login" element={<Login onNavigateToRegister={handleNavigateToRegister} onLoginSuccess={handleLoginSuccessInternal} />} />
+        <Route path="/login" element={<Login onNavigateToRegister={handleNavigateToRegister} onLoginSuccess={handleLoginSuccessInternal} onNavigateToForgotPassword={handleNavigateToForgotPassword} />} />
         <Route path="/confirm/:token" element={<EmailConfirmation />} />
         <Route path="/staff-setup/:token" element={<StaffSetup />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/reset-password/:token" element={<PasswordReset />} />
       </Routes>
     </Box>
   );
