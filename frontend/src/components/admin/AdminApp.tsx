@@ -24,14 +24,15 @@ import OrderManagement from './orders/OrderManagement';
 import EmailClient from './EmailClient';
 import UserProfile from '../common/UserProfile';
 import { authService } from '../../services/authService';
+import { useAuth } from '../../contexts/AuthContext';
 
 interface AdminAppProps {
-  onLogout: () => void;
   toggleTheme: () => void;
   mode: 'light' | 'dark';
 }
 
-export default function AdminApp({ onLogout, toggleTheme, mode }: AdminAppProps) {
+export default function AdminApp({ toggleTheme, mode }: AdminAppProps) {
+  const { logout } = useAuth();
   const [activeView, setActiveView] = useState<'dashboard' | 'products' | 'categories' | 'customers' | 'staff' | 'orders' | 'email'>('dashboard');
   const [productsMenuAnchor, setProductsMenuAnchor] = useState<null | HTMLElement>(null);
   const [userType, setUserType] = useState<'Admin' | 'Staff' | 'Customer'>('Admin');
@@ -174,7 +175,7 @@ export default function AdminApp({ onLogout, toggleTheme, mode }: AdminAppProps)
 
           <UserProfile />
 
-          <Button color="inherit" onClick={onLogout} startIcon={<LogoutIcon />}>
+          <Button color="inherit" onClick={logout} startIcon={<LogoutIcon />}>
             Logout
           </Button>
         </Toolbar>

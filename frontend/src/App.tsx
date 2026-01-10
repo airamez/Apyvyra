@@ -42,13 +42,13 @@ function AppContent() {
     
     if (role === 0) {
       // Admin
-      return <AdminApp onLogout={() => {}} toggleTheme={toggleTheme} mode={mode} />;
+      return <AdminApp toggleTheme={toggleTheme} mode={mode} />;
     } else if (role === 1) {
       // Staff
-      return <AdminApp onLogout={() => {}} toggleTheme={toggleTheme} mode={mode} />;
+      return <AdminApp toggleTheme={toggleTheme} mode={mode} />;
     } else {
       // Customer (role 2 or null)
-      return <CustomerApp onLogout={() => {}} toggleTheme={toggleTheme} mode={mode} />;
+      return <CustomerApp toggleTheme={toggleTheme} mode={mode} />;
     }
   };
 

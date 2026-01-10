@@ -27,12 +27,11 @@ import { useTranslation } from '../../hooks/useTranslation';
 import { useAuth } from '../../contexts/AuthContext';
 
 interface CustomerAppProps {
-  onLogout: () => void;
   toggleTheme: () => void;
   mode: 'light' | 'dark';
 }
 
-export default function CustomerApp({ onLogout, toggleTheme, mode }: CustomerAppProps) {
+export default function CustomerApp({ toggleTheme, mode }: CustomerAppProps) {
   const { t } = useTranslation('Navigation');
   const { logout } = useAuth();
   const [activeView, setActiveView] = useState<'store' | 'cart' | 'checkout' | 'orders'>('store');
