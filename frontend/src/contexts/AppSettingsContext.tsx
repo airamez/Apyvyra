@@ -6,24 +6,19 @@ import { API_ENDPOINTS } from '../config/api';
 export interface CurrencyConfig {
   code: string;           // ISO 4217 currency code (e.g., 'USD', 'EUR', 'GBP')
   symbol: string;         // Currency symbol (e.g., '$', '€', '£')
-  locale: string;         // Locale for number formatting (e.g., 'en-US', 'de-DE', 'fr-FR')
 }
 
-export interface DateFormatConfig {
-  locale: string;         // Locale for date formatting
-  options: Intl.DateTimeFormatOptions;
+export interface AppSettings {
+  locale: string;         // Single locale for everything
+  currency: CurrencyConfig;
+  dateFormat: string;     // Simple date format string (e.g., "MM/DD/YYYY")
+  company: CompanyConfig;
 }
 
 export interface CompanyConfig {
   name: string;
   logo: string;
   website: string;
-}
-
-export interface AppSettings {
-  currency: CurrencyConfig;
-  dateFormat: DateFormatConfig;
-  company: CompanyConfig;
 }
 
 export interface AppSettingsContextType {
@@ -35,19 +30,12 @@ export interface AppSettingsContextType {
 
 // Default settings (fallback if API fails)
 const defaultSettings: AppSettings = {
+  locale: 'en-US',
   currency: {
     code: 'USD',
     symbol: '$',
-    locale: 'en-US',
   },
-  dateFormat: {
-    locale: 'en-US',
-    options: {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-    },
-  },
+  dateFormat: 'MM/DD/YYYY',
   company: {
     name: 'Apyvyra',
     logo: '',

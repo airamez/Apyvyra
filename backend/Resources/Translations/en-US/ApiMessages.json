@@ -68,5 +68,10 @@
   "ERROR_RESENDING_CONFIRMATION": "An error occurred while resending the confirmation email.",
   "FAILED_RETRIEVE_APP_SETTINGS": "Failed to retrieve app settings",
   "INVALID_URL_FORMAT": "Please enter a valid URL (must start with http:// or https://)",
-  "URL_TYPE_REQUIRED": "URL type is required"
+  "URL_TYPE_REQUIRED": "URL type is required",
+  "REQUIRED_LOCALIZATION_LANGUAGE": "Localization:Language is required in configuration",
+  "REQUIRED_CURRENCY_CODE": "Localization:Currency:Code is required in configuration",
+  "REQUIRED_CURRENCY_SYMBOL": "Localization:Currency:Symbol is required in configuration",
+  "REQUIRED_DATE_FORMAT": "Localization:DateFormat is required in configuration",
+  "REQUIRED_COMPANY_NAME": "AppSettings:Company:Name is required in configuration"
 }

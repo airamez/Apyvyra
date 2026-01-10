@@ -25,6 +25,7 @@ import ProductForm from './ProductForm';
 import FilterComponent, { type FilterValues } from '../FilterComponent';
 import { productFilterConfig } from '../../../config/filterConfigs';
 import { useTranslation } from '../../../hooks/useTranslation';
+import { useFormatting } from '../../../hooks/useFormatting';
 
 interface Product {
   id: number;
@@ -47,6 +48,7 @@ interface Product {
 
 export default function Products() {
   const { t } = useTranslation('Products');
+  const { formatCurrencyWithSymbol } = useFormatting();
   const { t: tCommon } = useTranslation('Common');
   
   const [products, setProducts] = useState<Product[]>([]);
@@ -276,7 +278,7 @@ export default function Products() {
                     width: 100,
                     type: 'number',
                     renderCell: (params: GridRenderCellParams) => (
-                      <Typography>${params.row.price.toFixed(2)}</Typography>
+                      <Typography>{formatCurrencyWithSymbol(params.row.price)}</Typography>
                     ),
                   },
                   {

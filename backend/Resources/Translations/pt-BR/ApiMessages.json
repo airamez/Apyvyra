@@ -66,7 +66,12 @@
   "PASSWORD_RESET_SENT": "If an account with that email exists, a password reset link has been sent.",
   "FAILED_SEND_CONFIRMATION": "Failed to send confirmation email. Please try again later.",
   "ERROR_RESENDING_CONFIRMATION": "An error occurred while resending the confirmation email.",
-  "FAILED_RETRIEVE_APP_SETTINGS": "Failed to retrieve app settings",
-  "INVALID_URL_FORMAT": "Please enter a valid URL (must start with http:// or https://)",
-  "URL_TYPE_REQUIRED": "URL type is required"
+  "FAILED_RETRIEVE_APP_SETTINGS": "Falha ao recuperar configurações do aplicativo",
+  "INVALID_URL_FORMAT": "Por favor, insira uma URL válida (deve começar com http:// ou https://)",
+  "URL_TYPE_REQUIRED": "Tipo de URL é obrigatório",
+  "REQUIRED_LOCALIZATION_LANGUAGE": "Localization:Language é obrigatório na configuração",
+  "REQUIRED_CURRENCY_CODE": "Localization:Currency:Code é obrigatório na configuração",
+  "REQUIRED_CURRENCY_SYMBOL": "Localization:Currency:Symbol é obrigatório na configuração",
+  "REQUIRED_DATE_FORMAT": "Localization:DateFormat é obrigatório na configuração",
+  "REQUIRED_COMPANY_NAME": "AppSettings:Company:Name é obrigatório na configuração"
 }

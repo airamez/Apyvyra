@@ -41,9 +41,11 @@ import FilterListIcon from '@mui/icons-material/FilterList';
 import CloseIcon from '@mui/icons-material/Close';
 import { emailClientService, type EmailMessage, type EmailFilterRequest } from '../../services/emailClientService';
 import { useTranslation } from '../../hooks/useTranslation';
+import { useFormatting } from '../../hooks/useFormatting';
 
 export default function EmailClient() {
   const { t } = useTranslation('EmailClient');
+  const { formatDate, formatTime } = useFormatting();
   const [emails, setEmails] = useState<EmailMessage[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -187,15 +189,15 @@ export default function EmailClient() {
     }
   };
 
-  const formatDate = (dateString: string) => {
+  const formatSmartDate = (dateString: string) => {
     const date = new Date(dateString);
     const now = new Date();
     const isToday = date.toDateString() === now.toDateString();
     
     if (isToday) {
-      return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      return formatTime(dateString);
     }
-    return date.toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric' });
+    return formatDate(dateString);
   };
 
   const formatFullDate = (dateString: string) => {
@@ -394,7 +396,7 @@ export default function EmailClient() {
                                 {currentFolder === 'sent' ? `To: ${email.to}` : (email.fromName || email.from)}
                               </Typography>
                               <Typography variant="caption" color="text.secondary">
-                                {formatDate(email.date)}
+                                {formatSmartDate(email.date)}
                               </Typography>
                             </Box>
                           }

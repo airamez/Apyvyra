@@ -26,29 +26,51 @@ namespace backend.Controllers
             {
                 _logger.LogInformation("Getting app settings");
 
+                // Get required configuration values
+                var locale = _configuration["Localization:Language"];
+                if (string.IsNullOrEmpty(locale))
+                {
+                    throw new InvalidOperationException(_translationService.Translate("ApiMessages", "REQUIRED_LOCALIZATION_LANGUAGE"));
+                }
+
+                var currencyCode = _configuration["Localization:Currency:Code"];
+                if (string.IsNullOrEmpty(currencyCode))
+                {
+                    throw new InvalidOperationException(_translationService.Translate("ApiMessages", "REQUIRED_CURRENCY_CODE"));
+                }
+
+                var currencySymbol = _configuration["Localization:Currency:Symbol"];
+                if (string.IsNullOrEmpty(currencySymbol))
+                {
+                    throw new InvalidOperationException(_translationService.Translate("ApiMessages", "REQUIRED_CURRENCY_SYMBOL"));
+                }
+
+                var dateFormat = _configuration["Localization:DateFormat"];
+                if (string.IsNullOrEmpty(dateFormat))
+                {
+                    throw new InvalidOperationException(_translationService.Translate("ApiMessages", "REQUIRED_DATE_FORMAT"));
+                }
+
+                var companyName = _configuration["AppSettings:Company:Name"];
+                if (string.IsNullOrEmpty(companyName))
+                {
+                    throw new InvalidOperationException(_translationService.Translate("ApiMessages", "REQUIRED_COMPANY_NAME"));
+                }
+
                 var settings = new
                 {
                     data = new
                     {
+                        locale = locale,
                         currency = new
                         {
-                            code = _configuration["AppSettings:Currency:Code"] ?? "USD",
-                            symbol = _configuration["AppSettings:Currency:Symbol"] ?? "$",
-                            locale = _configuration["AppSettings:Currency:Locale"] ?? "en-US"
+                            code = currencyCode,
+                            symbol = currencySymbol
                         },
-                        dateFormat = new
-                        {
-                            locale = _configuration["AppSettings:DateFormat:Locale"] ?? "en-US",
-                            options = new
-                            {
-                                year = "numeric",
-                                month = "short",
-                                day = "numeric"
-                            }
-                        },
+                        dateFormat = dateFormat,
                         company = new
                         {
-                            name = _configuration["AppSettings:Company:Name"] ?? "Apyvyra",
+                            name = companyName,
                             logo = _configuration["AppSettings:Company:Logo"] ?? "",
                             website = _configuration["AppSettings:Company:Website"] ?? ""
                         }

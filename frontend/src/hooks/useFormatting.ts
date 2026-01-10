@@ -4,81 +4,84 @@ import { useAppSettings } from '../contexts/AppSettingsContext';
 // Custom hook that provides formatting functions using app settings from context
 export function useFormatting() {
   const { settings, loading, error } = useAppSettings();
+  
+  // Get locale with fallback
+  const getLocale = useCallback(() => {
+    if (loading) return 'en-US'; // Fallback during loading
+    if (error) return 'en-US'; // Fallback on error too to prevent crashes
+    const locale = settings?.locale;
+    if (!locale) return 'en-US'; // Fallback instead of throwing
+    return locale;
+  }, [settings, loading, error]);
 
   // Currency formatting
   const formatCurrency = useCallback((amount: number): string => {
+    const locale = getLocale();
+    
     if (loading || error || !settings?.currency) {
-      // Fallback to default USD formatting when settings are not available
+      // Always use fallback during loading, error, or missing settings
       return new Intl.NumberFormat('en-US', {
         style: 'currency',
         currency: 'USD',
       }).format(amount);
     }
     
-    return new Intl.NumberFormat(settings.currency.locale, {
+    return new Intl.NumberFormat(locale, {
       style: 'currency',
       currency: settings.currency.code,
     }).format(amount);
-  }, [settings?.currency?.locale, settings?.currency?.code, loading, error]);
+  }, [getLocale, settings, loading, error]);
 
-  // Date formatting
+  // Date formatting - simple using the locale
   const formatDate = useCallback((dateString: string): string => {
-    if (loading || error || !settings?.dateFormat) {
-      // Fallback to default date formatting when settings are not available
-      return new Date(dateString).toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric',
-      });
-    }
+    const locale = getLocale();
     
-    return new Date(dateString).toLocaleDateString(
-      settings.dateFormat.locale,
-      settings.dateFormat.options
-    );
-  }, [settings?.dateFormat?.locale, settings?.dateFormat?.options, loading, error]);
+    return new Date(dateString).toLocaleDateString(locale, {
+      year: 'numeric',
+      month: 'numeric',
+      day: 'numeric',
+    });
+  }, [getLocale]);
+
+  // Time formatting
+  const formatTime = useCallback((dateString: string): string => {
+    const locale = getLocale();
+    
+    return new Date(dateString).toLocaleTimeString(locale, {
+      hour: '2-digit',
+      minute: '2-digit',
+    });
+  }, [getLocale]);
 
   // Format currency with symbol (for display)
   const formatCurrencyWithSymbol = useCallback((amount: number): string => {
+    const locale = getLocale();
+    
     if (loading || error || !settings?.currency) {
-      // Fallback to default USD formatting when settings are not available
+      // Always use fallback during loading, error, or missing settings
       return `$${new Intl.NumberFormat('en-US', {
         minimumFractionDigits: 2,
         maximumFractionDigits: 2,
       }).format(amount)}`;
     }
     
-    return `${settings.currency.symbol}${new Intl.NumberFormat(settings.currency.locale, {
+    return `${settings.currency.symbol}${new Intl.NumberFormat(locale, {
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
     }).format(amount)}`;
-  }, [settings?.currency?.locale, settings?.currency?.symbol, loading, error]);
+  }, [getLocale, settings, loading, error]);
 
   return useMemo(() => ({
     formatCurrency,
     formatDate,
+    formatTime,
     formatCurrencyWithSymbol,
-    currency: loading || error || !settings?.currency ? {
-      code: 'USD',
-      symbol: '$',
-      locale: 'en-US',
-    } : settings.currency,
-    dateFormat: loading || error || !settings?.dateFormat ? {
-      locale: 'en-US',
-      options: {
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric',
-      },
-    } : settings.dateFormat,
-    company: loading || error || !settings?.company ? {
-      name: 'Apyvyra',
-      logo: '',
-      website: 'https://apyvyra.com',
-    } : settings.company,
+    currency: settings?.currency,
+    dateFormat: settings?.dateFormat,
+    company: settings?.company,
     loading,
     error,
-  }), [formatCurrency, formatDate, formatCurrencyWithSymbol, settings, loading, error]);
+  }), [formatCurrency, formatDate, formatTime, formatCurrencyWithSymbol, settings, loading, error]);
 }
 
 export default useFormatting;
