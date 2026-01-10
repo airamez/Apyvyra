@@ -1,0 +1,18 @@
+{
+  "MOCK_NAME_1": "John Smith",
+  "MOCK_SUBJECT_1": "Question about my order #12345",
+  "MOCK_NAME_2": "Jane Doe",
+  "MOCK_SUBJECT_2": "Return request for order #12340",
+  "MOCK_NAME_3": "Vendor Support",
+  "MOCK_SUBJECT_3": "Invoice #INV-2024-001",
+  "MOCK_NAME_4": "Bob Wilson",
+  "MOCK_SUBJECT_4": "Product inquiry - Electronics category",
+  "MOCK_NAME_5": "Payment Gateway",
+  "MOCK_SUBJECT_5": "Monthly statement available",
+  "MOCK_BODY_5": "Your monthly payment statement is now available. Please log in to your account to view the details.",
+  "MOCK_SENT_SUBJECT_1": "Re: Question about my order #12345",
+  "MOCK_SENT_SUBJECT_2": "Re: Return request for order #12340",
+  "MOCK_SENT_SUBJECT_3": "Re: Product inquiry - Electronics category",
+  "MOCK_SENT_SUBJECT_4": "Weekly Newsletter - New Products",
+  "NO_SHIPPING_DETAILS": "No additional shipping details provided."
+}

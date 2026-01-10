@@ -33,5 +33,11 @@
   "SHIPPED": "Enviado",
   "COMPLETED": "Completado",
   "CANCELLED": "Cancelado",
-  "ON_HOLD": "En Espera"
+  "ON_HOLD": "En Espera",
+  "FAILED_UPDATE_STATUS": "Falló actualizar el estado del pedido",
+  "CUSTOMER_NAME": "Nombre del Cliente",
+  "ORDER_DATE": "Fecha del Pedido",
+  "CURRENT_STATUS": "Estado Actual",
+  "TIMELINE": "Línea de Tiempo",
+  "UPDATE_ORDER_STATUS": "Actualizar Estado del Pedido"
 }

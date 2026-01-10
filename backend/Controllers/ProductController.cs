@@ -25,14 +25,14 @@ public class ValidUrlAttribute : ValidationAttribute
         
         if (value == null || string.IsNullOrWhiteSpace(value.ToString()))
         {
-            var message = translationService?.Translate("ApiMessages", "URL_IS_REQUIRED") ?? "URL is required";
+            var message = translationService?.Translate("ApiMessages", "URL_IS_REQUIRED");
             return new ValidationResult(message);
         }
 
         var url = value.ToString()!;
         if (!UrlRegex.IsMatch(url))
         {
-            var message = translationService?.Translate("ApiMessages", "INVALID_URL_FORMAT") ?? "Please enter a valid URL (must start with http:// or https://)";
+            var message = translationService?.Translate("ApiMessages", "INVALID_URL_FORMAT");
             return new ValidationResult(message);
         }
 

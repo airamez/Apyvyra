@@ -1,0 +1,15 @@
+{
+  "TITLE": "Add Product URL",
+  "URL": "URL",
+  "URL_REQUIRED": "URL is required",
+  "URL_HELPER_TEXT": "Enter a valid URL starting with http:// or https://",
+  "INVALID_URL_FORMAT": "Please enter a valid URL (must start with http:// or https://)",
+  "FAILED_ADD_URL": "Failed to add URL. Please try again.",
+  "URL_TYPE": "URL Type",
+  "TYPE_IMAGE": "Image",
+  "TYPE_VIDEO": "Video",
+  "TYPE_MANUAL": "Manual",
+  "ADD_URL": "Add URL",
+  "ADDING": "Adding...",
+  "CANCEL": "Cancel"
+}

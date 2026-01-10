@@ -1,0 +1,19 @@
+{
+  "STARTS_WITH": "Starts with",
+  "ENDS_WITH": "Ends with",
+  "CONTAINS": "Contains",
+  "EQUALS": "Equals",
+  "NOT_EQUALS": "Not equals",
+  "GREATER_THAN": "Greater than",
+  "LESS_THAN": "Less than",
+  "BETWEEN": "Between",
+  "ALL": "All",
+  "YES": "Yes",
+  "NO": "No",
+  "FROM": "From",
+  "TO": "To",
+  "SEARCH": "Search",
+  "CLEAR": "Clear",
+  "SEARCH_FILTERS": "Search Filters",
+  "SHOWING_RESULTS": "Showing {current} of {total} results. Please refine your filters."
+}

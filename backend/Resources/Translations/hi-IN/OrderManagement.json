@@ -33,5 +33,11 @@
   "SHIPPED": "भेजा गया",
   "COMPLETED": "पूर्ण हुआ",
   "CANCELLED": "रद्द किया गया",
-  "ON_HOLD": "रोका गया"
+  "ON_HOLD": "रोका गया",
+  "FAILED_UPDATE_STATUS": "ऑर्डर स्थिति अपडेट करने में विफल",
+  "CUSTOMER_NAME": "ग्राहक का नाम",
+  "ORDER_DATE": "ऑर्डर दिनांक",
+  "CURRENT_STATUS": "वर्तमान स्थिति",
+  "TIMELINE": "समयरेखा",
+  "UPDATE_ORDER_STATUS": "ऑर्डर स्थिति अपडेट करें"
 }

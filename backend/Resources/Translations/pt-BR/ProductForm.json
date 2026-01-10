@@ -1,0 +1,20 @@
+{
+  "EDIT_PRODUCT": "Edit Product",
+  "ADD_NEW_PRODUCT": "Add New Product",
+  "MAX_DECIMAL_PLACES": "Maximum 4 decimal places supported",
+  "TAX_RATE_TOOLTIP": "Tax rate as percentage (e.g., 8.25)",
+  "SAVE_FIRST_TO_ADD_URLS": "(Save product first to add URLs)",
+  "PRODUCT_URLS": "Product URLs",
+  "SKU": "SKU",
+  "NAME": "Name",
+  "DESCRIPTION": "Description",
+  "CATEGORY": "Category",
+  "PRICE": "Price",
+  "COST_PRICE": "Cost Price",
+  "TAX_RATE": "Tax Rate (%)",
+  "ACTIVE": "Active",
+  "ADD_URL": "Add URL",
+  "URLS_AFTER_SAVE": "URLs can only be added after the product is saved.",
+  "CANCEL": "Cancel",
+  "SAVE": "Save"
+}

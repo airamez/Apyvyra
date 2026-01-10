@@ -17,5 +17,6 @@
   "PAYMENT_SUCCESS": "भुगतान सफल!",
   "PAYMENT_FAILED": "भुगतान विफल। कृपया फिर से प्रयास करें।",
   "ORDER_NUMBER": "ऑर्डर #",
-  "AMOUNT": "राशि"
+  "AMOUNT": "राशि",
+  "PAYMENT_CONFIRMATION_FAILED": "भुगतान पुष्टि करने में विफल। कृपया फिर से प्रयास करें।"
 }

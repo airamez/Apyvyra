@@ -17,5 +17,6 @@
   "PAYMENT_SUCCESS": "¡Pago exitoso!",
   "PAYMENT_FAILED": "El pago falló. Por favor intenta de nuevo.",
   "ORDER_NUMBER": "Pedido #",
-  "AMOUNT": "Monto"
+  "AMOUNT": "Monto",
+  "PAYMENT_CONFIRMATION_FAILED": "Falló confirmar el pago. Por favor intenta de nuevo."
 }
