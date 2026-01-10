@@ -73,12 +73,12 @@ export default function StripePaymentForm({ order, onPaymentComplete }: StripePa
         if (confirmation.success) {
           setPaymentSucceeded(true);
         } else {
-          setError(confirmation.message || 'Payment confirmation failed');
+          setError(confirmation.message || t('PAYMENT_CONFIRMATION_FAILED'));
         }
       }
     } catch (err) {
       const errorMessages = getErrorMessages(err);
-      setError(errorMessages[0] || 'Payment failed');
+      setError(errorMessages[0] || t('PAYMENT_FAILED'));
     } finally {
       setLoading(false);
     }

@@ -184,7 +184,7 @@ public class EmailService : IEmailService
 
             // Format shipping details - convert newlines to HTML breaks
             var formattedShippingDetails = string.IsNullOrWhiteSpace(shippingDetails) 
-                ? "No additional shipping details provided." 
+                ? _translationService.Translate("MockEmailData", "NO_SHIPPING_DETAILS") 
                 : shippingDetails.Replace("\n", "<br>");
 
             var emailBody = template
@@ -245,14 +245,14 @@ public class EmailService : IEmailService
     {
         var template = _translationService.GetTranslations("PasswordResetEmail");
         
-        var subject = template.GetValueOrDefault("SUBJECT") ?? "Password Reset Request";
-        var title = template.GetValueOrDefault("TITLE") ?? "Reset Your Password";
-        var greeting = template.GetValueOrDefault("GREETING") ?? "Hello,";
-        var body = template.GetValueOrDefault("BODY") ?? "You requested to reset your password. Click the link below to set a new password:";
-        var resetButton = template.GetValueOrDefault("RESET_BUTTON") ?? "Reset Password";
-        var expiryNotice = template.GetValueOrDefault("EXPIRY_NOTICE") ?? "This link will expire in 1 hour for security reasons.";
-        var ignoreMessage = template.GetValueOrDefault("IGNORE_MESSAGE") ?? "If you didn't request this password reset, you can safely ignore this email.";
-        var signature = template.GetValueOrDefault("SIGNATURE") ?? "The Apyvyra Team";
+        var subject = template.GetValueOrDefault("SUBJECT");
+        var title = template.GetValueOrDefault("TITLE");
+        var greeting = template.GetValueOrDefault("GREETING");
+        var body = template.GetValueOrDefault("BODY");
+        var resetButton = template.GetValueOrDefault("RESET_BUTTON");
+        var expiryNotice = template.GetValueOrDefault("EXPIRY_NOTICE");
+        var ignoreMessage = template.GetValueOrDefault("IGNORE_MESSAGE");
+        var signature = template.GetValueOrDefault("SIGNATURE");
 
         var htmlBody = $@"
 <!DOCTYPE html>

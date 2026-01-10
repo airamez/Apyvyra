@@ -203,7 +203,7 @@ export default function ProductForm({ open, editingProduct, onClose, onSubmit }:
     <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
       <DialogTitle>
           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <Typography>{editingProduct ? 'Edit Product' : 'Add New Product'}</Typography>
+            <Typography>{editingProduct ? t('EDIT_PRODUCT') : t('ADD_NEW_PRODUCT')}</Typography>
             {editingProduct && (
               <FormControlLabel
                 control={
@@ -310,7 +310,7 @@ export default function ProductForm({ open, editingProduct, onClose, onSubmit }:
             />
           </Grid>
                     <Grid size={4}>
-            <Tooltip title="Maximum 4 decimal places supported">
+            <Tooltip title={t('MAX_DECIMAL_PLACES')}>
               <TextField
                 label={t('PRICE')}
                 fullWidth
@@ -403,7 +403,7 @@ export default function ProductForm({ open, editingProduct, onClose, onSubmit }:
             </Tooltip>
           </Grid>
           <Grid size={4}>
-            <Tooltip title="Tax rate as percentage (e.g., 8.25)">
+            <Tooltip title={t('TAX_RATE_TOOLTIP')}>
               <TextField
                 label={t('TAX_RATE')}
                 fullWidth
@@ -535,7 +535,7 @@ export default function ProductForm({ open, editingProduct, onClose, onSubmit }:
             <Box sx={{ mt: 2 }}>
               <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
                 <Typography variant="subtitle2">
-                  Product URLs {!editingProduct && '(Save product first to add URLs)'}
+                  {t('PRODUCT_URLS')} {!editingProduct && t('SAVE_FIRST_TO_ADD_URLS')}
                 </Typography>
                 <Button
                   startIcon={<AddIcon />}
@@ -544,13 +544,13 @@ export default function ProductForm({ open, editingProduct, onClose, onSubmit }:
                   variant="contained"
                   disabled={!editingProduct}
                 >
-                  Add URL
+                  {t('ADD_URL')}
                 </Button>
               </Box>
               
               {!editingProduct && (
                 <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-                  URLs can only be added after the product is saved.
+                  {t('URLS_AFTER_SAVE')}
                 </Typography>
               )}
 
@@ -616,9 +616,9 @@ export default function ProductForm({ open, editingProduct, onClose, onSubmit }:
         </Grid>
       </DialogContent>
       <DialogActions>
-        <Button onClick={onClose}>Cancel</Button>
+        <Button onClick={onClose}>{t('CANCEL')}</Button>
         <Button onClick={handleSubmit} variant="contained" color="primary">
-          Save
+          {t('SAVE')}
         </Button>
       </DialogActions>
       <ProductUrlDialog

@@ -103,7 +103,7 @@ export default function Categories() {
       await loadCategories();
       handleClose();
     } catch (err) {
-      setError('Failed to save category');
+      setError(t('FAILED_SAVE_CATEGORY'));
     }
   };
 
@@ -118,7 +118,7 @@ export default function Categories() {
       setCategories(categories.filter(c => c.id !== deleteDialog.id));
       setDeleteDialog({ open: false, id: null });
     } catch (err) {
-      setError('Failed to delete category');
+      setError(t('FAILED_DELETE_CATEGORY'));
       setDeleteDialog({ open: false, id: null });
     }
   };

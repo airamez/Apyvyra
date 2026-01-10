@@ -10,11 +10,13 @@ public class EmailClientController : BaseApiController
 {
     private readonly IEmailClientService _emailClientService;
     private readonly ILogger<EmailClientController> _logger;
+    private readonly ITranslationService _translationService;
 
-    public EmailClientController(IEmailClientService emailClientService, ILogger<EmailClientController> logger)
+    public EmailClientController(IEmailClientService emailClientService, ILogger<EmailClientController> logger, ITranslationService translationService)
     {
         _emailClientService = emailClientService;
         _logger = logger;
+        _translationService = translationService;
     }
 
     [HttpGet]
@@ -43,7 +45,7 @@ public class EmailClientController : BaseApiController
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error fetching emails from folder {Folder}", folder);
-            return InternalServerErrorWithError("Failed to fetch emails. Please check your email configuration.");
+            return InternalServerErrorWithError(_translationService.Translate("EmailClient", "FAILED_FETCH_EMAILS"));
         }
     }
 
@@ -62,7 +64,7 @@ public class EmailClientController : BaseApiController
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error fetching email {Id}", id);
-            return InternalServerErrorWithError("Failed to fetch email. Please check your email configuration.");
+            return InternalServerErrorWithError(_translationService.Translate("EmailClient", "FAILED_FETCH_EMAIL"));
         }
     }
 
@@ -71,17 +73,17 @@ public class EmailClientController : BaseApiController
     {
         if (string.IsNullOrEmpty(request.To))
         {
-            return BadRequestWithErrors("Recipient email is required");
+            return BadRequestWithErrors(_translationService.Translate("EmailClient", "RECIPIENT_REQUIRED"));
         }
 
         if (string.IsNullOrEmpty(request.Subject))
         {
-            return BadRequestWithErrors("Subject is required");
+            return BadRequestWithErrors(_translationService.Translate("EmailClient", "SUBJECT_REQUIRED"));
         }
 
         if (string.IsNullOrEmpty(request.Body))
         {
-            return BadRequestWithErrors("Email body is required");
+            return BadRequestWithErrors(_translationService.Translate("EmailClient", "BODY_REQUIRED"));
         }
 
         try
@@ -89,14 +91,14 @@ public class EmailClientController : BaseApiController
             var result = await _emailClientService.SendEmailAsync(request);
             if (result)
             {
-                return Ok(new { success = true, message = "Email sent successfully" });
+                return Ok(new { success = true, message = _translationService.Translate("EmailClient", "EMAIL_SENT") });
             }
-            return InternalServerErrorWithError("Failed to send email");
+            return InternalServerErrorWithError(_translationService.Translate("EmailClient", "FAILED_SEND_EMAIL"));
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error sending email to {To}", request.To);
-            return InternalServerErrorWithError("Failed to send email. Please check your email configuration.");
+            return InternalServerErrorWithError(_translationService.Translate("EmailClient", "FAILED_SEND_EMAIL_CONFIG"));
         }
     }
 
@@ -105,17 +107,17 @@ public class EmailClientController : BaseApiController
     {
         if (string.IsNullOrEmpty(request.To))
         {
-            return BadRequestWithErrors("Recipient email is required");
+            return BadRequestWithErrors(_translationService.Translate("EmailClient", "RECIPIENT_REQUIRED"));
         }
 
         if (string.IsNullOrEmpty(request.Subject))
         {
-            return BadRequestWithErrors("Subject is required");
+            return BadRequestWithErrors(_translationService.Translate("EmailClient", "SUBJECT_REQUIRED"));
         }
 
         if (string.IsNullOrEmpty(request.Body))
         {
-            return BadRequestWithErrors("Email body is required");
+            return BadRequestWithErrors(_translationService.Translate("EmailClient", "BODY_REQUIRED"));
         }
 
         try
@@ -123,14 +125,14 @@ public class EmailClientController : BaseApiController
             var result = await _emailClientService.ReplyToEmailAsync(request);
             if (result)
             {
-                return Ok(new { success = true, message = "Reply sent successfully" });
+                return Ok(new { success = true, message = _translationService.Translate("EmailClient", "REPLY_SENT") });
             }
-            return InternalServerErrorWithError("Failed to send reply");
+            return InternalServerErrorWithError(_translationService.Translate("EmailClient", "FAILED_SEND_REPLY"));
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error sending reply to {To}", request.To);
-            return InternalServerErrorWithError("Failed to send reply. Please check your email configuration.");
+            return InternalServerErrorWithError(_translationService.Translate("EmailClient", "FAILED_SEND_REPLY_CONFIG"));
         }
     }
 }

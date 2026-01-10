@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
+using backend.Services;
 
 namespace backend.Controllers
 {
@@ -9,11 +10,13 @@ namespace backend.Controllers
     {
         private readonly IConfiguration _configuration;
         private readonly ILogger<AppSettingsController> _logger;
+        private readonly ITranslationService _translationService;
 
-        public AppSettingsController(IConfiguration configuration, ILogger<AppSettingsController> logger)
+        public AppSettingsController(IConfiguration configuration, ILogger<AppSettingsController> logger, ITranslationService translationService)
         {
             _configuration = configuration;
             _logger = logger;
+            _translationService = translationService;
         }
 
         [HttpGet("settings")]
@@ -57,7 +60,7 @@ namespace backend.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Failed to retrieve app settings");
-                return StatusCode(500, new { error = "Failed to retrieve app settings", details = ex.Message });
+                return InternalServerErrorWithError(_translationService.Translate("ApiMessages", "FAILED_RETRIEVE_APP_SETTINGS"));
             }
         }
     }

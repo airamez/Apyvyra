@@ -14,6 +14,7 @@ import { type Order } from '../../../services/orderService';
 import { getErrorMessages } from '../../../utils/apiErrorHandler';
 import { PaymentSuccess, OrderSummary } from './PaymentShared';
 import { useFormatting } from '../../../hooks/useFormatting';
+import { useTranslation } from '../../../hooks/useTranslation';
 
 interface MockPaymentFormProps {
   order: Order;
@@ -22,6 +23,7 @@ interface MockPaymentFormProps {
 }
 
 export default function MockPaymentForm({ order, onBackToCheckout, onPaymentComplete }: MockPaymentFormProps) {
+  const { t } = useTranslation('Payment');
   const { formatCurrency } = useFormatting();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -37,11 +39,11 @@ export default function MockPaymentForm({ order, onBackToCheckout, onPaymentComp
       if (confirmation.success) {
         setPaymentSucceeded(true);
       } else {
-        setError(confirmation.message || 'Payment confirmation failed');
+        setError(confirmation.message || t('PAYMENT_CONFIRMATION_FAILED'));
       }
     } catch (err) {
       const errorMessages = getErrorMessages(err);
-      setError(errorMessages[0] || 'Payment failed');
+      setError(errorMessages[0] || t('PAYMENT_FAILED'));
     } finally {
       setLoading(false);
     }

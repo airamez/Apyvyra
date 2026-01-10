@@ -9,13 +9,16 @@ public class PasswordValidationController : BaseApiController
 {
     private readonly IPasswordValidationService _passwordValidationService;
     private readonly ILogger<PasswordValidationController> _logger;
+    private readonly ITranslationService _translationService;
 
     public PasswordValidationController(
         IPasswordValidationService passwordValidationService,
-        ILogger<PasswordValidationController> logger)
+        ILogger<PasswordValidationController> logger,
+        ITranslationService translationService)
     {
         _passwordValidationService = passwordValidationService;
         _logger = logger;
+        _translationService = translationService;
     }
 
     [HttpPost("validate")]
@@ -25,7 +28,7 @@ public class PasswordValidationController : BaseApiController
         {
             if (request == null || string.IsNullOrEmpty(request.Password))
             {
-                return BadRequestWithErrors("Password is required");
+                return BadRequestWithErrors(_translationService.Translate("ApiMessages", "PASSWORD_REQUIRED"));
             }
 
             var result = _passwordValidationService.ValidatePassword(request.Password);
@@ -39,7 +42,7 @@ public class PasswordValidationController : BaseApiController
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error validating password");
-            return InternalServerErrorWithError("An error occurred while validating the password");
+            return InternalServerErrorWithError(_translationService.Translate("ApiMessages", "ERROR_VALIDATING_PASSWORD"));
         }
     }
 
@@ -66,7 +69,7 @@ public class PasswordValidationController : BaseApiController
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error getting password rules status");
-            return InternalServerErrorWithError("An error occurred while checking password rules");
+            return InternalServerErrorWithError(_translationService.Translate("ApiMessages", "ERROR_CHECKING_PASSWORD_RULES"));
         }
     }
 }

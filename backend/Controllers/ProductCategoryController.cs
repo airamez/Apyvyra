@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
 using backend.Data;
 using backend.Models;
+using backend.Services;
 
 namespace backend.Controllers;
 
@@ -13,11 +14,13 @@ public class ProductCategoryController : BaseApiController
 {
     private readonly AppDbContext _context;
     private readonly ILogger<ProductCategoryController> _logger;
+    private readonly ITranslationService _translationService;
 
-    public ProductCategoryController(AppDbContext context, ILogger<ProductCategoryController> logger)
+    public ProductCategoryController(AppDbContext context, ILogger<ProductCategoryController> logger, ITranslationService translationService)
     {
         _context = context;
         _logger = logger;
+        _translationService = translationService;
     }
 
     // GET: api/productcategories
@@ -48,7 +51,7 @@ public class ProductCategoryController : BaseApiController
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error retrieving product categories");
-            return InternalServerErrorWithError("An error occurred while retrieving categories");
+            return InternalServerErrorWithError(_translationService.Translate("ApiMessages", "ERROR_RETRIEVING_CATEGORIES"));
         }
     }
 
@@ -65,7 +68,7 @@ public class ProductCategoryController : BaseApiController
 
             if (category == null)
             {
-                return NotFoundWithError("Category not found");
+                return NotFoundWithError(_translationService.Translate("ApiMessages", "CATEGORY_NOT_FOUND"));
             }
 
             return Ok(MapToResponse(category));
@@ -73,7 +76,7 @@ public class ProductCategoryController : BaseApiController
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error retrieving category {CategoryId}", id);
-            return InternalServerErrorWithError("An error occurred while retrieving the category");
+            return InternalServerErrorWithError(_translationService.Translate("ApiMessages", "ERROR_RETRIEVING_CATEGORY"));
         }
     }
 
@@ -88,7 +91,7 @@ public class ProductCategoryController : BaseApiController
             var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (userIdClaim == null || !int.TryParse(userIdClaim, out int userId))
             {
-                return Unauthorized("Invalid user token");
+                return Unauthorized(_translationService.Translate("ApiMessages", "INVALID_USER_TOKEN"));
             }
 
             // Validate parent category exists if provided
@@ -99,7 +102,7 @@ public class ProductCategoryController : BaseApiController
                 
                 if (!parentExists)
                 {
-                    return BadRequestWithErrors("Parent category not found");
+                    return BadRequestWithErrors(_translationService.Translate("ApiMessages", "PARENT_CATEGORY_NOT_FOUND"));
                 }
             }
 
@@ -131,7 +134,7 @@ public class ProductCategoryController : BaseApiController
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error creating category");
-            return InternalServerErrorWithError("An error occurred while creating the category");
+            return InternalServerErrorWithError(_translationService.Translate("ApiMessages", "ERROR_CREATING_CATEGORY"));
         }
     }
 
@@ -146,20 +149,20 @@ public class ProductCategoryController : BaseApiController
             var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (userIdClaim == null || !int.TryParse(userIdClaim, out int userId))
             {
-                return Unauthorized("Invalid user token");
+                return Unauthorized(_translationService.Translate("ApiMessages", "INVALID_USER_TOKEN"));
             }
 
             var category = await _context.ProductCategories.FindAsync(id);
 
             if (category == null)
             {
-                return NotFoundWithError("Category not found");
+                return NotFoundWithError(_translationService.Translate("ApiMessages", "CATEGORY_NOT_FOUND"));
             }
 
             // Prevent circular reference
             if (request.ParentCategoryId == id)
             {
-                return BadRequestWithErrors("Category cannot be its own parent");
+                return BadRequestWithErrors(_translationService.Translate("ApiMessages", "CATEGORY_CANNOT_BE_OWN_PARENT"));
             }
 
             // Validate parent category exists if provided
@@ -170,13 +173,13 @@ public class ProductCategoryController : BaseApiController
                 
                 if (!parentExists)
                 {
-                    return BadRequestWithErrors("Parent category not found");
+                    return BadRequestWithErrors(_translationService.Translate("ApiMessages", "PARENT_CATEGORY_NOT_FOUND"));
                 }
 
                 // Check for circular reference in hierarchy
                 if (await IsCircularReference(id, request.ParentCategoryId.Value))
                 {
-                    return BadRequestWithErrors("Cannot create circular category hierarchy");
+                    return BadRequestWithErrors(_translationService.Translate("ApiMessages", "CANNOT_CREATE_CIRCULAR_HIERARCHY"));
                 }
             }
 
@@ -200,7 +203,7 @@ public class ProductCategoryController : BaseApiController
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error updating category {CategoryId}", id);
-            return InternalServerErrorWithError("An error occurred while updating the category");
+            return InternalServerErrorWithError(_translationService.Translate("ApiMessages", "ERROR_UPDATING_CATEGORY"));
         }
     }
 
@@ -217,19 +220,19 @@ public class ProductCategoryController : BaseApiController
 
             if (category == null)
             {
-                return NotFoundWithError("Category not found");
+                return NotFoundWithError(_translationService.Translate("ApiMessages", "CATEGORY_NOT_FOUND"));
             }
 
             // Check if category has products
             if (category.Products != null && category.Products.Any())
             {
-                return BadRequestWithErrors("Cannot delete category with associated products");
+                return BadRequestWithErrors(_translationService.Translate("ApiMessages", "CANNOT_DELETE_CATEGORY_WITH_PRODUCTS"));
             }
 
             // Check if category has subcategories
             if (category.InverseParentCategory != null && category.InverseParentCategory.Any())
             {
-                return BadRequestWithErrors("Cannot delete category with subcategories");
+                return BadRequestWithErrors(_translationService.Translate("ApiMessages", "CANNOT_DELETE_CATEGORY_WITH_SUBCATEGORIES"));
             }
 
             _context.ProductCategories.Remove(category);
@@ -240,7 +243,7 @@ public class ProductCategoryController : BaseApiController
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error deleting category {CategoryId}", id);
-            return InternalServerErrorWithError("An error occurred while deleting the category");
+            return InternalServerErrorWithError(_translationService.Translate("ApiMessages", "ERROR_DELETING_CATEGORY"));
         }
     }
 
@@ -262,7 +265,7 @@ public class ProductCategoryController : BaseApiController
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error retrieving category tree");
-            return InternalServerErrorWithError("An error occurred while retrieving the category tree");
+            return InternalServerErrorWithError(_translationService.Translate("ApiMessages", "ERROR_RETRIEVING_CATEGORY_TREE"));
         }
     }
 

@@ -40,8 +40,10 @@ import SearchIcon from '@mui/icons-material/Search';
 import FilterListIcon from '@mui/icons-material/FilterList';
 import CloseIcon from '@mui/icons-material/Close';
 import { emailClientService, type EmailMessage, type EmailFilterRequest } from '../../services/emailClientService';
+import { useTranslation } from '../../hooks/useTranslation';
 
 export default function EmailClient() {
+  const { t } = useTranslation('EmailClient');
   const [emails, setEmails] = useState<EmailMessage[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -150,7 +152,7 @@ export default function EmailClient() {
 
   const handleSendEmail = async () => {
     if (!composeTo || !composeSubject || !composeBody) {
-      setError('Please fill in all required fields');
+      setError(t('FILL_REQUIRED_FIELDS'));
       return;
     }
 
@@ -175,7 +177,7 @@ export default function EmailClient() {
         });
       }
 
-      setSuccessMessage(replyMode ? 'Reply sent successfully!' : 'Email sent successfully!');
+      setSuccessMessage(replyMode ? t('REPLY_SENT_SUCCESS') : t('EMAIL_SENT_SUCCESS'));
       handleCloseCompose();
       setTimeout(() => setSuccessMessage(null), 5000);
     } catch (err) {
@@ -215,25 +217,25 @@ export default function EmailClient() {
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
             <EmailIcon sx={{ fontSize: 40, color: 'primary.main' }} />
             <Typography variant="h4" component="h1">
-              Email Client
+              {t('TITLE')}
             </Typography>
             <FormControl size="small" sx={{ minWidth: 150 }}>
-              <InputLabel>Folder</InputLabel>
+              <InputLabel>{t('FOLDER')}</InputLabel>
               <Select
                 value={currentFolder}
-                label="Folder"
+                label={t('FOLDER')}
                 onChange={(e) => setCurrentFolder(e.target.value as 'inbox' | 'sent')}
               >
                 <MenuItem value="inbox">
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                     <InboxIcon fontSize="small" />
-                    Inbox
+                    {t('INBOX')}
                   </Box>
                 </MenuItem>
                 <MenuItem value="sent">
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                     <OutboxIcon fontSize="small" />
-                    Sent
+                    {t('SENT')}
                   </Box>
                 </MenuItem>
               </Select>
@@ -245,14 +247,14 @@ export default function EmailClient() {
               startIcon={<CreateIcon />}
               onClick={handleOpenCompose}
             >
-              Compose
+              {t('COMPOSE')}
             </Button>
             <Button
               variant="outlined"
               startIcon={<FilterListIcon />}
               onClick={() => setShowFilters(!showFilters)}
             >
-              Filters
+              {t('FILTERS')}
             </Button>
             <Button
               variant="outlined"
@@ -260,7 +262,7 @@ export default function EmailClient() {
               onClick={() => loadEmails()}
               disabled={loading}
             >
-              Refresh
+              {t('REFRESH')}
             </Button>
           </Box>
         </Box>
@@ -289,7 +291,7 @@ export default function EmailClient() {
                   fullWidth
                   size="small"
                   type="date"
-                  label="Start Date"
+                  label={t('START_DATE')}
                   value={filterStartDate}
                   onChange={(e) => setFilterStartDate(e.target.value)}
                   InputLabelProps={{ shrink: true }}
@@ -300,7 +302,7 @@ export default function EmailClient() {
                   fullWidth
                   size="small"
                   type="date"
-                  label="End Date"
+                  label={t('END_DATE')}
                   value={filterEndDate}
                   onChange={(e) => setFilterEndDate(e.target.value)}
                   InputLabelProps={{ shrink: true }}
@@ -310,7 +312,7 @@ export default function EmailClient() {
                 <TextField
                   fullWidth
                   size="small"
-                  label="From Email"
+                  label={t('FROM_EMAIL')}
                   value={filterFromEmail}
                   onChange={(e) => setFilterFromEmail(e.target.value)}
                   placeholder="customer@example.com"
@@ -320,10 +322,10 @@ export default function EmailClient() {
                 <TextField
                   fullWidth
                   size="small"
-                  label="Search"
+                  label={t('SEARCH')}
                   value={filterSearchText}
                   onChange={(e) => setFilterSearchText(e.target.value)}
-                  placeholder="Search in subject or body"
+                  placeholder={t('SEARCH_PLACEHOLDER')}
                   InputProps={{
                     startAdornment: <SearchIcon sx={{ mr: 1, color: 'text.secondary' }} />,
                   }}
@@ -332,10 +334,10 @@ export default function EmailClient() {
               <Grid size={{ xs: 12 }}>
                 <Box sx={{ display: 'flex', gap: 1, justifyContent: 'flex-end' }}>
                   <Button variant="outlined" onClick={handleClearFilters}>
-                    Clear
+                    {t('CLEAR')}
                   </Button>
                   <Button variant="contained" onClick={handleApplyFilters}>
-                    Apply Filters
+                    {t('APPLY_FILTERS')}
                   </Button>
                 </Box>
               </Grid>
@@ -493,7 +495,7 @@ export default function EmailClient() {
                     {selectedEmail.hasAttachments && (
                       <Chip
                         icon={<AttachFileIcon />}
-                        label="Has Attachments"
+                        label={t('HAS_ATTACHMENTS')}
                         size="small"
                         sx={{ mt: 1 }}
                       />
@@ -535,7 +537,7 @@ export default function EmailClient() {
         <Dialog open={composeOpen} onClose={handleCloseCompose} maxWidth="md" fullWidth>
           <DialogTitle>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              {replyMode ? 'Reply to Email' : 'Compose New Email'}
+              {replyMode ? t('REPLY_TO_EMAIL') : t('COMPOSE_NEW_EMAIL')}
               <IconButton onClick={handleCloseCompose} size="small">
                 <CloseIcon />
               </IconButton>
@@ -545,7 +547,7 @@ export default function EmailClient() {
             <Box sx={{ pt: 1, display: 'flex', flexDirection: 'column', gap: 2 }}>
               <TextField
                 fullWidth
-                label="To"
+                label={t('TO')}
                 value={composeTo}
                 onChange={(e) => setComposeTo(e.target.value)}
                 placeholder="recipient@example.com"
@@ -553,21 +555,21 @@ export default function EmailClient() {
               />
               <TextField
                 fullWidth
-                label="Cc"
+                label={t('CC')}
                 value={composeCc}
                 onChange={(e) => setComposeCc(e.target.value)}
                 placeholder="cc@example.com (optional)"
               />
               <TextField
                 fullWidth
-                label="Subject"
+                label={t('SUBJECT')}
                 value={composeSubject}
                 onChange={(e) => setComposeSubject(e.target.value)}
                 required
               />
               <TextField
                 fullWidth
-                label="Message"
+                label={t('MESSAGE')}
                 value={composeBody}
                 onChange={(e) => setComposeBody(e.target.value)}
                 multiline
@@ -577,14 +579,14 @@ export default function EmailClient() {
             </Box>
           </DialogContent>
           <DialogActions>
-            <Button onClick={handleCloseCompose}>Cancel</Button>
+            <Button onClick={handleCloseCompose}>{t('CANCEL')}</Button>
             <Button
               variant="contained"
               startIcon={sendingEmail ? <CircularProgress size={20} /> : <SendIcon />}
               onClick={handleSendEmail}
               disabled={sendingEmail || !composeTo || !composeSubject || !composeBody}
             >
-              {sendingEmail ? 'Sending...' : 'Send'}
+              {sendingEmail ? t('SENDING') : t('SEND')}
             </Button>
           </DialogActions>
         </Dialog>

@@ -20,6 +20,7 @@ import SearchIcon from '@mui/icons-material/Search';
 import FilterAltOffIcon from '@mui/icons-material/FilterAltOff';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { authService } from '../../services/authService';
+import { useTranslation } from '../../hooks/useTranslation';
 
 export type FieldType = 'string' | 'number' | 'date' | 'boolean' | 'dropdown';
 export type Operator = 'eq' | 'ne' | 'lt' | 'lte' | 'gt' | 'gte' | 'contains' | 'startsWith' | 'endsWith' | 'between';
@@ -66,7 +67,7 @@ interface FilterComponentProps {
   currentCount?: number;
 }
 
-const operatorLabels: Record<Operator, string> = {
+const getOperatorLabels = (t: (key: string) => string): Record<Operator, string> => ({
   eq: '=',
   ne: '≠',
   lt: '<',
@@ -74,10 +75,10 @@ const operatorLabels: Record<Operator, string> = {
   gt: '>',
   gte: '≥',
   contains: '~',
-  startsWith: 'Starts with',
-  endsWith: 'Ends with',
-  between: 'Between',
-};
+  startsWith: t('STARTS_WITH'),
+  endsWith: t('ENDS_WITH'),
+  between: t('BETWEEN'),
+});
 
 const defaultOperatorsByType: Record<FieldType, Operator[]> = {
   string: ['contains', 'eq', 'ne', 'startsWith', 'endsWith'],
@@ -93,6 +94,8 @@ export default function FilterComponent({
   totalCount = 0,
   currentCount = 0,
 }: FilterComponentProps) {
+  const { t } = useTranslation('FilterComponent');
+  const operatorLabels = getOperatorLabels(t);
   const [filters, setFilters] = useState<Record<string, { operator: Operator; value: any; valueTo?: any }>>({});
   const [dropdownData, setDropdownData] = useState<Record<string, Array<{ id: any; name: string }>>>({});
 
@@ -254,9 +257,9 @@ export default function FilterComponent({
                 onChange={(e) => handleFilterChange(field.name, 'value', e.target.value === '' ? undefined : e.target.value === 'true')}
                 label={field.label}
               >
-                <MenuItem value="">All</MenuItem>
-                <MenuItem value="true">Yes</MenuItem>
-                <MenuItem value="false">No</MenuItem>
+                <MenuItem value="">{t('ALL')}</MenuItem>
+                <MenuItem value="true">{t('YES')}</MenuItem>
+                <MenuItem value="false">{t('NO')}</MenuItem>
               </Select>
             </FormControl>
           ) : filterData.operator === 'between' ? (
@@ -264,7 +267,7 @@ export default function FilterComponent({
               <TextField
                 fullWidth
                 size="small"
-                label={`${field.label} From`}
+                label={`${field.label} ${t('FROM')}`}
                 type={field.type === 'date' ? 'date' : field.type === 'number' ? 'number' : 'text'}
                 value={filterData.value || ''}
                 onChange={(e) => handleFilterChange(field.name, 'value', e.target.value)}
@@ -275,7 +278,7 @@ export default function FilterComponent({
               <TextField
                 fullWidth
                 size="small"
-                label={`${field.label} To`}
+                label={`${field.label} ${t('TO')}`}
                 type={field.type === 'date' ? 'date' : field.type === 'number' ? 'number' : 'text'}
                 value={filterData.valueTo || ''}
                 onChange={(e) => handleFilterChange(field.name, 'valueTo', e.target.value)}
@@ -340,14 +343,14 @@ export default function FilterComponent({
               startIcon={<SearchIcon />}
               onClick={handleSearch}
             >
-              Search
+              {t('SEARCH')}
             </Button>
             <Button
               variant="outlined"
               startIcon={<FilterAltOffIcon />}
               onClick={handleClear}
             >
-              Clear Filters
+              {t('CLEAR')}
             </Button>
           </Box>
         </Grid>
@@ -361,10 +364,10 @@ export default function FilterComponent({
         <Accordion defaultExpanded={false}>
           <AccordionSummary expandIcon={<ExpandMoreIcon />}>
             <Box sx={{ display: 'flex', alignItems: 'center', width: '100%', gap: 2 }}>
-              <Typography variant="h6">Search Filters</Typography>
+              <Typography variant="h6">{t('SEARCH_FILTERS')}</Typography>
               {hasMoreRecords && (
                 <Alert severity="warning" sx={{ py: 0.5, flexGrow: 1 }}>
-                  Showing {currentCount} of {totalCount} results. Please refine your filters.
+                  {t('SHOWING_RESULTS', { current: currentCount, total: totalCount })}
                 </Alert>
               )}
             </Box>
@@ -377,7 +380,7 @@ export default function FilterComponent({
         <>
           {hasMoreRecords && (
             <Alert severity="warning" sx={{ mb: 2 }}>
-              Showing {currentCount} of {totalCount} results. Please refine your filters.
+              {t('SHOWING_RESULTS', { current: currentCount, total: totalCount })}
             </Alert>
           )}
           {filterContent}

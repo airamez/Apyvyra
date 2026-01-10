@@ -4,9 +4,12 @@
   "ORDER_COUNT": "{count} orders",
   "NO_ORDERS": "No orders found.",
   "FAILED_LOAD_ORDERS": "Failed to load orders. Please try again.",
+  "FAILED_UPDATE_STATUS": "Failed to update order status",
   "ORDER_NUMBER": "Order #",
   "CUSTOMER": "Customer",
+  "CUSTOMER_NAME": "Customer Name",
   "DATE": "Date",
+  "ORDER_DATE": "Order Date",
   "STATUS": "Status",
   "PAYMENT_STATUS": "Payment Status",
   "ITEMS": "Items",
@@ -33,5 +36,8 @@
   "SHIPPED": "Shipped",
   "COMPLETED": "Completed",
   "CANCELLED": "Cancelled",
-  "ON_HOLD": "On Hold"
+  "ON_HOLD": "On Hold",
+  "CURRENT_STATUS": "Current Status",
+  "TIMELINE": "Timeline",
+  "UPDATE_ORDER_STATUS": "Update Order Status"
 }

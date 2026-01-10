@@ -67,7 +67,7 @@ export default function PasswordReset() {
     if (token) {
       validateResetToken();
     } else {
-      setError('No reset token provided');
+      setError(t('NO_RESET_TOKEN'));
       setLoading(false);
     }
   }, [token]);

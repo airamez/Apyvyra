@@ -88,7 +88,7 @@ export default function Staff() {
       setTotalCount(response.metadata.totalCount);
     } catch (err) {
       console.error('Error loading staff:', err);
-      setError('Failed to load staff. Please try again.');
+      setError(t('FAILED_LOAD_STAFF'));
     } finally {
       setLoading(false);
     }
@@ -116,7 +116,7 @@ export default function Staff() {
 
   const handleAddStaff = async () => {
     if (!formData.email.trim() || !formData.fullName.trim()) {
-      setError('Email and Full Name are required');
+      setError(t('EMAIL_FULLNAME_REQUIRED'));
       return;
     }
 
@@ -124,7 +124,7 @@ export default function Staff() {
       setFormLoading(true);
       setError(null);
       await staffService.create(formData);
-      setSuccessMessage('Staff member added successfully. An invitation email has been sent.');
+      setSuccessMessage(t('ADD_SUCCESS'));
       handleCloseAddDialog();
       await loadStaff();
           } catch (err: any) {
@@ -150,7 +150,7 @@ export default function Staff() {
 
   const handleUpdateStaff = async () => {
     if (!selectedStaff || !editFormData.fullName.trim()) {
-      setError('Full Name is required');
+      setError(t('FULLNAME_REQUIRED'));
       return;
     }
 
@@ -158,7 +158,7 @@ export default function Staff() {
       setFormLoading(true);
       setError(null);
       await staffService.update(selectedStaff.id, editFormData);
-      setSuccessMessage('Staff member updated successfully.');
+      setSuccessMessage(t('UPDATE_SUCCESS'));
       handleCloseEditDialog();
       await loadStaff();
           } catch (err: any) {
@@ -185,7 +185,7 @@ export default function Staff() {
     try {
       setFormLoading(true);
       await staffService.delete(selectedStaff.id);
-      setSuccessMessage('Staff member deleted successfully.');
+      setSuccessMessage(t('DELETE_SUCCESS'));
       handleCloseDeleteDialog();
       await loadStaff();
           } catch (err: any) {
@@ -218,7 +218,7 @@ export default function Staff() {
   const columns = [
     {
       field: 'fullName',
-      headerName: 'Full Name',
+      headerName: t('FULL_NAME'),
       flex: 1,
       minWidth: 150,
       valueGetter: (value: string | null) => value || '-',
@@ -243,20 +243,20 @@ export default function Staff() {
     },
     {
       field: 'emailConfirmedAt',
-      headerName: 'Confirmed At',
+      headerName: t('CONFIRMED_AT'),
       width: 180,
       valueGetter: (value: string | null) => 
-        value ? formatDate(value) : 'Not confirmed',
+        value ? formatDate(value) : tCommon('NOT_CONFIRMED'),
     },
     {
       field: 'createdAt',
-      headerName: 'Created At',
+      headerName: t('CREATED_AT'),
       width: 180,
       valueGetter: (value: string) => formatDate(value),
     },
     {
       field: 'createdByName',
-      headerName: 'Created By',
+      headerName: t('CREATED_BY'),
       width: 150,
       valueGetter: (value: string | null) => value || '-',
     },

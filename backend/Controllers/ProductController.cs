@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
 using backend.Data;
 using backend.Models;
+using backend.Services;
 using System.ComponentModel.DataAnnotations;
 using System.Text.RegularExpressions;
 
@@ -20,15 +21,19 @@ public class ValidUrlAttribute : ValidationAttribute
 
     protected override ValidationResult? IsValid(object? value, ValidationContext validationContext)
     {
+        var translationService = validationContext.GetService(typeof(ITranslationService)) as ITranslationService;
+        
         if (value == null || string.IsNullOrWhiteSpace(value.ToString()))
         {
-            return new ValidationResult("URL is required");
+            var message = translationService?.Translate("ApiMessages", "URL_IS_REQUIRED") ?? "URL is required";
+            return new ValidationResult(message);
         }
 
         var url = value.ToString()!;
         if (!UrlRegex.IsMatch(url))
         {
-            return new ValidationResult("Please enter a valid URL (must start with http:// or https://)");
+            var message = translationService?.Translate("ApiMessages", "INVALID_URL_FORMAT") ?? "Please enter a valid URL (must start with http:// or https://)";
+            return new ValidationResult(message);
         }
 
         return ValidationResult.Success;
@@ -53,11 +58,13 @@ public class ProductController : BaseApiController
 {
     private readonly AppDbContext _context;
     private readonly ILogger<ProductController> _logger;
+    private readonly ITranslationService _translationService;
 
-    public ProductController(AppDbContext context, ILogger<ProductController> logger)
+    public ProductController(AppDbContext context, ILogger<ProductController> logger, ITranslationService translationService)
     {
         _context = context;
         _logger = logger;
+        _translationService = translationService;
     }
 
     // GET: api/products
@@ -95,7 +102,7 @@ public class ProductController : BaseApiController
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error retrieving products");
-            return InternalServerErrorWithError("An error occurred while retrieving products");
+            return InternalServerErrorWithError(_translationService.Translate("ApiMessages", "ERROR_RETRIEVING_PRODUCTS"));
         }
     }
 
@@ -112,7 +119,7 @@ public class ProductController : BaseApiController
 
             if (product == null)
             {
-                return NotFound(new { message = "Product not found" });
+                return NotFoundWithError(_translationService.Translate("ApiMessages", "PRODUCT_NOT_FOUND"));
             }
 
             return Ok(MapToResponse(product));
@@ -120,7 +127,7 @@ public class ProductController : BaseApiController
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error retrieving product {ProductId}", id);
-            return StatusCode(500, new { message = "An error occurred while retrieving the product" });
+            return InternalServerErrorWithError(_translationService.Translate("ApiMessages", "ERROR_RETRIEVING_PRODUCT"));
         }
     }
 
@@ -135,13 +142,13 @@ public class ProductController : BaseApiController
             var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (userIdClaim == null || !int.TryParse(userIdClaim, out int userId))
             {
-                return Unauthorized("Invalid user token");
+                return Unauthorized(_translationService.Translate("ApiMessages", "INVALID_USER_TOKEN"));
             }
 
             // Check if SKU already exists
             if (await _context.Products.AnyAsync(p => p.Sku == request.Sku))
             {
-                return ConflictWithError("SKU already exists");
+                return ConflictWithError(_translationService.Translate("ApiMessages", "SKU_ALREADY_EXISTS"));
             }
 
             var product = new Product
@@ -182,7 +189,7 @@ public class ProductController : BaseApiController
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error creating product");
-            return InternalServerErrorWithError("An error occurred while creating the product");
+            return InternalServerErrorWithError(_translationService.Translate("ApiMessages", "ERROR_CREATING_PRODUCT"));
         }
     }
 
@@ -197,20 +204,20 @@ public class ProductController : BaseApiController
             var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (userIdClaim == null || !int.TryParse(userIdClaim, out int userId))
             {
-                return Unauthorized("Invalid user token");
+                return Unauthorized(_translationService.Translate("ApiMessages", "INVALID_USER_TOKEN"));
             }
 
             var product = await _context.Products.FindAsync(id);
 
             if (product == null)
             {
-                return NotFoundWithError("Product not found");
+                return NotFoundWithError(_translationService.Translate("ApiMessages", "PRODUCT_NOT_FOUND"));
             }
 
             // Check SKU uniqueness if changed
             if (request.Sku != product.Sku && await _context.Products.AnyAsync(p => p.Sku == request.Sku && p.Id != id))
             {
-                return ConflictWithError("SKU already exists");
+                return ConflictWithError(_translationService.Translate("ApiMessages", "SKU_ALREADY_EXISTS"));
             }
 
             // Update fields
@@ -244,7 +251,7 @@ public class ProductController : BaseApiController
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error updating product {ProductId}", id);
-            return StatusCode(500, new { message = "An error occurred while updating the product" });
+            return InternalServerErrorWithError(_translationService.Translate("ApiMessages", "ERROR_UPDATING_PRODUCT"));
         }
     }
 
@@ -258,7 +265,7 @@ public class ProductController : BaseApiController
 
             if (product == null)
             {
-                return NotFound(new { message = "Product not found" });
+                return NotFoundWithError(_translationService.Translate("ApiMessages", "PRODUCT_NOT_FOUND"));
             }
 
             _context.Products.Remove(product);
@@ -269,7 +276,7 @@ public class ProductController : BaseApiController
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error deleting product {ProductId}", id);
-            return StatusCode(500, new { message = "An error occurred while deleting the product" });
+            return InternalServerErrorWithError(_translationService.Translate("ApiMessages", "ERROR_DELETING_PRODUCT"));
         }
     }
 
@@ -282,7 +289,7 @@ public class ProductController : BaseApiController
             var product = await _context.Products.FindAsync(id);
             if (product == null)
             {
-                return NotFound(new { message = "Product not found" });
+                return NotFoundWithError(_translationService.Translate("ApiMessages", "PRODUCT_NOT_FOUND"));
             }
 
             var urls = await _context.ProductUrls
@@ -306,7 +313,7 @@ public class ProductController : BaseApiController
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error retrieving URLs for product {ProductId}", id);
-            return StatusCode(500, new { message = "An error occurred while retrieving product URLs" });
+            return InternalServerErrorWithError(_translationService.Translate("ApiMessages", "ERROR_RETRIEVING_PRODUCT_URLS"));
         }
     }
 
@@ -321,7 +328,7 @@ public class ProductController : BaseApiController
             var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (userIdClaim == null || !int.TryParse(userIdClaim, out int userId))
             {
-                return Unauthorized("Invalid user token");
+                return Unauthorized(_translationService.Translate("ApiMessages", "INVALID_USER_TOKEN"));
             }
 
             if (!ModelState.IsValid)
@@ -336,7 +343,7 @@ public class ProductController : BaseApiController
             var product = await _context.Products.FindAsync(id);
             if (product == null)
             {
-                return NotFound(new { message = "Product not found" });
+                return NotFoundWithError(_translationService.Translate("ApiMessages", "PRODUCT_NOT_FOUND"));
             }
 
             var productUrl = new ProductUrl
@@ -370,7 +377,7 @@ public class ProductController : BaseApiController
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error adding URL to product {ProductId}", id);
-            return StatusCode(500, new { message = "An error occurred while adding the product URL" });
+            return InternalServerErrorWithError(_translationService.Translate("ApiMessages", "ERROR_ADDING_PRODUCT_URL"));
         }
     }
 
@@ -383,7 +390,7 @@ public class ProductController : BaseApiController
             var productUrl = await _context.ProductUrls.FindAsync(urlId);
             if (productUrl == null)
             {
-                return NotFound(new { message = "Product URL not found" });
+                return NotFoundWithError(_translationService.Translate("ApiMessages", "PRODUCT_URL_NOT_FOUND"));
             }
 
             _context.ProductUrls.Remove(productUrl);
@@ -394,7 +401,7 @@ public class ProductController : BaseApiController
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error deleting product URL {UrlId}", urlId);
-            return StatusCode(500, new { message = "An error occurred while deleting the product URL" });
+            return InternalServerErrorWithError(_translationService.Translate("ApiMessages", "ERROR_DELETING_PRODUCT_URL"));
         }
     }
 
@@ -494,11 +501,11 @@ public record ProductResponse
 }
 
 public record CreateProductUrlRequest(
-    [Required(ErrorMessage = "URL is required")]
+    [Required(ErrorMessage = "URL_IS_REQUIRED")]
     [ValidUrl]
     string Url,
     
-    [Required(ErrorMessage = "URL type is required")]
+    [Required(ErrorMessage = "URL_TYPE_REQUIRED")]
     int UrlType,
     
     string? AltText,

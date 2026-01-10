@@ -20,16 +20,18 @@ public class GoogleMapsService : IGoogleMapsService
     private readonly IConfiguration _configuration;
     private readonly ILogger<GoogleMapsService> _logger;
     private readonly HttpClient _httpClient;
+    private readonly ITranslationService _translationService;
     private readonly bool _mockValidation;
     private readonly string? _apiKey;
 
     public bool IsMockValidation => _mockValidation;
 
-    public GoogleMapsService(IConfiguration configuration, ILogger<GoogleMapsService> logger, HttpClient httpClient)
+    public GoogleMapsService(IConfiguration configuration, ILogger<GoogleMapsService> logger, HttpClient httpClient, ITranslationService translationService)
     {
         _configuration = configuration;
         _logger = logger;
         _httpClient = httpClient;
+        _translationService = translationService;
         
         _mockValidation = _configuration.GetValue<bool>("GoogleMaps:MockAddressValidation", true);
         _apiKey = _configuration["GoogleMaps:ApiKey"];
@@ -55,7 +57,7 @@ public class GoogleMapsService : IGoogleMapsService
             return new AddressValidationResult
             {
                 IsValid = false,
-                ErrorMessage = "ADDRESS_REQUIRED"
+                ErrorMessage = _translationService.Translate("GoogleMaps", "ADDRESS_REQUIRED")
             };
         }
 
@@ -75,7 +77,7 @@ public class GoogleMapsService : IGoogleMapsService
             return new AddressValidationResult
             {
                 IsValid = false,
-                ErrorMessage = "GOOGLE_MAPS_VALIDATION_FAILED"
+                ErrorMessage = _translationService.Translate("GoogleMaps", "GOOGLE_MAPS_VALIDATION_FAILED")
             };
         }
     }
@@ -99,7 +101,7 @@ public class GoogleMapsService : IGoogleMapsService
             return new AddressValidationResult
             {
                 IsValid = false,
-                ErrorMessage = "Please enter a complete address with street, city, and state/zip code"
+                ErrorMessage = _translationService.Translate("GoogleMaps", "INCOMPLETE_ADDRESS")
             };
         }
 
@@ -142,7 +144,7 @@ public class GoogleMapsService : IGoogleMapsService
             return new AddressValidationResult
             {
                 IsValid = false,
-                ErrorMessage = $"Google API error: {status}"
+                ErrorMessage = _translationService.Translate("GoogleMaps", "GOOGLE_API_ERROR")
             };
         }
         
@@ -152,7 +154,7 @@ public class GoogleMapsService : IGoogleMapsService
             return new AddressValidationResult
             {
                 IsValid = false,
-                ErrorMessage = "Address not found. Please enter a valid US address."
+                ErrorMessage = _translationService.Translate("GoogleMaps", "ADDRESS_NOT_FOUND")
             };
         }
         
@@ -174,7 +176,7 @@ public class GoogleMapsService : IGoogleMapsService
             return new AddressValidationResult
             {
                 IsValid = false,
-                ErrorMessage = $"Failed to get address details: {status}"
+                ErrorMessage = _translationService.Translate("GoogleMaps", "FAILED_GET_ADDRESS_DETAILS")
             };
         }
         

@@ -125,7 +125,7 @@ public class AppUserController : BaseApiController
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error retrieving users");
-            return InternalServerErrorWithError("An error occurred while retrieving users");
+            return InternalServerErrorWithError(_translationService.Translate("Common", "ERROR_RETRIEVING_USERS"));
         }
     }
 
@@ -197,7 +197,7 @@ public class AppUserController : BaseApiController
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error during login");
-            return InternalServerErrorWithError("An error occurred during login");
+            return InternalServerErrorWithError(_translationService.Translate("Common", "ERROR_DURING_LOGIN"));
         }
     }
 
@@ -213,7 +213,7 @@ public class AppUserController : BaseApiController
             
             if (userIdClaim == null || !int.TryParse(userIdClaim, out int userId))
             {
-                return BadRequestWithErrors("Invalid token");
+                return BadRequestWithErrors(_translationService.Translate("Common", "INVALID_TOKEN"));
             }
 
             var user = await _context.AppUsers.FindAsync(userId);
@@ -233,7 +233,7 @@ public class AppUserController : BaseApiController
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error retrieving current user");
-            return InternalServerErrorWithError("An error occurred");
+            return InternalServerErrorWithError(_translationService.Translate("Common", "AN_ERROR_OCCURRED"));
         }
     }
 
@@ -249,7 +249,7 @@ public class AppUserController : BaseApiController
             
             if (userIdClaim == null || !int.TryParse(userIdClaim, out int userId))
             {
-                return BadRequestWithErrors("Invalid token");
+                return BadRequestWithErrors(_translationService.Translate("Common", "INVALID_TOKEN"));
             }
 
             var user = await _context.AppUsers.FindAsync(userId);
@@ -279,7 +279,7 @@ public class AppUserController : BaseApiController
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error updating current user");
-            return InternalServerErrorWithError("An error occurred");
+            return InternalServerErrorWithError(_translationService.Translate("Common", "AN_ERROR_OCCURRED"));
         }
     }
 
@@ -328,17 +328,17 @@ public class AppUserController : BaseApiController
             
             if (user == null)
             {
-                return BadRequestWithErrors("Invalid confirmation token.");
+                return BadRequestWithErrors(_translationService.Translate("Common", "INVALID_CONFIRMATION_TOKEN"));
             }
 
             if (user.ConfirmationTokenExpiresAt < DateTime.UtcNow)
             {
-                return BadRequestWithErrors("Confirmation token has expired. Please request a new confirmation email.");
+                return BadRequestWithErrors(_translationService.Translate("Common", "CONFIRMATION_TOKEN_EXPIRED"));
             }
 
             if (user.Status == 1) // already active
             {
-                return Ok(new { message = "Email already confirmed. You can now log in." });
+                return Ok(new { message = _translationService.Translate("Common", "EMAIL_ALREADY_CONFIRMED") });
             }
 
             // Activate user account
@@ -350,12 +350,12 @@ public class AppUserController : BaseApiController
             
             await _context.SaveChangesAsync();
 
-            return Ok(new { message = "Email confirmed successfully! Your account is now active. You can log in." });
+            return Ok(new { message = _translationService.Translate("Common", "EMAIL_CONFIRMED_SUCCESSFULLY") });
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error confirming email");
-            return InternalServerErrorWithError("An error occurred while confirming your email.");
+            return InternalServerErrorWithError(_translationService.Translate("Common", "ERROR_CONFIRMING_EMAIL"));
         }
     }
 
@@ -372,12 +372,12 @@ public class AppUserController : BaseApiController
             if (user == null)
             {
                 // Don't reveal that email doesn't exist
-                return Ok("If an account with that email exists, a confirmation email has been sent.");
+                return Ok(_translationService.Translate("Common", "CONFIRMATION_EMAIL_SENT"));
             }
 
             if (user.Status == 1) // already active
             {
-                return Ok("Your email is already confirmed. You can log in.");
+                return Ok(_translationService.Translate("Common", "ACCOUNT_ALREADY_ACTIVE"));
             }
 
             // Generate new token
@@ -399,15 +399,15 @@ public class AppUserController : BaseApiController
             catch (Exception emailEx)
             {
                 _logger.LogError(emailEx, "Failed to send resend confirmation email to {Email}", user.Email);
-                return StatusCode(500, "Failed to send confirmation email. Please try again later.");
+                return StatusCode(500, _translationService.Translate("ApiMessages", "FAILED_SEND_CONFIRMATION"));
             }
 
-            return Ok("A new confirmation email has been sent. Please check your inbox.");
+            return Ok(_translationService.Translate("Common", "NEW_CONFIRMATION_EMAIL_SENT"));
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error resending confirmation email");
-            return StatusCode(500, "An error occurred while resending the confirmation email.");
+            return StatusCode(500, _translationService.Translate("ApiMessages", "ERROR_RESENDING_CONFIRMATION"));
         }
     }
 
@@ -426,7 +426,7 @@ public class AppUserController : BaseApiController
             if (user == null)
             {
                 // Don't reveal that email doesn't exist
-                return Ok("If an account with that email exists, a password reset link has been sent.");
+                return Ok(_translationService.Translate("ApiMessages", "PASSWORD_RESET_SENT"));
             }
 
             // Generate new reset token
@@ -595,7 +595,7 @@ public class AppUserController : BaseApiController
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error retrieving staff list");
-            return InternalServerErrorWithError("An error occurred while retrieving staff list");
+            return InternalServerErrorWithError(_translationService.Translate("Common", "ERROR_RETRIEVING_STAFF_LIST"));
         }
     }
 
@@ -611,7 +611,7 @@ public class AppUserController : BaseApiController
 
             if (staff == null)
             {
-                return NotFoundWithError("Staff member not found");
+                return NotFoundWithError(_translationService.Translate("ApiMessages", "STAFF_NOT_FOUND"));
             }
 
             var createdByName = await _context.AppUsers
@@ -645,7 +645,7 @@ public class AppUserController : BaseApiController
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error retrieving staff member {Id}", id);
-            return InternalServerErrorWithError("An error occurred while retrieving staff member");
+            return InternalServerErrorWithError(_translationService.Translate("Common", "ERROR_RETRIEVING_STAFF_MEMBER"));
         }
     }
 
@@ -658,24 +658,24 @@ public class AppUserController : BaseApiController
         {
             if (string.IsNullOrWhiteSpace(request.Email))
             {
-                return BadRequestWithErrors("Email is required");
+                return BadRequestWithErrors(_translationService.Translate("ApiMessages", "EMAIL_REQUIRED"));
             }
 
             if (string.IsNullOrWhiteSpace(request.FullName))
             {
-                return BadRequestWithErrors("Full name is required");
+                return BadRequestWithErrors(_translationService.Translate("ApiMessages", "FULL_NAME_REQUIRED"));
             }
 
             if (await _context.AppUsers.AnyAsync(u => u.Email == request.Email))
             {
-                return ConflictWithError("Email already exists");
+                return ConflictWithError(_translationService.Translate("Common", "EMAIL_ALREADY_EXISTS"));
             }
 
             // Get current user ID from JWT token
             var currentUserId = GetCurrentUserId();
             if (currentUserId == null)
             {
-                return BadRequestWithErrors("Invalid token");
+                return BadRequestWithErrors(_translationService.Translate("Common", "INVALID_TOKEN"));
             }
 
             var confirmationToken = GenerateConfirmationToken();
@@ -735,7 +735,7 @@ public class AppUserController : BaseApiController
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error creating staff member");
-            return InternalServerErrorWithError($"An error occurred while creating staff member: {ex.Message}");
+            return InternalServerErrorWithError(_translationService.Translate("Common", "ERROR_CREATING_STAFF_MEMBER"));
         }
     }
 
@@ -751,13 +751,13 @@ public class AppUserController : BaseApiController
 
             if (staff == null)
             {
-                return NotFoundWithError("Staff member not found");
+                return NotFoundWithError(_translationService.Translate("ApiMessages", "STAFF_NOT_FOUND"));
             }
 
             var currentUserId = GetCurrentUserId();
             if (currentUserId == null)
             {
-                return BadRequestWithErrors("Invalid token");
+                return BadRequestWithErrors(_translationService.Translate("Common", "INVALID_TOKEN"));
             }
 
             staff.FullName = request.FullName;
@@ -796,7 +796,7 @@ public class AppUserController : BaseApiController
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error updating staff member {Id}", id);
-            return InternalServerErrorWithError("An error occurred while updating staff member");
+            return InternalServerErrorWithError(_translationService.Translate("Common", "ERROR_UPDATING_STAFF_MEMBER"));
         }
     }
 
@@ -812,7 +812,7 @@ public class AppUserController : BaseApiController
 
             if (staff == null)
             {
-                return NotFoundWithError("Staff member not found");
+                return NotFoundWithError(_translationService.Translate("ApiMessages", "STAFF_NOT_FOUND"));
             }
 
             _context.AppUsers.Remove(staff);
@@ -823,7 +823,7 @@ public class AppUserController : BaseApiController
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error deleting staff member {Id}", id);
-            return InternalServerErrorWithError("An error occurred while deleting staff member");
+            return InternalServerErrorWithError(_translationService.Translate("Common", "ERROR_DELETING_STAFF_MEMBER"));
         }
     }
 
@@ -839,12 +839,12 @@ public class AppUserController : BaseApiController
 
             if (staff == null)
             {
-                return NotFoundWithError("Staff member not found");
+                return NotFoundWithError(_translationService.Translate("ApiMessages", "STAFF_NOT_FOUND"));
             }
 
             if (staff.Status == 1) // already active
             {
-                return BadRequestWithErrors("Staff member is already active");
+                return BadRequestWithErrors(_translationService.Translate("ApiMessages", "STAFF_ALREADY_ACTIVE"));
             }
 
             // Generate new token
@@ -866,15 +866,15 @@ public class AppUserController : BaseApiController
             catch (Exception emailEx)
             {
                 _logger.LogError(emailEx, "Failed to resend staff invitation email to {Email}", staff.Email);
-                return StatusCode(500, "Failed to send invitation email. Please try again later.");
+                return StatusCode(500, _translationService.Translate("ApiMessages", "FAILED_SEND_INVITATION"));
             }
 
-            return Ok(new { message = "Invitation email has been resent." });
+            return Ok(new { message = _translationService.Translate("ApiMessages", "INVITATION_RESENT") });
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error resending staff invitation for {Id}", id);
-            return InternalServerErrorWithError("An error occurred while resending invitation");
+            return InternalServerErrorWithError(_translationService.Translate("Common", "ERROR_RESENDING_INVITATION"));
         }
     }
 
@@ -893,7 +893,7 @@ public class AppUserController : BaseApiController
                 return Ok(new StaffSetupInfoResponse
                 {
                     IsValid = false,
-                    ErrorMessage = "Invalid invitation token."
+                    ErrorMessage = _translationService.Translate("ApiMessages", "INVALID_INVITATION_TOKEN")
                 });
             }
 
@@ -902,7 +902,7 @@ public class AppUserController : BaseApiController
                 return Ok(new StaffSetupInfoResponse
                 {
                     IsValid = false,
-                    ErrorMessage = "Invitation token has expired. Please contact your administrator for a new invitation."
+                    ErrorMessage = _translationService.Translate("ApiMessages", "INVITATION_EXPIRED")
                 });
             }
 
@@ -913,7 +913,7 @@ public class AppUserController : BaseApiController
                     Email = staff.Email,
                     FullName = staff.FullName,
                     IsValid = false,
-                    ErrorMessage = "Account is already active. You can log in."
+                    ErrorMessage = _translationService.Translate("ApiMessages", "ACCOUNT_ALREADY_ACTIVE")
                 });
             }
 
@@ -927,7 +927,7 @@ public class AppUserController : BaseApiController
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error getting staff setup info for token");
-            return InternalServerErrorWithError("An error occurred while validating the invitation.");
+            return InternalServerErrorWithError(_translationService.Translate("Common", "ERROR_VALIDATING_INVITATION"));
         }
     }
 
@@ -940,7 +940,7 @@ public class AppUserController : BaseApiController
         {
             if (string.IsNullOrWhiteSpace(request.Token))
             {
-                return BadRequestWithErrors("Invalid token");
+                return BadRequestWithErrors(_translationService.Translate("Common", "INVALID_TOKEN"));
             }
 
             // Validate password using the password validation service
@@ -955,17 +955,17 @@ public class AppUserController : BaseApiController
 
             if (staff == null)
             {
-                return BadRequestWithErrors("Invalid invitation token.");
+                return BadRequestWithErrors(_translationService.Translate("ApiMessages", "INVALID_INVITATION_TOKEN"));
             }
 
             if (staff.ConfirmationTokenExpiresAt < DateTime.UtcNow)
             {
-                return BadRequestWithErrors("Invitation token has expired. Please contact your administrator for a new invitation.");
+                return BadRequestWithErrors(_translationService.Translate("ApiMessages", "INVITATION_EXPIRED"));
             }
 
             if (staff.Status == 1) // already active
             {
-                return BadRequestWithErrors("Account is already active. You can log in.");
+                return BadRequestWithErrors(_translationService.Translate("ApiMessages", "ACCOUNT_ALREADY_ACTIVE"));
             }
 
             // Set password and activate account
@@ -978,12 +978,12 @@ public class AppUserController : BaseApiController
 
             await _context.SaveChangesAsync();
 
-            return Ok(new { message = "Account setup complete! You can now log in." });
+            return Ok(new { message = _translationService.Translate("ApiMessages", "ACCOUNT_SETUP_COMPLETE") });
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error completing staff setup");
-            return InternalServerErrorWithError("An error occurred while setting up your account.");
+            return InternalServerErrorWithError(_translationService.Translate("Common", "ERROR_SETTING_UP_ACCOUNT"));
         }
     }
 

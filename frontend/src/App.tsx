@@ -3,8 +3,10 @@ import { ThemeProvider, createTheme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import PublicApp from './components/public/PublicApp';
 import CustomerApp from './components/customer/CustomerApp';
+import AdminApp from './components/admin/AdminApp';
 import { AppSettingsProvider } from './contexts/AppSettingsContext';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
+import { authService } from './services/authService';
 
 function AppContent() {
   const { isAuthenticated, checkAuth } = useAuth();
@@ -35,8 +37,19 @@ function AppContent() {
       return <PublicApp onLoginSuccess={handleLoginSuccess} toggleTheme={toggleTheme} mode={mode} />;
     }
 
-    // For now, we'll just show CustomerApp since we don't have role info in AuthContext yet
-    return <CustomerApp onLogout={() => {}} toggleTheme={toggleTheme} mode={mode} />;
+    // Check user role to determine which app to show
+    const role = authService.getUserRole();
+    
+    if (role === 0) {
+      // Admin
+      return <AdminApp onLogout={() => {}} toggleTheme={toggleTheme} mode={mode} />;
+    } else if (role === 1) {
+      // Staff
+      return <AdminApp onLogout={() => {}} toggleTheme={toggleTheme} mode={mode} />;
+    } else {
+      // Customer (role 2 or null)
+      return <CustomerApp onLogout={() => {}} toggleTheme={toggleTheme} mode={mode} />;
+    }
   };
 
   return (

@@ -78,7 +78,7 @@ public class OrderController : BaseApiController
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error retrieving orders");
-            return InternalServerErrorWithError("An error occurred while retrieving orders");
+            return InternalServerErrorWithError(_translationService.Translate("ApiMessages", "ERROR_RETRIEVING_ORDERS"));
         }
     }
 
@@ -99,13 +99,13 @@ public class OrderController : BaseApiController
 
             if (order == null)
             {
-                return NotFoundWithError("Order not found");
+                return NotFoundWithError(_translationService.Translate("ApiMessages", "ORDER_NOT_FOUND"));
             }
 
             // Customers can only see their own orders
             if (userRole == "2" && order.CustomerId != userId)
             {
-                return NotFoundWithError("Order not found");
+                return NotFoundWithError(_translationService.Translate("ApiMessages", "ORDER_NOT_FOUND"));
             }
 
             return Ok(MapToOrderResponse(order));
@@ -113,7 +113,7 @@ public class OrderController : BaseApiController
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error retrieving order {OrderId}", id);
-            return InternalServerErrorWithError("An error occurred while retrieving the order");
+            return InternalServerErrorWithError(_translationService.Translate("ApiMessages", "ERROR_RETRIEVING_ORDER"));
         }
     }
 
@@ -128,12 +128,12 @@ public class OrderController : BaseApiController
 
             if (request.Items == null || !request.Items.Any())
             {
-                return BadRequestWithErrors("Order must contain at least one item");
+                return BadRequestWithErrors(_translationService.Translate("ApiMessages", "ORDER_MUST_CONTAIN_ITEMS"));
             }
 
             if (string.IsNullOrWhiteSpace(request.ShippingAddress))
             {
-                return BadRequestWithErrors("Shipping address is required");
+                return BadRequestWithErrors(_translationService.Translate("ApiMessages", "SHIPPING_ADDRESS_REQUIRED"));
             }
 
             // Validate products and calculate totals
@@ -144,7 +144,7 @@ public class OrderController : BaseApiController
 
             if (products.Count != productIds.Distinct().Count())
             {
-                return BadRequestWithErrors("One or more products are not available");
+                return BadRequestWithErrors(_translationService.Translate("ApiMessages", "PRODUCTS_NOT_AVAILABLE"));
             }
 
             // Generate order number
@@ -231,7 +231,7 @@ public class OrderController : BaseApiController
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error creating order");
-            return InternalServerErrorWithError("An error occurred while creating the order");
+            return InternalServerErrorWithError(_translationService.Translate("ApiMessages", "ERROR_CREATING_ORDER"));
         }
     }
 
@@ -251,12 +251,12 @@ public class OrderController : BaseApiController
 
             if (order == null)
             {
-                return NotFoundWithError("Order not found");
+                return NotFoundWithError(_translationService.Translate("ApiMessages", "ORDER_NOT_FOUND"));
             }
 
             if (request.Status < 0 || request.Status > OrderStatus.OnHold)
             {
-                return BadRequestWithErrors("Invalid order status");
+                return BadRequestWithErrors(_translationService.Translate("ApiMessages", "INVALID_ORDER_STATUS"));
             }
 
             order.Status = request.Status;
@@ -304,7 +304,7 @@ public class OrderController : BaseApiController
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error updating order status for order {OrderId}", id);
-            return InternalServerErrorWithError("An error occurred while updating the order status");
+            return InternalServerErrorWithError(_translationService.Translate("ApiMessages", "ERROR_UPDATING_ORDER_STATUS"));
         }
     }
 
@@ -375,7 +375,7 @@ public class OrderController : BaseApiController
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error retrieving order stats");
-            return InternalServerErrorWithError("An error occurred while retrieving order statistics");
+            return InternalServerErrorWithError(_translationService.Translate("ApiMessages", "ERROR_RETRIEVING_ORDER_STATS"));
         }
     }
 

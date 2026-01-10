@@ -73,7 +73,7 @@ export default function Products() {
       setTotalCount(response.metadata.totalCount);
     } catch (err) {
       console.error('Error loading products:', err);
-      setError('Failed to load products. Please try again.');
+      setError(t('FAILED_LOAD_PRODUCTS'));
     } finally {
       setLoading(false);
     }
@@ -102,7 +102,7 @@ export default function Products() {
       setProductToDelete(null);
     } catch (err) {
       console.error('Error deleting product:', err);
-      setError('Failed to delete product');
+      setError(t('FAILED_DELETE_PRODUCT'));
     }
   };
 

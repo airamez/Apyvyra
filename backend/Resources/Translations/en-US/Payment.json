@@ -16,6 +16,7 @@
   "PROCESSING": "Processing...",
   "PAYMENT_SUCCESS": "Payment successful!",
   "PAYMENT_FAILED": "Payment failed. Please try again.",
+  "PAYMENT_CONFIRMATION_FAILED": "Payment confirmation failed",
   "ORDER_NUMBER": "Order #",
   "AMOUNT": "Amount"
 }

@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json;
+using backend.Services;
 
 namespace backend.Controllers;
 
@@ -66,13 +67,24 @@ public abstract class BaseApiController : ControllerBase
     }
 
     /// <summary>
-    /// Returns validation errors from ModelState
+    /// Returns validation errors from ModelState, translating any translation keys
     /// </summary>
     protected ActionResult ValidationErrors()
     {
+        var translationService = HttpContext.RequestServices.GetService<ITranslationService>();
+        
         var errors = ModelState.Values
             .SelectMany(v => v.Errors)
-            .Select(e => e.ErrorMessage)
+            .Select(e => {
+                var message = e.ErrorMessage;
+                // If the error message looks like a translation key (UPPER_SNAKE_CASE), translate it
+                if (translationService != null && System.Text.RegularExpressions.Regex.IsMatch(message, @"^[A-Z][A-Z0-9_]+$"))
+                {
+                    var translated = translationService.Translate("ApiMessages", message);
+                    if (translated != message) return translated;
+                }
+                return message;
+            })
             .ToList();
 
         return BadRequestWithErrors(errors);

@@ -13,6 +13,7 @@ import {
   Grid
 } from '@mui/material';
 import { type UrlType } from '../../../services/productService';
+import { useTranslation } from '../../../hooks/useTranslation';
 
 interface ProductUrlDialogProps {
   open: boolean;
@@ -23,6 +24,7 @@ interface ProductUrlDialogProps {
 const URL_REGEX = /^https?:\/\/(www\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_+.~#?&/=]*)$/;
 
 export default function ProductUrlDialog({ open, onClose, onSubmit }: ProductUrlDialogProps) {
+  const { t } = useTranslation('ProductUrlDialog');
   const [url, setUrl] = useState('');
   const [urlType, setUrlType] = useState<UrlType>(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -30,11 +32,11 @@ export default function ProductUrlDialog({ open, onClose, onSubmit }: ProductUrl
 
   const validateUrl = (value: string): boolean => {
     if (!value.trim()) {
-      setUrlError('URL is required');
+      setUrlError(t('URL_REQUIRED'));
       return false;
     }
     if (!URL_REGEX.test(value)) {
-      setUrlError('Please enter a valid URL (must start with http:// or https://)');
+      setUrlError(t('INVALID_URL_FORMAT'));
       return false;
     }
     setUrlError('');
@@ -64,7 +66,7 @@ export default function ProductUrlDialog({ open, onClose, onSubmit }: ProductUrl
       onClose();
     } catch (error: any) {
       console.error('Error adding URL:', error);
-      setUrlError(error?.message || 'Failed to add URL. Please try again.');
+      setUrlError(error?.message || t('FAILED_ADD_URL'));
     } finally {
       setIsSubmitting(false);
     }
@@ -79,12 +81,12 @@ export default function ProductUrlDialog({ open, onClose, onSubmit }: ProductUrl
 
   return (
     <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>
-      <DialogTitle>Add Product URL</DialogTitle>
+      <DialogTitle>{t('TITLE')}</DialogTitle>
       <DialogContent>
         <Grid container spacing={2} sx={{ mt: 1 }}>
           <Grid size={12}>
             <TextField
-              label="URL"
+              label={t('URL')}
               fullWidth
               required
               value={url}
@@ -93,36 +95,36 @@ export default function ProductUrlDialog({ open, onClose, onSubmit }: ProductUrl
               size="small"
               placeholder="https://example.com/image.jpg"
               error={!!urlError}
-              helperText={urlError || 'Enter a valid URL starting with http:// or https://'}
+              helperText={urlError || t('URL_HELPER_TEXT')}
             />
           </Grid>
           <Grid size={12}>
             <FormControl fullWidth size="small">
-              <InputLabel id="url-type-label">URL Type</InputLabel>
+              <InputLabel id="url-type-label">{t('URL_TYPE')}</InputLabel>
               <Select
                 labelId="url-type-label"
-                label="URL Type"
+                label={t('URL_TYPE')}
                 value={urlType}
                 onChange={(e) => setUrlType(e.target.value as UrlType)}
                 variant="outlined"
               >
-                <MenuItem value={0}>Image</MenuItem>
-                <MenuItem value={1}>Video</MenuItem>
-                <MenuItem value={2}>Manual</MenuItem>
+                <MenuItem value={0}>{t('TYPE_IMAGE')}</MenuItem>
+                <MenuItem value={1}>{t('TYPE_VIDEO')}</MenuItem>
+                <MenuItem value={2}>{t('TYPE_MANUAL')}</MenuItem>
               </Select>
             </FormControl>
           </Grid>
         </Grid>
       </DialogContent>
       <DialogActions>
-        <Button onClick={handleClose} disabled={isSubmitting}>Cancel</Button>
+        <Button onClick={handleClose} disabled={isSubmitting}>{t('CANCEL')}</Button>
         <Button 
           onClick={handleSubmit} 
           variant="contained" 
           color="primary"
           disabled={!url.trim() || isSubmitting}
         >
-          {isSubmitting ? 'Adding...' : 'Add URL'}
+          {isSubmitting ? t('ADDING') : t('ADD_URL')}
         </Button>
       </DialogActions>
     </Dialog>

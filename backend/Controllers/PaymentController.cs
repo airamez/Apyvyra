@@ -18,17 +18,20 @@ public class PaymentController : BaseApiController
     private readonly ILogger<PaymentController> _logger;
     private readonly IStripeService _stripeService;
     private readonly IConfiguration _configuration;
+    private readonly ITranslationService _translationService;
 
     public PaymentController(
         AppDbContext context,
         ILogger<PaymentController> logger,
         IStripeService stripeService,
-        IConfiguration configuration)
+        IConfiguration configuration,
+        ITranslationService translationService)
     {
         _context = context;
         _logger = logger;
         _stripeService = stripeService;
         _configuration = configuration;
+        _translationService = translationService;
     }
 
     private int GetCurrentUserId()
@@ -68,17 +71,17 @@ public class PaymentController : BaseApiController
 
             if (order == null)
             {
-                return NotFoundWithError("Order not found");
+                return NotFoundWithError(_translationService.Translate("ApiMessages", "ORDER_NOT_FOUND"));
             }
 
             if (order.PaymentStatus == PaymentStatus.Succeeded)
             {
-                return BadRequestWithErrors("Order has already been paid");
+                return BadRequestWithErrors(_translationService.Translate("ApiMessages", "ORDER_ALREADY_PAID"));
             }
 
             if (order.Status == OrderStatus.Cancelled)
             {
-                return BadRequestWithErrors("Order has been cancelled");
+                return BadRequestWithErrors(_translationService.Translate("ApiMessages", "ORDER_CANCELLED"));
             }
 
             // If there's an existing payment intent, return it
@@ -125,7 +128,7 @@ public class PaymentController : BaseApiController
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error creating payment intent for order {OrderId}", orderId);
-            return InternalServerErrorWithError("An error occurred while processing payment");
+            return InternalServerErrorWithError(_translationService.Translate("ApiMessages", "ERROR_PROCESSING_PAYMENT"));
         }
     }
 
@@ -143,12 +146,12 @@ public class PaymentController : BaseApiController
 
             if (order == null)
             {
-                return NotFoundWithError("Order not found");
+                return NotFoundWithError(_translationService.Translate("ApiMessages", "ORDER_NOT_FOUND"));
             }
 
             if (string.IsNullOrEmpty(order.StripePaymentIntentId))
             {
-                return BadRequestWithErrors("No payment intent found for this order");
+                return BadRequestWithErrors(_translationService.Translate("ApiMessages", "NO_PAYMENT_INTENT"));
             }
 
             // In MockStripe mode, simulate successful payment
@@ -190,7 +193,7 @@ public class PaymentController : BaseApiController
                     OrderId = order.Id,
                     OrderNumber = order.OrderNumber,
                     PaymentStatus = "succeeded",
-                    Message = "Payment completed successfully"
+                    Message = _translationService.Translate("ApiMessages", "PAYMENT_COMPLETED")
                 });
             }
 
@@ -206,7 +209,7 @@ public class PaymentController : BaseApiController
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error confirming payment for order {OrderId}", orderId);
-            return InternalServerErrorWithError("An error occurred while confirming payment");
+            return InternalServerErrorWithError(_translationService.Translate("ApiMessages", "ERROR_CONFIRMING_PAYMENT"));
         }
     }
 
@@ -220,7 +223,7 @@ public class PaymentController : BaseApiController
         if (!_stripeService.ValidateWebhookSignature(json, signature, out var stripeEvent))
         {
             _logger.LogWarning("Invalid webhook signature");
-            return BadRequest("Invalid signature");
+            return BadRequest(_translationService.Translate("ApiMessages", "INVALID_SIGNATURE"));
         }
 
         try
@@ -317,17 +320,17 @@ public class PaymentController : BaseApiController
 
             if (order == null)
             {
-                return NotFoundWithError("Order not found");
+                return NotFoundWithError(_translationService.Translate("ApiMessages", "ORDER_NOT_FOUND"));
             }
 
             if (order.PaymentStatus != 1)
             {
-                return BadRequestWithErrors("Order has not been paid");
+                return BadRequestWithErrors(_translationService.Translate("ApiMessages", "ORDER_NOT_PAID"));
             }
 
             if (string.IsNullOrEmpty(order.StripePaymentIntentId))
             {
-                return BadRequestWithErrors("No payment intent found for this order");
+                return BadRequestWithErrors(_translationService.Translate("ApiMessages", "NO_PAYMENT_INTENT"));
             }
 
             var refund = await _stripeService.RefundPaymentAsync(order.StripePaymentIntentId);
@@ -344,7 +347,7 @@ public class PaymentController : BaseApiController
                 RefundId = refund.Id,
                 Amount = (decimal)refund.Amount / 100,
                 Status = refund.Status,
-                Message = "Refund processed successfully"
+                Message = _translationService.Translate("ApiMessages", "REFUND_PROCESSED")
             });
         }
         catch (StripeException ex)
@@ -355,7 +358,7 @@ public class PaymentController : BaseApiController
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error refunding order {OrderId}", orderId);
-            return InternalServerErrorWithError("An error occurred while processing refund");
+            return InternalServerErrorWithError(_translationService.Translate("ApiMessages", "ERROR_PROCESSING_REFUND"));
         }
     }
 }

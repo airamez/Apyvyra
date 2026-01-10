@@ -10,13 +10,16 @@ public class AddressController : BaseApiController
 {
     private readonly IGoogleMapsService _googleMapsService;
     private readonly ILogger<AddressController> _logger;
+    private readonly ITranslationService _translationService;
 
     public AddressController(
         IGoogleMapsService googleMapsService,
-        ILogger<AddressController> logger)
+        ILogger<AddressController> logger,
+        ITranslationService translationService)
     {
         _googleMapsService = googleMapsService;
         _logger = logger;
+        _translationService = translationService;
     }
 
     [Authorize]
@@ -27,7 +30,7 @@ public class AddressController : BaseApiController
         {
             if (string.IsNullOrWhiteSpace(request.Address))
             {
-                return BadRequestWithErrors("Address is required");
+                return BadRequestWithErrors(_translationService.Translate("ApiMessages", "ADDRESS_REQUIRED"));
             }
 
             var result = await _googleMapsService.ValidateAddressAsync(request.Address);
@@ -50,7 +53,7 @@ public class AddressController : BaseApiController
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error validating address '{Address}'", request.Address);
-            return InternalServerErrorWithError("An error occurred while validating the address");
+            return InternalServerErrorWithError(_translationService.Translate("ApiMessages", "ERROR_VALIDATING_ADDRESS"));
         }
     }
 }

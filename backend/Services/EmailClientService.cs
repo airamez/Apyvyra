@@ -20,11 +20,13 @@ public class EmailClientService : IEmailClientService
 {
     private readonly EmailSettings _emailSettings;
     private readonly ILogger<EmailClientService> _logger;
+    private readonly ITranslationService _translationService;
 
-    public EmailClientService(IOptions<EmailSettings> emailSettings, ILogger<EmailClientService> logger)
+    public EmailClientService(IOptions<EmailSettings> emailSettings, ILogger<EmailClientService> logger, ITranslationService translationService)
     {
         _emailSettings = emailSettings.Value;
         _logger = logger;
+        _translationService = translationService;
     }
 
     public async Task<List<EmailMessage>> GetEmailsAsync(EmailFilterRequest filter, string folder = "inbox")
@@ -273,7 +275,7 @@ public class EmailClientService : IEmailClientService
             From = message.From.Mailboxes.FirstOrDefault()?.Address ?? "",
             FromName = message.From.Mailboxes.FirstOrDefault()?.Name ?? "",
             To = string.Join(", ", message.To.Mailboxes.Select(m => m.Address)),
-            Subject = message.Subject ?? "(No Subject)",
+            Subject = message.Subject ?? _translationService.Translate("EmailClient", "NO_SUBJECT"),
             Body = message.TextBody ?? message.HtmlBody ?? "",
             HtmlBody = message.HtmlBody,
             Date = message.Date.UtcDateTime,
