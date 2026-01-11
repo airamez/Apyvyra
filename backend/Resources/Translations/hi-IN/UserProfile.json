@@ -10,5 +10,20 @@
   "LOGOUT": "लॉग आउट",
   "ADMIN": "व्यवस्थापक",
   "STAFF": "स्टाफ",
-  "CUSTOMER": "ग्राहक"
+  "CUSTOMER": "ग्राहक",
+  "FULL_NAME": "पूरा नाम",
+  "FULL_NAME_PLACEHOLDER": "अपना पूरा नाम दर्ज करें",
+  "PHONE": "फोन",
+  "PHONE_PLACEHOLDER": "अपना फोन नंबर दर्ज करें",
+  "ADDRESS": "पता",
+  "ADDRESS_PLACEHOLDER": "अपना पता दर्ज करें",
+  "VALIDATE_ADDRESS": "पता की पुष्टि करें",
+  "VALIDATING_ADDRESS": "पुष्टि की जा रही है...",
+  "ADDRESS_VALID": "पता की पुष्टि हो गई",
+  "BYPASS_ADDRESS_VALIDATION": "पता पुष्टि को छोड़ें",
+  "SAVING": "सहेज कर रहे हैं...",
+  "SAVE": "सहेज करें",
+  "LOADING": "लोड हो रहा है...",
+  "FAILED_UPDATE_PROFILE": "प्रोफाइल अपडेट करने में विफल",
+  "VALIDATION_FAILED": "सत्यापन विफल"
 }

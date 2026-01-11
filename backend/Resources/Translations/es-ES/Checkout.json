@@ -26,5 +26,9 @@
   "WAIT_FOR_VALIDATION": "Por favor espera la validación de la dirección o marca la opción de omitir",
   "FAILED_VALIDATE_ADDRESS": "Falló validar la dirección. Por favor intenta de nuevo.",
   "FAILED_CREATE_ORDER": "Falló crear el pedido. Por favor intenta de nuevo.",
-  "PLEASE_LOGIN_TO_VALIDATE": "Por favor inicia sesión para validar tu dirección y proceder con el checkout."
+  "PLEASE_LOGIN_TO_VALIDATE": "Por favor inicia sesión para validar tu dirección y proceder con el checkout.",
+  "USE_MY_CURRENT_ADDRESS": "Usar mi dirección actual",
+  "DELIVERING_TO": "Entregando a",
+  "LOADING_ADDRESS": "Cargando tu dirección guardada...",
+  "NO_SAVED_ADDRESS": "No tienes una dirección guardada. Por favor ingresa una dirección de envío."
 }

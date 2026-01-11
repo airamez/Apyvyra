@@ -24,5 +24,6 @@
   "SAVING": "Saving...",
   "SAVE": "Save",
   "LOADING": "Loading...",
-  "FAILED_UPDATE_PROFILE": "Failed to update profile"
+  "FAILED_UPDATE_PROFILE": "Failed to update profile",
+  "VALIDATION_FAILED": "Validation failed"
 }

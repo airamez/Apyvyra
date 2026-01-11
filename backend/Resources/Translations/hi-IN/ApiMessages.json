@@ -72,6 +72,8 @@
   "REQUIRED_LOCALIZATION_LANGUAGE": "Localization:Language कॉन्फिगरेशन में आवश्यक है",
   "REQUIRED_CURRENCY_CODE": "Localization:Currency:Code कॉन्फिगरेशन में आवश्यक है",
   "REQUIRED_CURRENCY_SYMBOL": "Localization:Currency:Symbol कॉन्फिगरेशन में आवश्यक है",
-  "REQUIRED_DATE_FORMAT": "Localization:DateFormat कॉन्फिगरेशन में आवश्यक है",
-  "REQUIRED_COMPANY_NAME": "AppSettings:Company:Name कॉन्फिगरेशन में आवश्यक है"
+  "REQUIRED_DATE_FORMAT": "Localization:DateFormat विन्यास में आवश्यक है",
+  "REQUIRED_COMPANY_NAME": "AppSettings:Company:Name विन्यास में आवश्यक है",
+  "CUSTOMER_NOT_FOUND": "ग्राहक रिकॉर्ड नहीं मिला। कृपया सुनिश्चित करें कि आपका खाता ठीक से सेट है।",
+  "CUSTOMER_HAS_NO_ADDRESS": "आपके पास कोई सहेजा पता नहीं है। कृपया एक शिपिंग पता दर्ज करें या अपनी प्रोफ़ाइल अपडेट करें।"
 }

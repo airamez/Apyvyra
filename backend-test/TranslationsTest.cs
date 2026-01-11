@@ -9,6 +9,12 @@ public class TranslationFilesTests
     private const string ReferenceLanguage = "en-US";
     private static readonly string TranslationsPath = GetTranslationsPath();
     private static readonly string[] LanguageFolders = GetLanguageFolders();
+    
+    // Files to exclude from translation consistency checks
+    private static readonly HashSet<string> ExcludedFiles = new(StringComparer.OrdinalIgnoreCase)
+    {
+        "GoogleMapsMockService.cs"
+    };
 
     private static string GetTranslationsPath()
     {

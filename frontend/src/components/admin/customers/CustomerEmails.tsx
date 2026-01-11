@@ -143,7 +143,7 @@ export default function CustomerEmails({ customerEmail, customerName }: Customer
       });
 
       // Show success message and close dialog
-      setSuccessMessage(t('REPLY_SENT_SUCCESS') || 'Reply sent successfully!');
+      setSuccessMessage(t('REPLY_SENT_SUCCESS'));
       setShowSuccessSnackbar(true);
       handleCloseReplyDialog();
       handleCloseEmailDialog();
@@ -151,7 +151,7 @@ export default function CustomerEmails({ customerEmail, customerName }: Customer
       // Refresh emails to show the new reply
       loadEmails();
     } catch (err) {
-      setError('Failed to send reply');
+      setError(t('FAILED_SEND_REPLY'));
       console.error('Error sending reply:', err);
     } finally {
       setSendingReply(false);

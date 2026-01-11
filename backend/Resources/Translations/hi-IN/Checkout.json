@@ -26,5 +26,9 @@
   "WAIT_FOR_VALIDATION": "कृपया पता मान्यकरण की प्रतीक्षा करें या छोड़ने का विकल्प देखें",
   "FAILED_VALIDATE_ADDRESS": "पता मान्य करने में विफल। कृपया फिर से प्रयास करें।",
   "FAILED_CREATE_ORDER": "ऑर्डर बनाने में विफल। कृपया फिर से प्रयास करें।",
-  "PLEASE_LOGIN_TO_VALIDATE": "अपना पता मान्य करने और चेकआउट के साथ आगे बढ़ने के लिए कृपया लॉग इन करें।"
+  "PLEASE_LOGIN_TO_VALIDATE": "Please log in to validate your address and proceed with checkout.",
+  "USE_MY_CURRENT_ADDRESS": "मेरा वर्तमान पता का उपयोग करें",
+  "DELIVERING_TO": "पर डिलीवरी",
+  "LOADING_ADDRESS": "आपका सहेजा पता लोड हो रहा है...",
+  "NO_SAVED_ADDRESS": "आपके पास कोई सहेजा पता नहीं है। कृपया एक शिपिंग पता दर्ज करें।"
 }

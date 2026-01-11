@@ -72,6 +72,8 @@
   "REQUIRED_LOCALIZATION_LANGUAGE": "Localization:Language é obrigatório na configuração",
   "REQUIRED_CURRENCY_CODE": "Localization:Currency:Code é obrigatório na configuração",
   "REQUIRED_CURRENCY_SYMBOL": "Localization:Currency:Symbol é obrigatório na configuração",
-  "REQUIRED_DATE_FORMAT": "Localization:DateFormat é obrigatório na configuração",
-  "REQUIRED_COMPANY_NAME": "AppSettings:Company:Name é obrigatório na configuração"
+  "REQUIRED_DATE_FORMAT": "Localization:DateFormat é necessário na configuração",
+  "REQUIRED_COMPANY_NAME": "AppSettings:Company:Name é necessário na configuração",
+  "CUSTOMER_NOT_FOUND": "Registro de cliente não encontrado. Certifique-se de que sua conta está configurada corretamente.",
+  "CUSTOMER_HAS_NO_ADDRESS": "Você não tem um endereço salvo. Digite um endereço de entrega ou atualize seu perfil."
 }

@@ -8,6 +8,15 @@ public class StringsChecks
 {
     private readonly ITestOutputHelper _output;
     private static readonly string ProjectRoot = GetProjectRoot();
+    
+    // Files to exclude from hardcoded string checks (mock files, test files, etc.)
+    // These files typically contain hardcoded strings that are part of mock data
+    // or test implementations and don't need to be internationalized
+    private static readonly HashSet<string> ExcludedFiles = new(StringComparer.OrdinalIgnoreCase)
+    {
+        "GoogleMapsMockService.cs",
+        // Add more mock files here as needed
+    };
 
     public StringsChecks(ITestOutputHelper output)
     {
@@ -38,7 +47,8 @@ public class StringsChecks
     {
         var backendPath = Path.Combine(ProjectRoot, "backend");
         var csFiles = Directory.GetFiles(backendPath, "*.cs", SearchOption.AllDirectories)
-            .Where(f => !f.Contains("obj") && !f.Contains("bin"));
+            .Where(f => !f.Contains("obj") && !f.Contains("bin"))
+            .Where(f => !IsExcludedFile(f));
 
         var violations = new List<StringViolation>();
 
@@ -533,6 +543,12 @@ public class StringsChecks
 
         // This looks like a user-facing hardcoded string
         return true;
+    }
+
+    private static bool IsExcludedFile(string filePath)
+    {
+        var fileName = Path.GetFileName(filePath);
+        return ExcludedFiles.Contains(fileName);
     }
 
     private void PrintViolations(string category, List<StringViolation> violations)

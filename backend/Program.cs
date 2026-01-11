@@ -21,6 +21,7 @@ builder.Services.AddScoped<IEmailClientService, EmailClientService>();
 builder.Services.AddScoped<IStripeService, StripeService>();
 
 // Configure Google Maps Service
+builder.Services.AddScoped<IGoogleMapsMockService, GoogleMapsMockService>();
 builder.Services.AddScoped<IGoogleMapsService, GoogleMapsService>();
 builder.Services.AddHttpClient();
 

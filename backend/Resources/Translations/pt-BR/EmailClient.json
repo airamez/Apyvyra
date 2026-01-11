@@ -40,5 +40,14 @@
   "MESSAGE": "Message",
   "CANCEL": "Cancel",
   "SEND": "Send",
-  "SENDING": "Sending..."
+  "SENDING": "Sending...",
+  "FROM": "From",
+  "DATE": "Date",
+  "CLOSE": "Close",
+  "SEARCH_EMAILS": "Search emails...",
+  "EMAILS_FOUND": "emails found",
+  "NO_EMAILS": "No emails found",
+  "NO_EMAILS_FOR_CUSTOMER": "No emails found for this customer",
+  "INBOUND": "Inbound",
+  "OUTBOUND": "Outbound"
 }

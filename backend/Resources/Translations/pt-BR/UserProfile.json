@@ -10,5 +10,20 @@
   "LOGOUT": "Sair",
   "ADMIN": "Administrador",
   "STAFF": "Equipe",
-  "CUSTOMER": "Cliente"
+  "CUSTOMER": "Cliente",
+  "FULL_NAME": "Nome Completo",
+  "FULL_NAME_PLACEHOLDER": "Digite seu nome completo",
+  "PHONE": "Telefone",
+  "PHONE_PLACEHOLDER": "Digite seu número de telefone",
+  "ADDRESS": "Endereço",
+  "ADDRESS_PLACEHOLDER": "Digite seu endereço",
+  "VALIDATE_ADDRESS": "Validar Endereço",
+  "VALIDATING_ADDRESS": "Validando...",
+  "ADDRESS_VALID": "Endereço validado",
+  "BYPASS_ADDRESS_VALIDATION": "Ignorar validação de endereço",
+  "SAVING": "Salvando...",
+  "SAVE": "Salvar",
+  "LOADING": "Carregando...",
+  "FAILED_UPDATE_PROFILE": "Falha ao atualizar perfil",
+  "VALIDATION_FAILED": "Validação falhou"
 }

@@ -26,5 +26,9 @@
   "WAIT_FOR_VALIDATION": "Aguarde a validação do endereço ou marque a opção de ignorar",
   "FAILED_VALIDATE_ADDRESS": "Falha ao validar endereço. Tente novamente.",
   "FAILED_CREATE_ORDER": "Falha ao criar pedido. Tente novamente.",
-  "PLEASE_LOGIN_TO_VALIDATE": "Faça login para validar seu endereço e continuar com a finalização da compra."
+  "PLEASE_LOGIN_TO_VALIDATE": "Faça login para validar seu endereço e continuar com a finalização da compra.",
+  "USE_MY_CURRENT_ADDRESS": "Usar meu endereço atual",
+  "DELIVERING_TO": "Entregando para",
+  "LOADING_ADDRESS": "Carregando seu endereço salvo...",
+  "NO_SAVED_ADDRESS": "Você não tem um endereço salvo. Por favor insira um endereço de entrega."
 }

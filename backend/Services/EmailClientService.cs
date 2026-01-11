@@ -67,7 +67,7 @@ public class EmailClientService : IEmailClientService
             }
             
             await mailFolder.OpenAsync(FolderAccess.ReadOnly);
-            _logger.LogInformation("Opened folder {Folder} with {MessageCount} messages", mailFolder.FullName, await mailFolder.CountAsync());
+            _logger.LogInformation("Opened folder {Folder} with {MessageCount} messages", mailFolder.FullName, mailFolder.Count);
 
             // Build search query
             var query = BuildSearchQuery(filter);

@@ -73,5 +73,7 @@
   "REQUIRED_CURRENCY_CODE": "Localization:Currency:Code es requerido en la configuración",
   "REQUIRED_CURRENCY_SYMBOL": "Localization:Currency:Symbol es requerido en la configuración",
   "REQUIRED_DATE_FORMAT": "Localization:DateFormat es requerido en la configuración",
-  "REQUIRED_COMPANY_NAME": "AppSettings:Company:Name es requerido en la configuración"
+  "REQUIRED_COMPANY_NAME": "AppSettings:Company:Name es requerido en la configuración",
+  "CUSTOMER_NOT_FOUND": "Registro de cliente no encontrado. Por favor asegúrate que tu cuenta esté configurada correctamente.",
+  "CUSTOMER_HAS_NO_ADDRESS": "No tienes una dirección guardada. Por favor ingresa una dirección de envío o actualiza tu perfil."
 }

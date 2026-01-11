@@ -256,11 +256,19 @@ curl -H "Authorization: Bearer YOUR_JWT_TOKEN" \
 - `PUT /api/order/{id}/status` - Update order status (Admin/Staff)
 - `GET /api/order/stats` - Get order statistics (Admin/Staff)
 
-#### Payments
-- `GET /api/payment/config` - Get payment configuration
-- `POST /api/payment/create-intent/{orderId}` - Create payment intent
-- `POST /api/payment/confirm/{orderId}` - Confirm payment
-- `POST /api/payment/webhook` - Stripe webhook handler
+#### Email Client
+- `GET /api/email-client` - Get emails with filtering
+- `GET /api/email-client/customer-emails` - Get customer-specific emails
+- `POST /api/email-client/send` - Send new email
+- `POST /api/email-client/reply` - Reply to email
+- `GET /api/email-client/{id}` - Get email by ID
+
+#### Customers
+- `GET /api/customer` - List customers with filtering
+- `GET /api/customer/{id}` - Get customer by ID
+- `POST /api/customer` - Create new customer (requires auth)
+- `PUT /api/customer/{id}` - Update customer (requires auth)
+- `DELETE /api/customer/{id}` - Delete customer (requires auth)
 
 ### Dynamic Filtering
 
@@ -310,6 +318,222 @@ Secure token-based authentication with role-based authorization.
 ### 7. Dynamic Filtering
 Powerful query filtering system supporting complex search criteria.
 
+### 8. Email Client Integration
+Full IMAP/SMTP email integration with customer management features.
+
+## Email Client Features
+
+The backend provides a comprehensive email client system with IMAP/SMTP integration, specifically designed for customer communication management.
+
+### Configuration
+
+#### Gmail Setup (Production)
+```json
+{
+  "EmailSettings": {
+    "SmtpServer": "smtp.gmail.com",
+    "SmtpPort": 587,
+    "Username": "your-email@gmail.com",
+    "Password": "your-app-password",
+    "FromEmail": "your-email@gmail.com",
+    "FromName": "Your Name",
+    "EnableSsl": true,
+    "DevelopmentMode": false
+  }
+}
+```
+
+#### Development Mode
+```json
+{
+  "EmailSettings": {
+    "DevelopmentMode": true
+  }
+}
+```
+
+### Gmail Authentication Setup
+
+1. **Enable 2-Factor Authentication** on your Gmail account
+2. **Generate App Password**:
+   - Go to Google Account settings
+   - Security → 2-Step Verification → App passwords
+   - Generate a new app password for "Apyvyra"
+   - Use this password in configuration (NOT your regular password)
+3. **Enable IMAP** in Gmail settings → Forwarding and POP/IMAP
+
+### Email API Endpoints
+
+#### Get Emails
+```http
+GET /api/email-client
+```
+
+Query Parameters:
+- `folder`: `inbox` or `sent` (default: `inbox`)
+- `fromEmail`: Filter by sender email address
+- `toEmail`: Filter by recipient email address
+- `startDate`: Filter by start date (ISO format: 2024-01-01)
+- `endDate`: Filter by end date (ISO format: 2024-12-31)
+- `searchText`: Search in subject and body content
+- `limit`: Maximum number of emails to return (default: 50)
+
+Example:
+```bash
+GET /api/email-client?folder=inbox&fromEmail=customer@example.com&limit=25
+```
+
+#### Get Customer Emails
+```http
+GET /api/email-client/customer-emails
+```
+
+Specialized endpoint that searches both inbox and sent folders for emails related to a specific customer. This is the primary endpoint used by the customer email view.
+
+Query Parameters:
+- `fromEmail`: Customer's email address (for inbound emails)
+- `toEmail`: Customer's email address (for outbound emails)
+- `startDate`, `endDate`, `searchText`, `limit`: Same as above
+
+Example:
+```bash
+GET /api/email-client/customer-emails?fromEmail=customer@example.com&toEmail=customer@example.com
+```
+
+#### Send Email
+```http
+POST /api/email-client/send
+```
+
+Body:
+```json
+{
+  "to": "recipient@example.com",
+  "subject": "Email Subject",
+  "body": "Email content",
+  "isHtml": false,
+  "cc": "cc@example.com" // optional
+}
+```
+
+#### Reply to Email
+```http
+POST /api/email-client/reply
+```
+
+Body:
+```json
+{
+  "to": "original-sender@example.com",
+  "subject": "Re: Original Subject",
+  "body": "Reply content",
+  "isHtml": false,
+  "originalMessageId": "message-id-here"
+}
+```
+
+### Customer Email Integration
+
+The email system is tightly integrated with customer management:
+
+#### Features
+- **Dual Folder Search**: Automatically searches both inbox and sent folders
+- **Inbound/Outbound Detection**: Identifies emails sent by vs. to customers
+- **Smart Filtering**: Uses IMAP server-side filtering for performance
+- **Email Threading**: Maintains conversation context
+- **Reply Restrictions**: Only allows replies to inbound customer emails
+
+#### Email Type Detection
+- **Inbound**: Emails FROM the customer (can be replied to)
+- **Outbound**: Emails TO the customer (read-only in customer view)
+
+#### IMAP Search Capabilities
+The system uses advanced IMAP search queries:
+- `SearchQuery.FromContains()` - Filter by sender
+- `SearchQuery.ToContains()` - Filter by recipient
+- `SearchQuery.DeliveredAfter()` - Date range filtering
+- `SearchQuery.SubjectContains()` - Subject search
+- `SearchQuery.BodyContains()` - Body content search
+
+### Development vs Production
+
+#### Development Mode
+- Uses mock email data with realistic customer scenarios
+- No real email server connection required
+- Sample data for testing customer email features
+- Faster for development and testing
+
+#### Production Mode
+- Connects to real Gmail IMAP/SMTP servers
+- Requires valid Gmail credentials with app password
+- Real email sending and receiving
+- Full IMAP search and filtering capabilities
+
+### Email Features
+
+#### HTML Email Support
+- **HTML Rendering**: Properly displays HTML emails with formatting
+- **Plain Text Fallback**: Gracefully handles plain text emails
+- **Security**: Safe HTML rendering with proper sanitization
+
+#### Gmail Optimization
+- **Sent Folder Detection**: Automatically finds Gmail's `[Gmail]/Sent Mail` folder
+- **IMAP Server Mapping**: Maps SMTP servers to IMAP equivalents
+- **Rate Limiting**: Respects Gmail's sending limits
+
+#### Logging and Monitoring
+Comprehensive logging for email operations:
+- Connection and authentication status
+- IMAP folder access and message counts
+- Search query details and results
+- Email sending status and errors
+- Performance metrics
+
+### Troubleshooting Email Issues
+
+#### Common Problems
+
+**Authentication Failed**
+```
+Solution: 
+1. Enable 2-factor authentication on Gmail
+2. Generate app password (not regular password)
+3. Check username and app password in configuration
+```
+
+**IMAP Connection Failed**
+```
+Solution:
+1. Enable IMAP in Gmail settings
+2. Check firewall/proxy settings
+3. Verify imap.gmail.com:993 connectivity
+```
+
+**No Emails Found**
+```
+Solution:
+1. Check backend logs for IMAP search details
+2. Verify email addresses match exactly
+3. Ensure emails exist in expected folders
+4. Test with Development Mode first
+```
+
+**Email Not Sending**
+```
+Solution:
+1. Verify SMTP credentials
+2. Check app password (not regular password)
+3. Ensure SSL is enabled
+4. Check Gmail sending limits
+```
+
+#### Debug Information
+The application provides detailed logging for email troubleshooting. Check the console output for:
+- IMAP connection details
+- Search query parameters
+- Message counts and results
+- Error messages and stack traces
+
 ## Project Structure
 
 ```
@@ -320,12 +544,14 @@ backend/
 │   ├── ProductController.cs  # Product CRUD operations
 │   ├── ProductCategoryController.cs # Category management
 │   ├── OrderController.cs    # Order processing
-│   └── PaymentController.cs  # Stripe payment processing
+│   ├── PaymentController.cs  # Stripe payment processing
+│   └── EmailClientController.cs # IMAP/SMTP email client API
 ├── Models/                   # EF Core entity models (auto-generated)
 ├── Data/
 │   └── AppDbContext.cs       # Database context & configurations
 ├── Services/
 │   ├── EmailService.cs       # Email sending with templates
+│   ├── EmailClientService.cs # IMAP/SMTP email client integration
 │   └── StripeService.cs      # Payment processing
 ├── Middleware/
 │   └── ResponseHeadersMiddleware.cs # Custom response headers

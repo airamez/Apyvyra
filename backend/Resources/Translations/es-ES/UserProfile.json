@@ -10,5 +10,20 @@
   "LOGOUT": "Cerrar Sesión",
   "ADMIN": "Administrador",
   "STAFF": "Personal",
-  "CUSTOMER": "Cliente"
+  "CUSTOMER": "Cliente",
+  "FULL_NAME": "Nombre Completo",
+  "FULL_NAME_PLACEHOLDER": "Ingresa tu nombre completo",
+  "PHONE": "Teléfono",
+  "PHONE_PLACEHOLDER": "Ingresa tu número de teléfono",
+  "ADDRESS": "Dirección",
+  "ADDRESS_PLACEHOLDER": "Ingresa tu dirección",
+  "VALIDATE_ADDRESS": "Validar Dirección",
+  "VALIDATING_ADDRESS": "Validando...",
+  "ADDRESS_VALID": "Dirección validada",
+  "BYPASS_ADDRESS_VALIDATION": "Omitir validación de dirección",
+  "SAVING": "Guardando...",
+  "SAVE": "Guardar",
+  "LOADING": "Cargando...",
+  "FAILED_UPDATE_PROFILE": "Error al actualizar perfil",
+  "VALIDATION_FAILED": "Validación fallida"
 }

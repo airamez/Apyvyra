@@ -146,7 +146,7 @@ function UserProfile({ onProfileUpdate }: UserProfileProps) {
       const result = await validateAddress(address);
       setAddressValidation(result);
     } catch (err) {
-      setAddressValidation({ isValid: false, errorMessage: 'Validation failed', address: null });
+      setAddressValidation({ isValid: false, errorMessage: t('VALIDATION_FAILED'), address: null });
     } finally {
       setIsValidatingAddress(false);
     }
