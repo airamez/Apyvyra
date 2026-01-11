@@ -173,6 +173,7 @@ public partial class AppDbContext : DbContext
                 .HasDefaultValueSql("CURRENT_TIMESTAMP")
                 .HasColumnName("updated_at");
             entity.Property(e => e.UpdatedBy).HasColumnName("updated_by");
+            entity.Property(e => e.Notes).HasColumnName("notes");
 
             entity.HasOne(d => d.AppUser).WithOne()
                 .HasForeignKey<Customer>(d => d.AppUserId)

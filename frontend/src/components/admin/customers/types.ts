@@ -42,3 +42,14 @@ export interface AddressValidationState {
   result: AddressValidationResult | null;
   isValidating: boolean;
 }
+
+export interface CustomerFullViewDialogProps {
+  open: boolean;
+  onClose: () => void;
+  onSuccess: (message: string) => void;
+  onDelete: () => void;
+  customer: Customer | null;
+  t: (key: string) => string;
+  formatDateTime: (date: string) => string;
+  formatCurrency: (amount: number) => string;
+}

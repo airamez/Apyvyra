@@ -21,6 +21,8 @@ public partial class Customer
 
     public int? UpdatedBy { get; set; }
 
+    public string? Notes { get; set; }
+
     public virtual AppUser AppUser { get; set; } = null!;
 
     public virtual Address? Address { get; set; }

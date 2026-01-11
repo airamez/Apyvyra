@@ -73,6 +73,8 @@ public class CustomerController : BaseApiController
             var query = _context.Customers
                 .Include(c => c.AppUser)
                 .Include(c => c.Address)
+                .Include(c => c.Orders)
+                .Include(c => c.PhoneCalls)
                 .OrderByDescending(c => c.CreatedAt)
                 .AsQueryable();
 
@@ -124,7 +126,8 @@ public class CustomerController : BaseApiController
                 UpdatedBy = c.UpdatedBy,
                 UpdatedByName = c.UpdatedBy.HasValue ? userNames.GetValueOrDefault(c.UpdatedBy.Value) : null,
                 OrderCount = c.Orders.Count,
-                PhoneCallCount = c.PhoneCalls.Count
+                PhoneCallCount = c.PhoneCalls.Count,
+                Notes = c.Notes
             });
 
             return Ok(response);
@@ -199,7 +202,8 @@ public class CustomerController : BaseApiController
                 UpdatedBy = customer.UpdatedBy,
                 UpdatedByName = updatedByName,
                 OrderCount = customer.Orders.Count,
-                PhoneCallCount = customer.PhoneCalls.Count
+                PhoneCallCount = customer.PhoneCalls.Count,
+                Notes = customer.Notes
             });
         }
         catch (Exception ex)
@@ -303,6 +307,7 @@ public class CustomerController : BaseApiController
                 AppUserId = appUser.Id,
                 Phone = request.Phone,
                 AddressId = customerAddress?.Id,
+                Notes = request.Notes,
                 CreatedAt = DateTime.UtcNow,
                 CreatedBy = currentUserId,
                 UpdatedAt = DateTime.UtcNow,
@@ -361,7 +366,8 @@ public class CustomerController : BaseApiController
                 UpdatedBy = customer.UpdatedBy,
                 UpdatedByName = createdByName,
                 OrderCount = 0,
-                PhoneCallCount = 0
+                PhoneCallCount = 0,
+                Notes = customer.Notes
             });
         }
         catch (Exception ex)
@@ -407,6 +413,7 @@ public class CustomerController : BaseApiController
 
             // Update customer fields
             customer.Phone = request.Phone;
+            customer.Notes = request.Notes;
 
             // Handle address update
             var currentAddressLine = customer.Address?.AddressLine;
@@ -510,7 +517,8 @@ public class CustomerController : BaseApiController
                 UpdatedBy = customer.UpdatedBy,
                 UpdatedByName = updatedByName,
                 OrderCount = customer.Orders?.Count ?? 0,
-                PhoneCallCount = customer.PhoneCalls?.Count ?? 0
+                PhoneCallCount = customer.PhoneCalls?.Count ?? 0,
+                Notes = customer.Notes
             });
         }
         catch (Exception ex)
@@ -932,6 +940,7 @@ public record CreateCustomerRequest
     public string? Phone { get; init; }
     public string? Address { get; init; }
     public bool BypassAddressValidation { get; init; }
+    public string? Notes { get; init; }
 }
 
 public record UpdateCustomerRequest
@@ -941,6 +950,7 @@ public record UpdateCustomerRequest
     public string? Address { get; init; }
     public int? Status { get; init; }
     public bool BypassAddressValidation { get; init; }
+    public string? Notes { get; init; }
 }
 
 public record CustomerAddressResponse
@@ -979,6 +989,7 @@ public record CustomerResponse
     public string? UpdatedByName { get; init; }
     public int OrderCount { get; init; }
     public int PhoneCallCount { get; init; }
+    public string? Notes { get; init; }
 }
 
 public record CustomerOrderResponse

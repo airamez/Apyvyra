@@ -37,6 +37,7 @@ export interface Customer {
   updatedByName?: string;
   orderCount: number;
   phoneCallCount: number;
+  notes?: string;
 }
 
 export interface CreateCustomerData {
@@ -45,6 +46,7 @@ export interface CreateCustomerData {
   phone?: string;
   address?: string;
   bypassAddressValidation?: boolean;
+  notes?: string;
 }
 
 export interface UpdateCustomerData {
@@ -53,6 +55,7 @@ export interface UpdateCustomerData {
   address?: string;
   status?: number;
   bypassAddressValidation?: boolean;
+  notes?: string;
 }
 
 export interface CustomerOrder {

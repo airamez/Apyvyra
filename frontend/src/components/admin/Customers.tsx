@@ -16,19 +16,12 @@ import PeopleIcon from '@mui/icons-material/People';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
-import DeleteIcon from '@mui/icons-material/Delete';
-import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
-import PhoneIcon from '@mui/icons-material/Phone';
-import EmailIcon from '@mui/icons-material/Email';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import CancelIcon from '@mui/icons-material/Cancel';
 import FilterComponent, { type FilterValues } from './FilterComponent';
 import {
   AddCustomerDialog,
-  EditCustomerDialog,
-  DeleteCustomerDialog,
-  CustomerOrdersDialog,
-  CustomerPhoneCallsDialog,
+  CustomerFullViewDialog,
   type Customer,
 } from './customers';
 import { customerService } from '../../services/customerService';
@@ -53,10 +46,7 @@ export default function Customers() {
 
   // Dialog states
   const [addDialogOpen, setAddDialogOpen] = useState(false);
-  const [editDialogOpen, setEditDialogOpen] = useState(false);
-  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [ordersDialogOpen, setOrdersDialogOpen] = useState(false);
-  const [phoneCallsDialogOpen, setPhoneCallsDialogOpen] = useState(false);
+  const [fullViewDialogOpen, setFullViewDialogOpen] = useState(false);
 
   // Selected customer for dialogs
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
@@ -91,7 +81,6 @@ export default function Customers() {
   const handleClearFilters = () => loadCustomers();
 
   const showSuccess = (message: string) => setSnackbar({ open: true, message, severity: 'success' });
-  const showError = (message: string) => setSnackbar({ open: true, message, severity: 'error' });
 
   const getStatusColor = (status: number): 'default' | 'primary' | 'secondary' | 'error' | 'info' | 'success' | 'warning' => {
     switch (status) {
@@ -103,37 +92,23 @@ export default function Customers() {
   };
 
   // Dialog handlers
-  const handleOpenEditDialog = (customer: Customer) => {
+  const handleOpenFullViewDialog = (customer: Customer) => {
     setSelectedCustomer(customer);
-    setEditDialogOpen(true);
+    setFullViewDialogOpen(true);
   };
 
-  const handleOpenDeleteDialog = (customer: Customer) => {
-    setSelectedCustomer(customer);
-    setDeleteDialogOpen(true);
-  };
-
-  const handleOpenOrdersDialog = (customer: Customer) => {
-    setSelectedCustomer(customer);
-    setOrdersDialogOpen(true);
-  };
-
-  const handleOpenPhoneCallsDialog = (customer: Customer) => {
-    setSelectedCustomer(customer);
-    setPhoneCallsDialogOpen(true);
-  };
-
-  const handleResendWelcomeEmail = async (customer: Customer) => {
-    try {
-      await customerService.resendWelcomeEmail(customer.id);
-      showSuccess(t('WELCOME_EMAIL_SENT'));
-    } catch {
-      showError(t('FAILED_SEND_WELCOME_EMAIL'));
-    }
+  const handleCloseFullViewDialog = () => {
+    setFullViewDialogOpen(false);
+    setSelectedCustomer(null);
   };
 
   const handleDialogSuccess = (message: string) => {
     showSuccess(message);
+    loadCustomers();
+  };
+
+  const handleCustomerDeleted = () => {
+    showSuccess(t('CUSTOMER_DELETED'));
     loadCustomers();
   };
 
@@ -179,38 +154,14 @@ export default function Customers() {
     {
       field: 'actions',
       headerName: t('ACTIONS'),
-      width: 200,
+      width: 80,
       sortable: false,
       renderCell: (params: GridRenderCellParams) => (
-        <Box sx={{ display: 'flex', gap: 0.5 }}>
-          <Tooltip title={t('EDIT_CUSTOMER')}>
-            <IconButton size="small" onClick={() => handleOpenEditDialog(params.row)}>
-              <EditIcon fontSize="small" />
-            </IconButton>
-          </Tooltip>
-          <Tooltip title={t('VIEW_ORDERS')}>
-            <IconButton size="small" onClick={() => handleOpenOrdersDialog(params.row)}>
-              <ShoppingCartIcon fontSize="small" />
-            </IconButton>
-          </Tooltip>
-          <Tooltip title={t('VIEW_PHONE_CALLS')}>
-            <IconButton size="small" onClick={() => handleOpenPhoneCallsDialog(params.row)}>
-              <PhoneIcon fontSize="small" />
-            </IconButton>
-          </Tooltip>
-          {params.row.status === 0 && (
-            <Tooltip title={t('RESEND_WELCOME_EMAIL')}>
-              <IconButton size="small" onClick={() => handleResendWelcomeEmail(params.row)}>
-                <EmailIcon fontSize="small" />
-              </IconButton>
-            </Tooltip>
-          )}
-          <Tooltip title={t('DELETE_CUSTOMER')}>
-            <IconButton size="small" color="error" onClick={() => handleOpenDeleteDialog(params.row)}>
-              <DeleteIcon fontSize="small" />
-            </IconButton>
-          </Tooltip>
-        </Box>
+        <Tooltip title={t('EDIT_CUSTOMER')}>
+          <IconButton size="small" onClick={(e) => { e.stopPropagation(); handleOpenFullViewDialog(params.row); }}>
+            <EditIcon fontSize="small" />
+          </IconButton>
+        </Tooltip>
       ),
     },
   ];
@@ -275,7 +226,8 @@ export default function Customers() {
               disableRowSelectionOnClick
               autoHeight
               density="compact"
-              sx={{ border: 'none' }}
+              sx={{ border: 'none', cursor: 'pointer' }}
+              onRowDoubleClick={(params) => handleOpenFullViewDialog(params.row as Customer)}
             />
           </Box>
         )}
@@ -289,38 +241,15 @@ export default function Customers() {
         t={t}
       />
 
-      <EditCustomerDialog
-        open={editDialogOpen}
-        onClose={() => { setEditDialogOpen(false); setSelectedCustomer(null); }}
-        onSuccess={() => handleDialogSuccess(t('CUSTOMER_UPDATED'))}
-        customer={selectedCustomer}
-        t={t}
-      />
-
-      <DeleteCustomerDialog
-        open={deleteDialogOpen}
-        onClose={() => { setDeleteDialogOpen(false); setSelectedCustomer(null); }}
-        onSuccess={() => handleDialogSuccess(t('CUSTOMER_DELETED'))}
-        customer={selectedCustomer}
-        t={t}
-      />
-
-      <CustomerOrdersDialog
-        open={ordersDialogOpen}
-        onClose={() => { setOrdersDialogOpen(false); setSelectedCustomer(null); }}
+      <CustomerFullViewDialog
+        open={fullViewDialogOpen}
+        onClose={handleCloseFullViewDialog}
+        onSuccess={handleDialogSuccess}
+        onDelete={handleCustomerDeleted}
         customer={selectedCustomer}
         t={t}
         formatDateTime={formatDateTime}
         formatCurrency={formatCurrency}
-      />
-
-      <CustomerPhoneCallsDialog
-        open={phoneCallsDialogOpen}
-        onClose={() => { setPhoneCallsDialogOpen(false); setSelectedCustomer(null); }}
-        customer={selectedCustomer}
-        onPhoneCallChange={loadCustomers}
-        t={t}
-        formatDateTime={formatDateTime}
       />
 
       {/* Snackbar */}

@@ -34,6 +34,13 @@
   "VIEW_ORDERS": "View Orders",
   "VIEW_PHONE_CALLS": "Phone Calls",
   "RESEND_WELCOME_EMAIL": "Resend Welcome Email",
+  "CUSTOMER_DETAILS": "Customer Details",
+  "CUSTOMER_INFORMATION": "Customer Information",
+  "CUSTOMER_NOTES": "Customer Notes",
+  "ORDERS_SECTION": "Orders",
+  "PHONE_CALLS_SECTION": "Phone Calls",
+  "DOUBLE_CLICK_TO_EDIT": "Double-click a row to edit",
+  "MORE_RECORDS_WARNING": "Showing {current} of {total} records. Please use filters to narrow down results.",
 
   "CUSTOMER_NOT_FOUND": "Customer not found.",
   "ERROR_RETRIEVING_CUSTOMERS": "Error retrieving customers.",

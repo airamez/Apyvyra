@@ -66,6 +66,7 @@ CREATE TABLE customer (
     id SERIAL PRIMARY KEY,
     app_user_id INTEGER NOT NULL UNIQUE REFERENCES app_user(id) ON DELETE CASCADE,
     phone VARCHAR(50),
+    notes TEXT,
     address_id INTEGER REFERENCES address(id) ON DELETE SET NULL,
     created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     created_by INTEGER NOT NULL REFERENCES app_user(id),
