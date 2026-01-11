@@ -18,16 +18,12 @@ import {
   IconButton,
   Chip,
   Alert,
-  Accordion,
-  AccordionSummary,
-  AccordionDetails,
   Divider,
   Tabs,
   Tab,
 } from '@mui/material';
 import { DataGrid, type GridColDef, type GridRenderCellParams, type GridSortModel } from '@mui/x-data-grid';
 import CloseIcon from '@mui/icons-material/Close';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
 import EmailIcon from '@mui/icons-material/Email';
@@ -35,6 +31,7 @@ import { customerService } from '../../../services/customerService';
 import { validateAddress } from '../../../utils/addressValidation';
 import { getErrorMessages } from '../../../utils/apiErrorHandler';
 import FilterComponent, { type FilterValues, type FilterFieldConfig } from '../FilterComponent';
+import CustomerEmails from './CustomerEmails';
 import type { Customer, CustomerOrder, PhoneCall, UpdateCustomerData, CreatePhoneCallData, AddressValidationState, CustomerFullViewDialogProps } from './types';
 
 interface TabPanelProps {
@@ -436,6 +433,7 @@ export default function CustomerFullViewDialog({
         <DialogContent dividers>
           <Tabs value={tabValue} onChange={(_, newValue) => setTabValue(newValue)} sx={{ borderBottom: 1, borderColor: 'divider' }}>
             <Tab label={t('CUSTOMER_INFORMATION')} />
+            <Tab label={`${t('EMAILS_SECTION')}`} />
             <Tab label={`${t('ORDERS_SECTION')} (${customer?.orderCount || 0})`} />
             <Tab label={`${t('PHONE_CALLS_SECTION')} (${customer?.phoneCallCount || 0})`} />
           </Tabs>
@@ -512,22 +510,17 @@ export default function CustomerFullViewDialog({
                 </Select>
               </FormControl>
 
-              {/* Notes Section - Collapsible but expanded by default */}
-              <Accordion defaultExpanded>
-                <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-                  <Typography variant="subtitle1">{t('CUSTOMER_NOTES')}</Typography>
-                </AccordionSummary>
-                <AccordionDetails>
-                  <TextField
-                    value={formData.notes || ''}
-                    onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-                    multiline
-                    rows={4}
-                    fullWidth
-                    placeholder={t('NOTES')}
-                  />
-                </AccordionDetails>
-              </Accordion>
+              {/* Notes Section */}
+              <TextField
+                label={t('CUSTOMER_NOTES')}
+                value={formData.notes || ''}
+                onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
+                multiline
+                rows={4}
+                fullWidth
+                InputLabelProps={{ shrink: true }}
+                placeholder={t('NOTES')}
+              />
 
               {error && (
                 <Alert severity="error">{error}</Alert>
@@ -566,8 +559,16 @@ export default function CustomerFullViewDialog({
             </Box>
           </TabPanel>
 
-          {/* Orders Tab */}
+          {/* Emails Tab */}
           <TabPanel value={tabValue} index={1}>
+            <CustomerEmails 
+              customerEmail={customer?.email || ''} 
+              customerName={customer?.fullName || customer?.email || ''} 
+            />
+          </TabPanel>
+
+          {/* Orders Tab */}
+          <TabPanel value={tabValue} index={2}>
             <FilterComponent
               config={{
                 fields: ordersFilterFields,
@@ -605,7 +606,7 @@ export default function CustomerFullViewDialog({
           </TabPanel>
 
           {/* Phone Calls Tab */}
-          <TabPanel value={tabValue} index={2}>
+          <TabPanel value={tabValue} index={3}>
             <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2 }}>
               <Button startIcon={<AddIcon />} variant="contained" onClick={handleOpenAddPhoneCall}>
                 {t('ADD_PHONE_CALL')}

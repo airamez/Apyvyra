@@ -173,7 +173,13 @@ export default function Login({ onNavigateToRegister, onLoginSuccess, onNavigate
               </Alert>
             )}
 
-            <form onSubmit={handleSubmit}>
+            <form onSubmit={handleSubmit} onKeyDown={(e) => {
+              if (e.key === 'Enter' && e.target instanceof HTMLInputElement) {
+                // Prevent default behavior and submit form
+                e.preventDefault();
+                handleSubmit(e as any);
+              }
+            }}>
               <TextField
                 margin="normal"
                 required
@@ -211,6 +217,8 @@ export default function Login({ onNavigateToRegister, onLoginSuccess, onNavigate
                     onNavigateToForgotPassword?.();
                   }}
                   sx={{ cursor: 'pointer' }}
+                  type="button"
+                  tabIndex={-1}
                 >
                   {t('FORGOT_PASSWORD')}
                 </Link>
@@ -238,6 +246,8 @@ export default function Login({ onNavigateToRegister, onLoginSuccess, onNavigate
                       onNavigateToRegister?.();
                     }}
                     sx={{ cursor: 'pointer' }}
+                    type="button"
+                    tabIndex={-1}
                   >
                     {t('SIGN_UP_HERE')}
                   </Link>

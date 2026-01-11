@@ -11,6 +11,7 @@ namespace backend.Services;
 public interface IEmailClientService
 {
     Task<List<EmailMessage>> GetEmailsAsync(EmailFilterRequest filter, string folder = "inbox");
+    Task<List<EmailMessage>> GetCustomerEmailsAsync(EmailFilterRequest filter);
     Task<EmailMessage?> GetEmailByIdAsync(string messageId, string folder = "inbox");
     Task<bool> SendEmailAsync(SendEmailRequest request);
     Task<bool> ReplyToEmailAsync(ReplyEmailRequest request);
@@ -47,25 +48,33 @@ public class EmailClientService : IEmailClientService
             var imapServer = GetImapServer(_emailSettings.SmtpServer);
             var imapPort = 993;
 
+            _logger.LogInformation("Connecting to IMAP server: {Server}:{Port}", imapServer, imapPort);
             await client.ConnectAsync(imapServer, imapPort, true);
             await client.AuthenticateAsync(_emailSettings.Username, _emailSettings.Password);
+            _logger.LogInformation("Successfully authenticated to IMAP server");
 
             // Get the appropriate folder
             IMailFolder mailFolder;
             if (folder.ToLower() == "sent")
             {
                 mailFolder = await GetSentFolderAsync(client);
+                _logger.LogInformation("Using sent folder: {FolderName}", mailFolder.FullName);
             }
             else
             {
                 mailFolder = client.Inbox;
+                _logger.LogInformation("Using inbox folder");
             }
             
             await mailFolder.OpenAsync(FolderAccess.ReadOnly);
+            _logger.LogInformation("Opened folder {Folder} with {MessageCount} messages", mailFolder.FullName, await mailFolder.CountAsync());
 
             // Build search query
             var query = BuildSearchQuery(filter);
+            _logger.LogInformation("IMAP search query: {Query}", query);
+            
             var uids = await mailFolder.SearchAsync(query);
+            _logger.LogInformation("Found {Count} emails matching criteria", uids.Count);
 
             // Get emails in reverse order (newest first) and limit
             var sortedUids = uids.OrderByDescending(u => u.Id).Take(filter.Limit ?? 50).ToList();
@@ -77,14 +86,108 @@ public class EmailClientService : IEmailClientService
             }
 
             await client.DisconnectAsync(true);
+            _logger.LogInformation("Successfully retrieved {Count} emails from {Folder}", emails.Count, folder);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error fetching emails from IMAP server folder {Folder}", folder);
+            _logger.LogError(ex, "Error fetching emails from folder {Folder}", folder);
             throw;
         }
 
         return emails;
+    }
+
+    public async Task<List<EmailMessage>> GetCustomerEmailsAsync(EmailFilterRequest filter)
+    {
+        var allEmails = new List<EmailMessage>();
+
+        if (_emailSettings.DevelopmentMode)
+        {
+            _logger.LogInformation("=== DEVELOPMENT MODE - Returning mock customer emails ===");
+            _logger.LogInformation("Filter: FromEmail={FromEmail}, ToEmail={ToEmail}", filter.FromEmail, filter.ToEmail);
+            
+            // In development mode, combine mock emails from both inbox and sent
+            var inboxEmails = GetMockEmails(filter);
+            var sentEmails = GetMockSentEmails(filter);
+            allEmails.AddRange(inboxEmails);
+            allEmails.AddRange(sentEmails);
+            
+            _logger.LogInformation("Total mock emails found: {Count}", allEmails.Count);
+            
+            // Filter emails where customer is either sender or recipient
+            var filteredEmails = allEmails.Where(e => 
+                (!string.IsNullOrEmpty(filter.FromEmail) && e.From.Contains(filter.FromEmail, StringComparison.OrdinalIgnoreCase)) ||
+                (!string.IsNullOrEmpty(filter.ToEmail) && e.To.Contains(filter.ToEmail, StringComparison.OrdinalIgnoreCase))
+            ).ToList();
+
+            _logger.LogInformation("Filtered emails count: {Count}", filteredEmails.Count);
+            
+            if (!string.IsNullOrEmpty(filter.SearchText))
+            {
+                filteredEmails = filteredEmails.Where(e =>
+                    e.Subject.Contains(filter.SearchText, StringComparison.OrdinalIgnoreCase) ||
+                    e.Body.Contains(filter.SearchText, StringComparison.OrdinalIgnoreCase)
+                ).ToList();
+            }
+
+            return filteredEmails.OrderByDescending(e => e.Date).Take(filter.Limit ?? 50).ToList();
+        }
+
+        try
+        {
+            _logger.LogInformation("=== PRODUCTION MODE - Searching real email folders ===");
+            _logger.LogInformation("Filter: FromEmail={FromEmail}, ToEmail={ToEmail}", filter.FromEmail, filter.ToEmail);
+            
+            // Search both inbox and sent folders with appropriate filters
+            var foldersToSearch = new[] { "inbox", "sent" };
+            
+            foreach (var folder in foldersToSearch)
+            {
+                // Create folder-specific filter
+                var folderFilter = new EmailFilterRequest
+                {
+                    StartDate = filter.StartDate,
+                    EndDate = filter.EndDate,
+                    SearchText = filter.SearchText,
+                    Limit = filter.Limit
+                };
+
+                if (folder == "inbox")
+                {
+                    // In inbox, look for emails FROM customer
+                    folderFilter.FromEmail = filter.FromEmail;
+                    _logger.LogInformation("Searching inbox for emails from: {FromEmail}", filter.FromEmail);
+                }
+                else if (folder == "sent")
+                {
+                    // In sent folder, look for emails TO customer  
+                    folderFilter.ToEmail = filter.ToEmail;
+                    _logger.LogInformation("Searching sent folder for emails to: {ToEmail}", filter.ToEmail);
+                }
+
+                var folderEmails = await GetEmailsAsync(folderFilter, folder);
+                _logger.LogInformation("Found {Count} emails in {Folder}", folderEmails.Count, folder);
+                allEmails.AddRange(folderEmails);
+            }
+
+            _logger.LogInformation("Total emails before deduplication: {Count}", allEmails.Count);
+
+            // Remove duplicates based on message ID and sort by date
+            var uniqueEmails = allEmails
+                .GroupBy(e => e.Id)
+                .Select(g => g.First())
+                .OrderByDescending(e => e.Date)
+                .Take(filter.Limit ?? 50)
+                .ToList();
+
+            _logger.LogInformation("Final unique emails count: {Count}", uniqueEmails.Count);
+            return uniqueEmails;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error fetching customer emails");
+            throw;
+        }
     }
 
     private async Task<IMailFolder> GetSentFolderAsync(ImapClient client)
@@ -240,20 +343,30 @@ public class EmailClientService : IEmailClientService
     private SearchQuery BuildSearchQuery(EmailFilterRequest filter)
     {
         var query = SearchQuery.All;
+        var queryParts = new List<string>();
 
         if (filter.StartDate.HasValue)
         {
             query = query.And(SearchQuery.DeliveredAfter(filter.StartDate.Value));
+            queryParts.Add($"After {filter.StartDate.Value:yyyy-MM-dd}");
         }
 
         if (filter.EndDate.HasValue)
         {
             query = query.And(SearchQuery.DeliveredBefore(filter.EndDate.Value.AddDays(1)));
+            queryParts.Add($"Before {filter.EndDate.Value:yyyy-MM-dd}");
         }
 
         if (!string.IsNullOrEmpty(filter.FromEmail))
         {
             query = query.And(SearchQuery.FromContains(filter.FromEmail));
+            queryParts.Add($"From contains '{filter.FromEmail}'");
+        }
+
+        if (!string.IsNullOrEmpty(filter.ToEmail))
+        {
+            query = query.And(SearchQuery.ToContains(filter.ToEmail));
+            queryParts.Add($"To contains '{filter.ToEmail}'");
         }
 
         if (!string.IsNullOrEmpty(filter.SearchText))
@@ -262,8 +375,10 @@ public class EmailClientService : IEmailClientService
                 SearchQuery.SubjectContains(filter.SearchText)
                     .Or(SearchQuery.BodyContains(filter.SearchText))
             );
+            queryParts.Add($"Subject/Body contains '{filter.SearchText}'");
         }
 
+        _logger.LogInformation("Built IMAP query: {QueryParts}", string.Join(" AND ", queryParts));
         return query;
     }
 
@@ -368,6 +483,11 @@ public class EmailClientService : IEmailClientService
             filtered = filtered.Where(e => e.From.Contains(filter.FromEmail, StringComparison.OrdinalIgnoreCase));
         }
 
+        if (!string.IsNullOrEmpty(filter.ToEmail))
+        {
+            filtered = filtered.Where(e => e.To.Contains(filter.ToEmail, StringComparison.OrdinalIgnoreCase));
+        }
+
         if (!string.IsNullOrEmpty(filter.SearchText))
         {
             filtered = filtered.Where(e =>
@@ -450,6 +570,11 @@ public class EmailClientService : IEmailClientService
             filtered = filtered.Where(e => e.To.Contains(filter.FromEmail, StringComparison.OrdinalIgnoreCase));
         }
 
+        if (!string.IsNullOrEmpty(filter.ToEmail))
+        {
+            filtered = filtered.Where(e => e.To.Contains(filter.ToEmail, StringComparison.OrdinalIgnoreCase));
+        }
+
         if (!string.IsNullOrEmpty(filter.SearchText))
         {
             filtered = filtered.Where(e =>
@@ -480,6 +605,7 @@ public class EmailFilterRequest
     public DateTime? StartDate { get; set; }
     public DateTime? EndDate { get; set; }
     public string? FromEmail { get; set; }
+    public string? ToEmail { get; set; }
     public string? SearchText { get; set; }
     public int? Limit { get; set; } = 50;
 }

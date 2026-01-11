@@ -24,6 +24,7 @@ public class EmailClientController : BaseApiController
         [FromQuery] DateTime? startDate,
         [FromQuery] DateTime? endDate,
         [FromQuery] string? fromEmail,
+        [FromQuery] string? toEmail,
         [FromQuery] string? searchText,
         [FromQuery] string folder = "inbox",
         [FromQuery] int? limit = 50)
@@ -35,6 +36,7 @@ public class EmailClientController : BaseApiController
                 StartDate = startDate,
                 EndDate = endDate,
                 FromEmail = fromEmail,
+                ToEmail = toEmail,
                 SearchText = searchText,
                 Limit = limit
             };
@@ -45,6 +47,37 @@ public class EmailClientController : BaseApiController
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error fetching emails from folder {Folder}", folder);
+            return InternalServerErrorWithError(_translationService.Translate("EmailClient", "FAILED_FETCH_EMAILS"));
+        }
+    }
+
+    [HttpGet("customer-emails")]
+    public async Task<ActionResult<List<EmailMessage>>> GetCustomerEmails(
+        [FromQuery] DateTime? startDate,
+        [FromQuery] DateTime? endDate,
+        [FromQuery] string? fromEmail,
+        [FromQuery] string? toEmail,
+        [FromQuery] string? searchText,
+        [FromQuery] int? limit = 50)
+    {
+        try
+        {
+            var filter = new EmailFilterRequest
+            {
+                StartDate = startDate,
+                EndDate = endDate,
+                FromEmail = fromEmail,
+                ToEmail = toEmail,
+                SearchText = searchText,
+                Limit = limit
+            };
+
+            var emails = await _emailClientService.GetCustomerEmailsAsync(filter);
+            return Ok(emails);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error fetching customer emails");
             return InternalServerErrorWithError(_translationService.Translate("EmailClient", "FAILED_FETCH_EMAILS"));
         }
     }

@@ -19,6 +19,7 @@ export interface EmailFilterRequest {
   startDate?: string;
   endDate?: string;
   fromEmail?: string;
+  toEmail?: string;
   searchText?: string;
   folder?: string;
   limit?: number;
@@ -51,6 +52,7 @@ export const emailClientService = {
       if (filter.startDate) params.append('startDate', filter.startDate);
       if (filter.endDate) params.append('endDate', filter.endDate);
       if (filter.fromEmail) params.append('fromEmail', filter.fromEmail);
+      if (filter.toEmail) params.append('toEmail', filter.toEmail);
       if (filter.searchText) params.append('searchText', filter.searchText);
       if (filter.folder) params.append('folder', filter.folder);
       if (filter.limit) params.append('limit', filter.limit.toString());
@@ -59,6 +61,31 @@ export const emailClientService = {
     const url = params.toString()
       ? `${EMAIL_CLIENT_BASE}?${params.toString()}`
       : EMAIL_CLIENT_BASE;
+    
+    return apiFetch<EmailMessage[]>(url, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        ...authService.getAuthHeader(),
+      },
+    });
+  },
+
+  async getCustomerEmails(filter?: EmailFilterRequest): Promise<EmailMessage[]> {
+    const params = new URLSearchParams();
+    
+    if (filter) {
+      if (filter.startDate) params.append('startDate', filter.startDate);
+      if (filter.endDate) params.append('endDate', filter.endDate);
+      if (filter.fromEmail) params.append('fromEmail', filter.fromEmail);
+      if (filter.toEmail) params.append('toEmail', filter.toEmail);
+      if (filter.searchText) params.append('searchText', filter.searchText);
+      if (filter.limit) params.append('limit', filter.limit.toString());
+    }
+    
+    const url = params.toString()
+      ? `${EMAIL_CLIENT_BASE}/customer-emails?${params.toString()}`
+      : `${EMAIL_CLIENT_BASE}/customer-emails`;
     
     return apiFetch<EmailMessage[]>(url, {
       method: 'GET',
