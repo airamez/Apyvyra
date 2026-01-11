@@ -105,8 +105,45 @@ public class GoogleMapsService : IGoogleMapsService
             };
         }
 
-        // Create a simple mock response
+        // Create a simple mock response with realistic address components
         var mockPlaceId = $"mock_{Guid.NewGuid():N}";
+        
+        // Generate mock address metadata
+        var mockCountries = new[] { "United States", "Canada", "United Kingdom", "Australia" };
+        var mockStates = new[] { "California", "New York", "Texas", "Florida", "Ontario", "British Columbia" };
+        var mockCities = new[] { "Los Angeles", "New York City", "Houston", "Miami", "Toronto", "Vancouver" };
+        var random = new Random();
+        
+        // Try to extract postal code from address (look for patterns like 12345 or A1B 2C3)
+        var postalCodeMatch = System.Text.RegularExpressions.Regex.Match(address, @"\b(\d{5}(-\d{4})?|[A-Z]\d[A-Z]\s?\d[A-Z]\d)\b", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+        var postalCode = postalCodeMatch.Success ? postalCodeMatch.Value : $"{random.Next(10000, 99999)}";
+        
+        // Try to find state abbreviation
+        var stateAbbreviations = new Dictionary<string, string>
+        {
+            {"CA", "California"}, {"NY", "New York"}, {"TX", "Texas"}, {"FL", "Florida"},
+            {"WA", "Washington"}, {"OR", "Oregon"}, {"AZ", "Arizona"}, {"NV", "Nevada"},
+            {"CO", "Colorado"}, {"IL", "Illinois"}, {"PA", "Pennsylvania"}, {"OH", "Ohio"}
+        };
+        
+        string? detectedState = null;
+        string? detectedStateShort = null;
+        foreach (var abbr in stateAbbreviations)
+        {
+            if (address.Contains(abbr.Key, StringComparison.OrdinalIgnoreCase) || 
+                address.Contains(abbr.Value, StringComparison.OrdinalIgnoreCase))
+            {
+                detectedState = abbr.Value;
+                detectedStateShort = abbr.Key;
+                break;
+            }
+        }
+        
+        var country = "United States";
+        var countryShort = "US";
+        var state = detectedState ?? mockStates[random.Next(mockStates.Length)];
+        var stateShort = detectedStateShort ?? state.Substring(0, 2).ToUpper();
+        var city = mockCities[random.Next(mockCities.Length)];
         
         _logger.LogInformation("MockAddressValidation: Validation successful for address: '{Address}'", address);
         
@@ -117,12 +154,12 @@ public class GoogleMapsService : IGoogleMapsService
             FormattedAddress = address.Trim(),
             AddressComponents = new Dictionary<string, object>
             {
-                ["street_number"] = parts[0],
-                ["route"] = parts.Length > 1 ? string.Join(" ", parts[1..Math.Min(3, parts.Length - 2)]) : "UNKNOWN_STREET",
-                ["locality"] = parts.Length > 2 ? parts[^2] : "UNKNOWN_CITY",
-                ["administrative_area_level_1"] = parts.Length > 1 ? parts[^1] : "CA",
-                ["postal_code"] = System.Text.RegularExpressions.Regex.IsMatch(parts[^1], @"\d") ? parts[^1] : "00000",
-                ["country"] = "US"
+                ["street_number"] = new { long_name = parts[0], short_name = parts[0] },
+                ["route"] = new { long_name = parts.Length > 1 ? string.Join(" ", parts[1..Math.Min(3, parts.Length)]) : "Main Street", short_name = parts.Length > 1 ? parts[1] : "Main St" },
+                ["locality"] = new { long_name = city, short_name = city },
+                ["administrative_area_level_1"] = new { long_name = state, short_name = stateShort },
+                ["postal_code"] = new { long_name = postalCode, short_name = postalCode },
+                ["country"] = new { long_name = country, short_name = countryShort }
             }
         };
     }

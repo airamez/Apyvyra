@@ -18,19 +18,22 @@ public class OrderController : BaseApiController
     private readonly IEmailService _emailService;
     private readonly IConfiguration _configuration;
     private readonly ITranslationService _translationService;
+    private readonly IGoogleMapsService _googleMapsService;
 
     public OrderController(
         AppDbContext context,
         ILogger<OrderController> logger,
         IEmailService emailService,
         IConfiguration configuration,
-        ITranslationService translationService)
+        ITranslationService translationService,
+        IGoogleMapsService googleMapsService)
     {
         _context = context;
         _logger = logger;
         _emailService = emailService;
         _configuration = configuration;
         _translationService = translationService;
+        _googleMapsService = googleMapsService;
     }
 
     private int GetCurrentUserId()
@@ -53,17 +56,19 @@ public class OrderController : BaseApiController
 
             var query = _context.CustomerOrders
                 .Include(o => o.Customer)
+                    .ThenInclude(c => c.AppUser)
+                .Include(o => o.ShippingAddress)
                 .Include(o => o.OrderItems)
                 .AsQueryable();
 
             var totalBeforeFilter = await _context.CustomerOrders.CountAsync();
             _logger.LogInformation("Total orders in database before filtering: {Count}", totalBeforeFilter);
 
-            // Customers can only see their own orders
+            // Customers can only see their own orders (match by app_user_id through customer)
             if (userRole == "2")
             {
-                query = query.Where(o => o.CustomerId == userId);
-                _logger.LogInformation("Filtering by CustomerId: {UserId}", userId);
+                query = query.Where(o => o.Customer.AppUserId == userId);
+                _logger.LogInformation("Filtering by Customer.AppUserId: {UserId}", userId);
             }
 
             query = Helpers.QueryFilterHelper.ApplyQueryFilters(query, Request.Query);
@@ -94,6 +99,8 @@ public class OrderController : BaseApiController
 
             var order = await _context.CustomerOrders
                 .Include(o => o.Customer)
+                    .ThenInclude(c => c.AppUser)
+                .Include(o => o.ShippingAddress)
                 .Include(o => o.OrderItems)
                 .FirstOrDefaultAsync(o => o.Id == id);
 
@@ -102,8 +109,8 @@ public class OrderController : BaseApiController
                 return NotFoundWithError(_translationService.Translate("ApiMessages", "ORDER_NOT_FOUND"));
             }
 
-            // Customers can only see their own orders
-            if (userRole == "2" && order.CustomerId != userId)
+            // Customers can only see their own orders (match by app_user_id through customer)
+            if (userRole == "2" && order.Customer.AppUserId != userId)
             {
                 return NotFoundWithError(_translationService.Translate("ApiMessages", "ORDER_NOT_FOUND"));
             }
@@ -131,10 +138,86 @@ public class OrderController : BaseApiController
                 return BadRequestWithErrors(_translationService.Translate("ApiMessages", "ORDER_MUST_CONTAIN_ITEMS"));
             }
 
-            if (string.IsNullOrWhiteSpace(request.ShippingAddress))
+            // Find the customer record for this user
+            var customer = await _context.Customers
+                .Include(c => c.AppUser)
+                .Include(c => c.Address)
+                .FirstOrDefaultAsync(c => c.AppUserId == userId);
+
+            if (customer == null)
             {
-                return BadRequestWithErrors(_translationService.Translate("ApiMessages", "SHIPPING_ADDRESS_REQUIRED"));
+                return BadRequestWithErrors(_translationService.Translate("ApiMessages", "CUSTOMER_NOT_FOUND"));
             }
+
+            // Determine shipping address
+            Address shippingAddress;
+            
+            if (request.UseCustomerAddress)
+            {
+                // Use customer's current address - create a copy for the order
+                if (customer.Address == null)
+                {
+                    return BadRequestWithErrors(_translationService.Translate("ApiMessages", "CUSTOMER_HAS_NO_ADDRESS"));
+                }
+                
+                // Create a copy of the customer's address for this order
+                shippingAddress = new Address
+                {
+                    AddressLine = customer.Address.AddressLine,
+                    GooglePlaceId = customer.Address.GooglePlaceId,
+                    FormattedAddress = customer.Address.FormattedAddress,
+                    Country = customer.Address.Country,
+                    CountryCode = customer.Address.CountryCode,
+                    State = customer.Address.State,
+                    StateCode = customer.Address.StateCode,
+                    City = customer.Address.City,
+                    PostalCode = customer.Address.PostalCode,
+                    StreetNumber = customer.Address.StreetNumber,
+                    Route = customer.Address.Route,
+                    IsValidated = customer.Address.IsValidated,
+                    CreatedBy = userId
+                };
+            }
+            else
+            {
+                // Use provided shipping address
+                if (string.IsNullOrWhiteSpace(request.ShippingAddress))
+                {
+                    return BadRequestWithErrors(_translationService.Translate("ApiMessages", "SHIPPING_ADDRESS_REQUIRED"));
+                }
+                
+                // Validate and create new address
+                shippingAddress = new Address
+                {
+                    AddressLine = request.ShippingAddress,
+                    CreatedBy = userId
+                };
+                
+                // Try to validate the address
+                var validationResult = await _googleMapsService.ValidateAddressAsync(request.ShippingAddress);
+                if (validationResult.IsValid)
+                {
+                    shippingAddress.GooglePlaceId = validationResult.PlaceId;
+                    shippingAddress.FormattedAddress = validationResult.FormattedAddress;
+                    shippingAddress.IsValidated = true;
+                    
+                    if (validationResult.AddressComponents != null)
+                    {
+                        shippingAddress.Country = GetAddressComponent(validationResult.AddressComponents, "country");
+                        shippingAddress.CountryCode = GetAddressComponentShort(validationResult.AddressComponents, "country");
+                        shippingAddress.State = GetAddressComponent(validationResult.AddressComponents, "administrative_area_level_1");
+                        shippingAddress.StateCode = GetAddressComponentShort(validationResult.AddressComponents, "administrative_area_level_1");
+                        shippingAddress.City = GetAddressComponent(validationResult.AddressComponents, "locality");
+                        shippingAddress.PostalCode = GetAddressComponent(validationResult.AddressComponents, "postal_code");
+                        shippingAddress.StreetNumber = GetAddressComponent(validationResult.AddressComponents, "street_number");
+                        shippingAddress.Route = GetAddressComponent(validationResult.AddressComponents, "route");
+                    }
+                }
+            }
+            
+            // Save the shipping address first
+            _context.Addresses.Add(shippingAddress);
+            await _context.SaveChangesAsync();
 
             // Validate products and calculate totals
             var productIds = request.Items.Select(i => i.ProductId).ToList();
@@ -186,14 +269,13 @@ public class OrderController : BaseApiController
             var order = new CustomerOrder
             {
                 OrderNumber = orderNumber,
-                CustomerId = userId,
+                CustomerId = customer.Id,
                 Status = 0, // Pending
-                ShippingAddress = request.ShippingAddress,
+                ShippingAddressId = shippingAddress.Id,
                 Subtotal = subtotal,
                 TaxAmount = totalTax,
                 TotalAmount = subtotal + totalTax,
                 Notes = request.Notes,
-                GooglePlaceId = request.GooglePlaceId,
                 OrderDate = DateTime.UtcNow,
                 CreatedBy = userId,
                 OrderItems = orderItems
@@ -205,15 +287,11 @@ public class OrderController : BaseApiController
             // Send order confirmation email
             try
             {
-                var customer = await _context.AppUsers.FindAsync(userId);
-                if (customer != null)
-                {
-                    await _emailService.SendOrderConfirmationEmailAsync(
-                        customer.Email,
-                        customer.FullName ?? customer.Email,
-                        order,
-                        orderItems);
-                }
+                await _emailService.SendOrderConfirmationEmailAsync(
+                    customer.AppUser.Email,
+                    customer.AppUser.FullName ?? customer.AppUser.Email,
+                    order,
+                    orderItems);
             }
             catch (Exception emailEx)
             {
@@ -223,6 +301,8 @@ public class OrderController : BaseApiController
             // Reload with navigation properties
             var createdOrder = await _context.CustomerOrders
                 .Include(o => o.Customer)
+                    .ThenInclude(c => c.AppUser)
+                .Include(o => o.ShippingAddress)
                 .Include(o => o.OrderItems)
                 .FirstAsync(o => o.Id == order.Id);
 
@@ -233,6 +313,62 @@ public class OrderController : BaseApiController
             _logger.LogError(ex, "Error creating order");
             return InternalServerErrorWithError(_translationService.Translate("ApiMessages", "ERROR_CREATING_ORDER"));
         }
+    }
+
+    private string? GetAddressComponent(Dictionary<string, object> components, string type)
+    {
+        if (components.TryGetValue(type, out var value))
+        {
+            if (value is string strValue)
+            {
+                return strValue;
+            }
+            if (value is System.Text.Json.JsonElement jsonElement)
+            {
+                if (jsonElement.ValueKind == System.Text.Json.JsonValueKind.String)
+                {
+                    return jsonElement.GetString();
+                }
+                if (jsonElement.ValueKind == System.Text.Json.JsonValueKind.Object)
+                {
+                    if (jsonElement.TryGetProperty("long_name", out var longName))
+                    {
+                        return longName.GetString();
+                    }
+                }
+            }
+            var valueType = value.GetType();
+            var longNameProp = valueType.GetProperty("long_name");
+            if (longNameProp != null)
+            {
+                return longNameProp.GetValue(value)?.ToString();
+            }
+        }
+        return null;
+    }
+
+    private string? GetAddressComponentShort(Dictionary<string, object> components, string type)
+    {
+        if (components.TryGetValue(type, out var value))
+        {
+            if (value is System.Text.Json.JsonElement jsonElement)
+            {
+                if (jsonElement.ValueKind == System.Text.Json.JsonValueKind.Object)
+                {
+                    if (jsonElement.TryGetProperty("short_name", out var shortName))
+                    {
+                        return shortName.GetString();
+                    }
+                }
+            }
+            var valueType = value.GetType();
+            var shortNameProp = valueType.GetProperty("short_name");
+            if (shortNameProp != null)
+            {
+                return shortNameProp.GetValue(value)?.ToString();
+            }
+        }
+        return null;
     }
 
     // PUT: api/order/{id}/status
@@ -246,6 +382,8 @@ public class OrderController : BaseApiController
 
             var order = await _context.CustomerOrders
                 .Include(o => o.Customer)
+                    .ThenInclude(c => c.AppUser)
+                .Include(o => o.ShippingAddress)
                 .Include(o => o.OrderItems)
                 .FirstOrDefaultAsync(o => o.Id == id);
 
@@ -282,13 +420,13 @@ public class OrderController : BaseApiController
             await _context.SaveChangesAsync();
 
             // Send shipping notification email when status changes to Shipped
-            if (request.Status == OrderStatus.Shipped && order.Customer != null)
+            if (request.Status == OrderStatus.Shipped && order.Customer?.AppUser != null)
             {
                 try
                 {
                     await _emailService.SendOrderShippedEmailAsync(
-                        order.Customer.Email,
-                        order.Customer.FullName ?? order.Customer.Email,
+                        order.Customer.AppUser.Email,
+                        order.Customer.AppUser.FullName ?? order.Customer.AppUser.Email,
                         order,
                         order.OrderItems.ToList(),
                         request.ShippingDetails ?? "");
@@ -393,13 +531,28 @@ public class OrderController : BaseApiController
             Id = order.Id,
             OrderNumber = order.OrderNumber,
             CustomerId = order.CustomerId,
-            CustomerEmail = order.Customer?.Email ?? "",
-            CustomerName = order.Customer?.FullName ?? order.Customer?.Email ?? "",
+            CustomerEmail = order.Customer?.AppUser?.Email ?? "",
+            CustomerName = order.Customer?.AppUser?.FullName ?? order.Customer?.AppUser?.Email ?? "",
             Status = order.Status,
             StatusName = GetStatusName(order.Status),
             PaymentStatus = order.PaymentStatus,
             PaymentStatusName = GetPaymentStatusName(order.PaymentStatus),
-            ShippingAddress = order.ShippingAddress,
+            ShippingAddress = order.ShippingAddress != null ? new AddressResponse
+            {
+                Id = order.ShippingAddress.Id,
+                AddressLine = order.ShippingAddress.AddressLine,
+                FormattedAddress = order.ShippingAddress.FormattedAddress,
+                GooglePlaceId = order.ShippingAddress.GooglePlaceId,
+                Country = order.ShippingAddress.Country,
+                CountryCode = order.ShippingAddress.CountryCode,
+                State = order.ShippingAddress.State,
+                StateCode = order.ShippingAddress.StateCode,
+                City = order.ShippingAddress.City,
+                PostalCode = order.ShippingAddress.PostalCode,
+                StreetNumber = order.ShippingAddress.StreetNumber,
+                Route = order.ShippingAddress.Route,
+                IsValidated = order.ShippingAddress.IsValidated
+            } : null,
             Subtotal = order.Subtotal,
             TaxAmount = order.TaxAmount,
             TotalAmount = order.TotalAmount,
@@ -442,9 +595,10 @@ public class OrderController : BaseApiController
 public record CreateOrderRequest
 {
     public List<CreateOrderItemRequest> Items { get; init; } = new();
-    public string ShippingAddress { get; init; } = string.Empty;
+    public string? ShippingAddress { get; init; }
     public string? Notes { get; init; }
     public string? GooglePlaceId { get; init; }
+    public bool UseCustomerAddress { get; init; }
 }
 
 public record CreateOrderItemRequest
@@ -459,6 +613,23 @@ public record UpdateOrderStatusRequest
     public string? ShippingDetails { get; init; }
 }
 
+public record AddressResponse
+{
+    public int Id { get; init; }
+    public string AddressLine { get; init; } = string.Empty;
+    public string? FormattedAddress { get; init; }
+    public string? GooglePlaceId { get; init; }
+    public string? Country { get; init; }
+    public string? CountryCode { get; init; }
+    public string? State { get; init; }
+    public string? StateCode { get; init; }
+    public string? City { get; init; }
+    public string? PostalCode { get; init; }
+    public string? StreetNumber { get; init; }
+    public string? Route { get; init; }
+    public bool IsValidated { get; init; }
+}
+
 public record OrderResponse
 {
     public int Id { get; init; }
@@ -470,7 +641,7 @@ public record OrderResponse
     public string StatusName { get; init; } = string.Empty;
     public int PaymentStatus { get; init; }
     public string PaymentStatusName { get; init; } = string.Empty;
-    public string ShippingAddress { get; init; } = string.Empty;
+    public AddressResponse? ShippingAddress { get; init; }
     public decimal Subtotal { get; init; }
     public decimal TaxAmount { get; init; }
     public decimal TotalAmount { get; init; }

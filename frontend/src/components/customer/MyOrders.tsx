@@ -137,8 +137,18 @@ function OrderRow({ order }: OrderRowProps) {
                   {t('SHIPPING_ADDRESS')}
                 </Typography>
                 <Typography variant="body2" color="text.secondary">
-                  {order.shippingAddress}
+                  {order.shippingAddress?.formattedAddress || order.shippingAddress?.addressLine || 'N/A'}
                 </Typography>
+                {order.shippingAddress && (
+                  <Typography variant="caption" color="text.secondary">
+                    {[
+                      order.shippingAddress.city,
+                      order.shippingAddress.state,
+                      order.shippingAddress.postalCode,
+                      order.shippingAddress.country
+                    ].filter(Boolean).join(', ')}
+                  </Typography>
+                )}
               </Box>
 
               {order.notes && (

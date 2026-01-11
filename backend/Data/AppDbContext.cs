@@ -18,6 +18,10 @@ public partial class AppDbContext : DbContext
 
     public virtual DbSet<AppUser> AppUsers { get; set; }
 
+    public virtual DbSet<Customer> Customers { get; set; }
+
+    public virtual DbSet<CustomerPhoneCall> CustomerPhoneCalls { get; set; }
+
     public virtual DbSet<Product> Products { get; set; }
 
     public virtual DbSet<ProductCategory> ProductCategories { get; set; }
@@ -27,6 +31,8 @@ public partial class AppDbContext : DbContext
     public virtual DbSet<CustomerOrder> CustomerOrders { get; set; }
 
     public virtual DbSet<OrderItem> OrderItems { get; set; }
+
+    public virtual DbSet<Address> Addresses { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
@@ -77,6 +83,159 @@ public partial class AppDbContext : DbContext
             entity.Property(e => e.UserType)
                 .HasDefaultValue(2)
                 .HasColumnName("user_type");
+        });
+
+        modelBuilder.Entity<Address>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("address_pkey");
+
+            entity.ToTable("address");
+
+            entity.HasIndex(e => e.GooglePlaceId, "idx_address_google_place_id");
+            entity.HasIndex(e => e.Country, "idx_address_country");
+            entity.HasIndex(e => e.State, "idx_address_state");
+            entity.HasIndex(e => e.City, "idx_address_city");
+            entity.HasIndex(e => e.PostalCode, "idx_address_postal_code");
+
+            entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.AddressLine).HasColumnName("address_line");
+            entity.Property(e => e.GooglePlaceId)
+                .HasMaxLength(255)
+                .HasColumnName("google_place_id");
+            entity.Property(e => e.FormattedAddress).HasColumnName("formatted_address");
+            entity.Property(e => e.Country)
+                .HasMaxLength(100)
+                .HasColumnName("country");
+            entity.Property(e => e.CountryCode)
+                .HasMaxLength(10)
+                .HasColumnName("country_code");
+            entity.Property(e => e.State)
+                .HasMaxLength(100)
+                .HasColumnName("state");
+            entity.Property(e => e.StateCode)
+                .HasMaxLength(10)
+                .HasColumnName("state_code");
+            entity.Property(e => e.City)
+                .HasMaxLength(100)
+                .HasColumnName("city");
+            entity.Property(e => e.PostalCode)
+                .HasMaxLength(20)
+                .HasColumnName("postal_code");
+            entity.Property(e => e.StreetNumber)
+                .HasMaxLength(50)
+                .HasColumnName("street_number");
+            entity.Property(e => e.Route)
+                .HasMaxLength(255)
+                .HasColumnName("route");
+            entity.Property(e => e.IsValidated)
+                .HasDefaultValue(false)
+                .HasColumnName("is_validated");
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP")
+                .HasColumnName("created_at");
+            entity.Property(e => e.CreatedBy).HasColumnName("created_by");
+            entity.Property(e => e.UpdatedAt)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP")
+                .HasColumnName("updated_at");
+            entity.Property(e => e.UpdatedBy).HasColumnName("updated_by");
+
+            entity.HasOne(d => d.CreatedByNavigation).WithMany()
+                .HasForeignKey(d => d.CreatedBy)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("address_created_by_fkey");
+
+            entity.HasOne(d => d.UpdatedByNavigation).WithMany()
+                .HasForeignKey(d => d.UpdatedBy)
+                .HasConstraintName("address_updated_by_fkey");
+        });
+
+        modelBuilder.Entity<Customer>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("customer_pkey");
+
+            entity.ToTable("customer");
+
+            entity.HasIndex(e => e.AppUserId, "idx_customer_app_user").IsUnique();
+            entity.HasIndex(e => e.Phone, "idx_customer_phone");
+            entity.HasIndex(e => e.AddressId, "idx_customer_address");
+
+            entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.AppUserId).HasColumnName("app_user_id");
+            entity.Property(e => e.Phone)
+                .HasMaxLength(50)
+                .HasColumnName("phone");
+            entity.Property(e => e.AddressId).HasColumnName("address_id");
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP")
+                .HasColumnName("created_at");
+            entity.Property(e => e.CreatedBy).HasColumnName("created_by");
+            entity.Property(e => e.UpdatedAt)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP")
+                .HasColumnName("updated_at");
+            entity.Property(e => e.UpdatedBy).HasColumnName("updated_by");
+
+            entity.HasOne(d => d.AppUser).WithOne()
+                .HasForeignKey<Customer>(d => d.AppUserId)
+                .OnDelete(DeleteBehavior.Cascade)
+                .HasConstraintName("customer_app_user_id_fkey");
+
+            entity.HasOne(d => d.Address).WithMany()
+                .HasForeignKey(d => d.AddressId)
+                .OnDelete(DeleteBehavior.SetNull)
+                .HasConstraintName("customer_address_id_fkey");
+
+            entity.HasOne(d => d.CreatedByNavigation).WithMany()
+                .HasForeignKey(d => d.CreatedBy)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("customer_created_by_fkey");
+
+            entity.HasOne(d => d.UpdatedByNavigation).WithMany()
+                .HasForeignKey(d => d.UpdatedBy)
+                .HasConstraintName("customer_updated_by_fkey");
+        });
+
+        modelBuilder.Entity<CustomerPhoneCall>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("customer_phone_call_pkey");
+
+            entity.ToTable("customer_phone_call");
+
+            entity.HasIndex(e => e.CustomerId, "idx_customer_phone_call_customer");
+            entity.HasIndex(e => e.CallDate, "idx_customer_phone_call_date");
+            entity.HasIndex(e => e.CallType, "idx_customer_phone_call_type");
+
+            entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.CustomerId).HasColumnName("customer_id");
+            entity.Property(e => e.CallDate)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP")
+                .HasColumnName("call_date");
+            entity.Property(e => e.CallType)
+                .HasDefaultValue(0)
+                .HasColumnName("call_type");
+            entity.Property(e => e.DurationMinutes).HasColumnName("duration_minutes");
+            entity.Property(e => e.Notes).HasColumnName("notes");
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP")
+                .HasColumnName("created_at");
+            entity.Property(e => e.CreatedBy).HasColumnName("created_by");
+            entity.Property(e => e.UpdatedAt)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP")
+                .HasColumnName("updated_at");
+            entity.Property(e => e.UpdatedBy).HasColumnName("updated_by");
+
+            entity.HasOne(d => d.Customer).WithMany(p => p.PhoneCalls)
+                .HasForeignKey(d => d.CustomerId)
+                .OnDelete(DeleteBehavior.Cascade)
+                .HasConstraintName("customer_phone_call_customer_id_fkey");
+
+            entity.HasOne(d => d.CreatedByNavigation).WithMany()
+                .HasForeignKey(d => d.CreatedBy)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("customer_phone_call_created_by_fkey");
+
+            entity.HasOne(d => d.UpdatedByNavigation).WithMany()
+                .HasForeignKey(d => d.UpdatedBy)
+                .HasConstraintName("customer_phone_call_updated_by_fkey");
         });
 
         modelBuilder.Entity<Product>(entity =>
@@ -259,6 +418,7 @@ public partial class AppDbContext : DbContext
             entity.HasIndex(e => e.CustomerId, "idx_customer_order_customer");
             entity.HasIndex(e => e.Status, "idx_customer_order_status");
             entity.HasIndex(e => e.OrderDate, "idx_customer_order_date");
+            entity.HasIndex(e => e.ShippingAddressId, "idx_customer_order_shipping_address");
             entity.HasIndex(e => e.OrderNumber, "customer_order_order_number_key").IsUnique();
 
             entity.Property(e => e.Id).HasColumnName("id");
@@ -272,7 +432,7 @@ public partial class AppDbContext : DbContext
             entity.Property(e => e.PaymentStatus)
                 .HasDefaultValue(0)
                 .HasColumnName("payment_status");
-            entity.Property(e => e.ShippingAddress).HasColumnName("shipping_address");
+            entity.Property(e => e.ShippingAddressId).HasColumnName("shipping_address_id");
             entity.Property(e => e.Subtotal)
                 .HasPrecision(19, 4)
                 .HasColumnName("subtotal");
@@ -289,9 +449,6 @@ public partial class AppDbContext : DbContext
             entity.Property(e => e.StripeClientSecret)
                 .HasMaxLength(255)
                 .HasColumnName("stripe_client_secret");
-            entity.Property(e => e.GooglePlaceId)
-                .HasMaxLength(255)
-                .HasColumnName("google_place_id");
             entity.Property(e => e.PaidAt).HasColumnName("paid_at");
             entity.Property(e => e.OrderDate)
                 .HasDefaultValueSql("CURRENT_TIMESTAMP")
@@ -309,10 +466,15 @@ public partial class AppDbContext : DbContext
                 .HasColumnName("updated_at");
             entity.Property(e => e.UpdatedBy).HasColumnName("updated_by");
 
-            entity.HasOne(d => d.Customer).WithMany()
+            entity.HasOne(d => d.Customer).WithMany(p => p.Orders)
                 .HasForeignKey(d => d.CustomerId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("customer_order_customer_id_fkey");
+
+            entity.HasOne(d => d.ShippingAddress).WithMany()
+                .HasForeignKey(d => d.ShippingAddressId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("customer_order_shipping_address_id_fkey");
 
             entity.HasOne(d => d.CreatedByNavigation).WithMany()
                 .HasForeignKey(d => d.CreatedBy)

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import {
   Container,
   Typography,
@@ -7,100 +7,210 @@ import {
   CircularProgress,
   Chip,
   Button,
+  IconButton,
+  Tooltip,
+  Snackbar,
 } from '@mui/material';
 import { DataGrid, type GridColDef, type GridRenderCellParams } from '@mui/x-data-grid';
 import PeopleIcon from '@mui/icons-material/People';
 import RefreshIcon from '@mui/icons-material/Refresh';
+import AddIcon from '@mui/icons-material/Add';
+import EditIcon from '@mui/icons-material/Edit';
+import DeleteIcon from '@mui/icons-material/Delete';
+import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
+import PhoneIcon from '@mui/icons-material/Phone';
+import EmailIcon from '@mui/icons-material/Email';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import CancelIcon from '@mui/icons-material/Cancel';
 import FilterComponent, { type FilterValues } from './FilterComponent';
-import { userService, type UserList } from '../../services/userService';
+import {
+  AddCustomerDialog,
+  EditCustomerDialog,
+  DeleteCustomerDialog,
+  CustomerOrdersDialog,
+  CustomerPhoneCallsDialog,
+  type Customer,
+} from './customers';
+import { customerService } from '../../services/customerService';
 import { useTranslation } from '../../hooks/useTranslation';
+import { useFormatting } from '../../hooks/useFormatting';
 
 export default function Customers() {
   const { t } = useTranslation('Customers');
+  const { formatCurrency, formatDate, formatTime } = useFormatting();
   
-  const [customers, setCustomers] = useState<UserList[]>([]);
+  const formatDateTime = useCallback(
+    (dateString: string) => `${formatDate(dateString)} ${formatTime(dateString)}`,
+    [formatDate, formatTime]
+  );
+
+  // Data state
+  const [customers, setCustomers] = useState<Customer[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [hasMoreRecords, setHasMoreRecords] = useState(false);
   const [totalCount, setTotalCount] = useState(0);
 
-  useEffect(() => {
-    loadCustomers();
-  }, []);
+  // Dialog states
+  const [addDialogOpen, setAddDialogOpen] = useState(false);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [ordersDialogOpen, setOrdersDialogOpen] = useState(false);
+  const [phoneCallsDialogOpen, setPhoneCallsDialogOpen] = useState(false);
 
-  const loadCustomers = async (appliedFilters?: FilterValues) => {
+  // Selected customer for dialogs
+  const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
+
+  // Snackbar
+  const [snackbar, setSnackbar] = useState<{ open: boolean; message: string; severity: 'success' | 'error' }>({
+    open: false,
+    message: '',
+    severity: 'success',
+  });
+
+  const loadCustomers = useCallback(async (appliedFilters?: FilterValues) => {
     try {
       setLoading(true);
       setError(null);
-      
-      // Always filter for customers (userType = 2)
-      const filters = { userType: 2, ...appliedFilters };
-      const response = await userService.getAll(filters);
+      const response = await customerService.getAll(appliedFilters);
       setCustomers(response.data || []);
       setHasMoreRecords(response.metadata.hasMoreRecords);
       setTotalCount(response.metadata.totalCount);
-    } catch (err) {
-      console.error('Error loading customers:', err);
+    } catch {
       setError(t('FAILED_LOAD_CUSTOMERS'));
     } finally {
       setLoading(false);
     }
-  };
+  }, [t]);
 
-  const handleSearch = (filters: FilterValues) => {
-    loadCustomers(filters);
-  };
-
-  const handleClearFilters = () => {
+  useEffect(() => {
     loadCustomers();
-  };
+  }, [loadCustomers]);
 
-  const getUserTypeLabel = (userType: number): string => {
-    switch (userType) {
-      case 0: return 'Admin';
-      case 1: return 'Staff';
-      case 2: return 'Customer';
-      default: return 'Unknown';
-    }
-  };
+  const handleSearch = (filters: FilterValues) => loadCustomers(filters);
+  const handleClearFilters = () => loadCustomers();
 
-  const getUserTypeColor = (userType: number): 'default' | 'primary' | 'secondary' | 'error' | 'info' | 'success' | 'warning' => {
-    switch (userType) {
-      case 0: return 'error';
-      case 1: return 'info';
-      case 2: return 'success';
+  const showSuccess = (message: string) => setSnackbar({ open: true, message, severity: 'success' });
+  const showError = (message: string) => setSnackbar({ open: true, message, severity: 'error' });
+
+  const getStatusColor = (status: number): 'default' | 'primary' | 'secondary' | 'error' | 'info' | 'success' | 'warning' => {
+    switch (status) {
+      case 0: return 'warning';
+      case 1: return 'success';
+      case 2: return 'error';
       default: return 'default';
     }
   };
 
+  // Dialog handlers
+  const handleOpenEditDialog = (customer: Customer) => {
+    setSelectedCustomer(customer);
+    setEditDialogOpen(true);
+  };
+
+  const handleOpenDeleteDialog = (customer: Customer) => {
+    setSelectedCustomer(customer);
+    setDeleteDialogOpen(true);
+  };
+
+  const handleOpenOrdersDialog = (customer: Customer) => {
+    setSelectedCustomer(customer);
+    setOrdersDialogOpen(true);
+  };
+
+  const handleOpenPhoneCallsDialog = (customer: Customer) => {
+    setSelectedCustomer(customer);
+    setPhoneCallsDialogOpen(true);
+  };
+
+  const handleResendWelcomeEmail = async (customer: Customer) => {
+    try {
+      await customerService.resendWelcomeEmail(customer.id);
+      showSuccess(t('WELCOME_EMAIL_SENT'));
+    } catch {
+      showError(t('FAILED_SEND_WELCOME_EMAIL'));
+    }
+  };
+
+  const handleDialogSuccess = (message: string) => {
+    showSuccess(message);
+    loadCustomers();
+  };
+
   const columns: GridColDef[] = [
+    { field: 'id', headerName: t('ID'), width: 70 },
+    { field: 'fullName', headerName: t('FULL_NAME'), flex: 1, minWidth: 150 },
+    { field: 'email', headerName: t('EMAIL'), flex: 1, minWidth: 180 },
+    { field: 'phone', headerName: t('PHONE'), width: 130 },
     {
-      field: 'id',
-      headerName: t('ID'),
-      width: 80,
-    },
-    {
-      field: 'username',
-      headerName: t('USERNAME'),
-      flex: 1,
-      minWidth: 180,
-    },
-    {
-      field: 'email',
-      headerName: t('EMAIL'),
-      flex: 1,
-      minWidth: 200,
-    },
-    {
-      field: 'userType',
-      headerName: t('USER_TYPE'),
-      width: 120,
+      field: 'status',
+      headerName: t('STATUS'),
+      width: 140,
       renderCell: (params: GridRenderCellParams) => (
-        <Chip
-          label={getUserTypeLabel(params.row.userType)}
-          color={getUserTypeColor(params.row.userType)}
-          size="small"
-        />
+        <Chip label={params.row.statusName} color={getStatusColor(params.row.status)} size="small" />
+      ),
+    },
+    {
+      field: 'addressValidated',
+      headerName: t('ADDRESS_VALIDATED'),
+      width: 130,
+      renderCell: (params: GridRenderCellParams) => (
+        params.row.addressValidated ? 
+          <CheckCircleIcon color="success" fontSize="small" /> : 
+          <CancelIcon color="disabled" fontSize="small" />
+      ),
+    },
+    {
+      field: 'orderCount',
+      headerName: t('ORDERS_COUNT'),
+      width: 80,
+      renderCell: (params: GridRenderCellParams) => (
+        <Chip label={params.row.orderCount} size="small" variant="outlined" />
+      ),
+    },
+    {
+      field: 'phoneCallCount',
+      headerName: t('CALLS_COUNT'),
+      width: 80,
+      renderCell: (params: GridRenderCellParams) => (
+        <Chip label={params.row.phoneCallCount} size="small" variant="outlined" />
+      ),
+    },
+    {
+      field: 'actions',
+      headerName: t('ACTIONS'),
+      width: 200,
+      sortable: false,
+      renderCell: (params: GridRenderCellParams) => (
+        <Box sx={{ display: 'flex', gap: 0.5 }}>
+          <Tooltip title={t('EDIT_CUSTOMER')}>
+            <IconButton size="small" onClick={() => handleOpenEditDialog(params.row)}>
+              <EditIcon fontSize="small" />
+            </IconButton>
+          </Tooltip>
+          <Tooltip title={t('VIEW_ORDERS')}>
+            <IconButton size="small" onClick={() => handleOpenOrdersDialog(params.row)}>
+              <ShoppingCartIcon fontSize="small" />
+            </IconButton>
+          </Tooltip>
+          <Tooltip title={t('VIEW_PHONE_CALLS')}>
+            <IconButton size="small" onClick={() => handleOpenPhoneCallsDialog(params.row)}>
+              <PhoneIcon fontSize="small" />
+            </IconButton>
+          </Tooltip>
+          {params.row.status === 0 && (
+            <Tooltip title={t('RESEND_WELCOME_EMAIL')}>
+              <IconButton size="small" onClick={() => handleResendWelcomeEmail(params.row)}>
+                <EmailIcon fontSize="small" />
+              </IconButton>
+            </Tooltip>
+          )}
+          <Tooltip title={t('DELETE_CUSTOMER')}>
+            <IconButton size="small" color="error" onClick={() => handleOpenDeleteDialog(params.row)}>
+              <DeleteIcon fontSize="small" />
+            </IconButton>
+          </Tooltip>
+        </Box>
       ),
     },
   ];
@@ -110,46 +220,26 @@ export default function Customers() {
       <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 3 }}>
         <Box sx={{ display: 'flex', alignItems: 'center' }}>
           <PeopleIcon sx={{ fontSize: 40, mr: 2, color: 'primary.main' }} />
-          <Typography variant="h4" component="h1">
-            {t('TITLE')}
-          </Typography>
+          <Typography variant="h4" component="h1">{t('TITLE')}</Typography>
         </Box>
-        <Button
-          variant="outlined"
-          startIcon={<RefreshIcon />}
-          onClick={() => loadCustomers()}
-          disabled={loading}
-          sx={{ minWidth: '120px' }}
-        >
-          {loading ? t('LOADING') : t('REFRESH')}
-        </Button>
+        <Box sx={{ display: 'flex', gap: 1 }}>
+          <Button variant="contained" startIcon={<AddIcon />} onClick={() => setAddDialogOpen(true)}>
+            {t('ADD_CUSTOMER')}
+          </Button>
+          <Button variant="outlined" startIcon={<RefreshIcon />} onClick={() => loadCustomers()} disabled={loading}>
+            {loading ? t('LOADING') : t('REFRESH')}
+          </Button>
+        </Box>
       </Box>
 
-      {error && (
-        <Alert severity="error" sx={{ mb: 3 }}>
-          {error}
-        </Alert>
-      )}
+      {error && <Alert severity="error" sx={{ mb: 3 }}>{error}</Alert>}
 
       <FilterComponent
         config={{
           fields: [
-            {
-              name: 'username',
-              label: t('USERNAME'),
-              type: 'string',
-              operators: ['contains', 'eq', 'startsWith'],
-              defaultOperator: 'contains',
-              placeholder: t('SEARCH_USERNAME'),
-            },
-            {
-              name: 'email',
-              label: t('EMAIL'),
-              type: 'string',
-              operators: ['contains', 'eq', 'startsWith'],
-              defaultOperator: 'contains',
-              placeholder: t('SEARCH_EMAIL'),
-            },
+            { name: 'fullName', label: t('FULL_NAME'), type: 'string', operators: ['contains', 'eq', 'startsWith'], defaultOperator: 'contains', placeholder: t('SEARCH_NAME') },
+            { name: 'email', label: t('EMAIL'), type: 'string', operators: ['contains', 'eq', 'startsWith'], defaultOperator: 'contains', placeholder: t('SEARCH_EMAIL') },
+            { name: 'phone', label: t('PHONE'), type: 'string', operators: ['contains', 'eq', 'startsWith'], defaultOperator: 'contains', placeholder: t('SEARCH_PHONE') },
           ],
           onSearch: handleSearch,
           onClear: handleClearFilters,
@@ -169,14 +259,10 @@ export default function Customers() {
         </Box>
         
         {loading ? (
-          <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}>
-            <CircularProgress />
-          </Box>
+          <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}><CircularProgress /></Box>
         ) : customers.length === 0 ? (
           <Box sx={{ p: 4, textAlign: 'center' }}>
-            <Typography variant="body2" color="text.secondary">
-              {t('NO_CUSTOMERS')}
-            </Typography>
+            <Typography variant="body2" color="text.secondary">{t('NO_CUSTOMERS')}</Typography>
           </Box>
         ) : (
           <Box sx={{ width: '100%' }}>
@@ -185,32 +271,68 @@ export default function Customers() {
               columns={columns}
               loading={loading}
               pageSizeOptions={[10, 25, 50, 100]}
-              initialState={{
-                pagination: { paginationModel: { pageSize: 25 } },
-              }}
+              initialState={{ pagination: { paginationModel: { pageSize: 25 } } }}
               disableRowSelectionOnClick
               autoHeight
               density="compact"
-              sx={{
-                '& .MuiDataGrid-cell': {
-                  display: 'flex',
-                  alignItems: 'center',
-                  padding: '4px 8px',
-                },
-                '& .MuiDataGrid-row': {
-                  minHeight: '36px !important',
-                  maxHeight: '36px !important',
-                },
-                '& .MuiDataGrid-columnHeaders': {
-                  minHeight: '40px !important',
-                  maxHeight: '40px !important',
-                },
-                border: 'none',
-              }}
+              sx={{ border: 'none' }}
             />
           </Box>
         )}
       </Box>
+
+      {/* Dialogs */}
+      <AddCustomerDialog
+        open={addDialogOpen}
+        onClose={() => setAddDialogOpen(false)}
+        onSuccess={() => handleDialogSuccess(t('CUSTOMER_CREATED'))}
+        t={t}
+      />
+
+      <EditCustomerDialog
+        open={editDialogOpen}
+        onClose={() => { setEditDialogOpen(false); setSelectedCustomer(null); }}
+        onSuccess={() => handleDialogSuccess(t('CUSTOMER_UPDATED'))}
+        customer={selectedCustomer}
+        t={t}
+      />
+
+      <DeleteCustomerDialog
+        open={deleteDialogOpen}
+        onClose={() => { setDeleteDialogOpen(false); setSelectedCustomer(null); }}
+        onSuccess={() => handleDialogSuccess(t('CUSTOMER_DELETED'))}
+        customer={selectedCustomer}
+        t={t}
+      />
+
+      <CustomerOrdersDialog
+        open={ordersDialogOpen}
+        onClose={() => { setOrdersDialogOpen(false); setSelectedCustomer(null); }}
+        customer={selectedCustomer}
+        t={t}
+        formatDateTime={formatDateTime}
+        formatCurrency={formatCurrency}
+      />
+
+      <CustomerPhoneCallsDialog
+        open={phoneCallsDialogOpen}
+        onClose={() => { setPhoneCallsDialogOpen(false); setSelectedCustomer(null); }}
+        customer={selectedCustomer}
+        onPhoneCallChange={loadCustomers}
+        t={t}
+        formatDateTime={formatDateTime}
+      />
+
+      {/* Snackbar */}
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={6000}
+        onClose={() => setSnackbar({ ...snackbar, open: false })}
+      >
+        <Alert severity={snackbar.severity} onClose={() => setSnackbar({ ...snackbar, open: false })}>
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </Container>
   );
 }

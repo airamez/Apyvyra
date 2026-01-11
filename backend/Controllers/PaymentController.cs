@@ -67,7 +67,8 @@ public class PaymentController : BaseApiController
 
             var order = await _context.CustomerOrders
                 .Include(o => o.OrderItems)
-                .FirstOrDefaultAsync(o => o.Id == orderId && o.CustomerId == userId);
+                .Include(o => o.Customer)
+                .FirstOrDefaultAsync(o => o.Id == orderId && o.Customer.AppUserId == userId);
 
             if (order == null)
             {
@@ -142,7 +143,8 @@ public class PaymentController : BaseApiController
             var userId = GetCurrentUserId();
 
             var order = await _context.CustomerOrders
-                .FirstOrDefaultAsync(o => o.Id == orderId && o.CustomerId == userId);
+                .Include(o => o.Customer)
+                .FirstOrDefaultAsync(o => o.Id == orderId && o.Customer.AppUserId == userId);
 
             if (order == null)
             {

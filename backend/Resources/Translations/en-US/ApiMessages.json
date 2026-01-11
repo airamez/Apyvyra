@@ -73,5 +73,7 @@
   "REQUIRED_CURRENCY_CODE": "Localization:Currency:Code is required in configuration",
   "REQUIRED_CURRENCY_SYMBOL": "Localization:Currency:Symbol is required in configuration",
   "REQUIRED_DATE_FORMAT": "Localization:DateFormat is required in configuration",
-  "REQUIRED_COMPANY_NAME": "AppSettings:Company:Name is required in configuration"
+  "REQUIRED_COMPANY_NAME": "AppSettings:Company:Name is required in configuration",
+  "CUSTOMER_NOT_FOUND": "Customer record not found. Please ensure your account is properly set up.",
+  "CUSTOMER_HAS_NO_ADDRESS": "You don't have a saved address. Please enter a shipping address or update your profile."
 }

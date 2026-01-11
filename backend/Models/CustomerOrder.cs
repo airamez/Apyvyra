@@ -15,7 +15,7 @@ public partial class CustomerOrder
 
     public int PaymentStatus { get; set; }
 
-    public string ShippingAddress { get; set; } = null!;
+    public int ShippingAddressId { get; set; }
 
     public decimal Subtotal { get; set; }
 
@@ -28,8 +28,6 @@ public partial class CustomerOrder
     public string? StripePaymentIntentId { get; set; }
 
     public string? StripeClientSecret { get; set; }
-
-    public string? GooglePlaceId { get; set; }
 
     public DateTime? PaidAt { get; set; }
 
@@ -51,7 +49,9 @@ public partial class CustomerOrder
 
     public int? UpdatedBy { get; set; }
 
-    public virtual AppUser Customer { get; set; } = null!;
+    public virtual Customer Customer { get; set; } = null!;
+
+    public virtual Address ShippingAddress { get; set; } = null!;
 
     public virtual AppUser CreatedByNavigation { get; set; } = null!;
 

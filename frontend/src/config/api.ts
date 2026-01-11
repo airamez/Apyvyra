@@ -66,11 +66,14 @@ export const API_ENDPOINTS = {
   APP_SETTINGS: {
     SETTINGS: `${API_BASE_URL}/api/appsettings/settings`,
   },
-  // Add more domain endpoints as needed
-  // CUSTOMERS: {
-  //   LIST: `${API_BASE_URL}/api/customers`,
-  //   DETAIL: (id: number) => `${API_BASE_URL}/api/customers/${id}`,
-  // },
+  CUSTOMER: {
+    LIST: `${API_BASE_URL}/api/customer`,
+    DETAIL: (id: number) => `${API_BASE_URL}/api/customer/${id}`,
+    RESEND_WELCOME: (id: number) => `${API_BASE_URL}/api/customer/${id}/resend-welcome`,
+    ORDERS: (id: number) => `${API_BASE_URL}/api/customer/${id}/orders`,
+    PHONE_CALLS: (id: number) => `${API_BASE_URL}/api/customer/${id}/phone-calls`,
+    PHONE_CALL_DETAIL: (customerId: number, callId: number) => `${API_BASE_URL}/api/customer/${customerId}/phone-calls/${callId}`,
+  },
 };
 
 export default API_ENDPOINTS;

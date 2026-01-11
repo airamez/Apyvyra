@@ -26,5 +26,9 @@
   "WAIT_FOR_VALIDATION": "Please wait for address validation or check the bypass option",
   "FAILED_VALIDATE_ADDRESS": "Failed to validate address. Please try again.",
   "FAILED_CREATE_ORDER": "Failed to create order. Please try again.",
-  "PLEASE_LOGIN_TO_VALIDATE": "Please log in to validate your address and proceed with checkout."
+  "PLEASE_LOGIN_TO_VALIDATE": "Please log in to validate your address and proceed with checkout.",
+  "USE_MY_CURRENT_ADDRESS": "Use my current address",
+  "DELIVERING_TO": "Delivering to",
+  "LOADING_ADDRESS": "Loading your saved address...",
+  "NO_SAVED_ADDRESS": "You don't have a saved address. Please enter a shipping address."
 }

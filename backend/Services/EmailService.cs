@@ -13,6 +13,7 @@ public interface IEmailService
     Task SendOrderConfirmationEmailAsync(string toEmail, string customerName, backend.Models.CustomerOrder order, List<backend.Models.OrderItem> items);
     Task SendOrderShippedEmailAsync(string toEmail, string customerName, backend.Models.CustomerOrder order, List<backend.Models.OrderItem> items, string shippingDetails);
     Task SendPasswordResetEmailAsync(string toEmail, string resetUrl);
+    Task SendCustomerWelcomeEmailAsync(string toEmail, string fullName, string setupPasswordUrl);
 }
 
 public class EmailService : IEmailService
@@ -148,7 +149,7 @@ public class EmailService : IEmailService
                 .Replace("{{subtotal}}", order.Subtotal.ToString("F2"))
                 .Replace("{{tax_amount}}", order.TaxAmount.ToString("F2"))
                 .Replace("{{total_amount}}", order.TotalAmount.ToString("F2"))
-                .Replace("{{shipping_address}}", order.ShippingAddress.Replace("\n", "<br>"))
+                .Replace("{{shipping_address}}", (order.ShippingAddress?.AddressLine ?? "").Replace("\n", "<br>"))
                 .Replace("{{support_email}}", _emailSettings.FromEmail);
 
             var subject = _translationService.Translate("OrderConfirmationEmail", "SUBJECT");
@@ -195,7 +196,7 @@ public class EmailService : IEmailService
                 .Replace("{{subtotal}}", order.Subtotal.ToString("F2"))
                 .Replace("{{tax_amount}}", order.TaxAmount.ToString("F2"))
                 .Replace("{{total_amount}}", order.TotalAmount.ToString("F2"))
-                .Replace("{{shipping_address}}", order.ShippingAddress.Replace("\n", "<br>"))
+                .Replace("{{shipping_address}}", (order.ShippingAddress?.AddressLine ?? "").Replace("\n", "<br>"))
                 .Replace("{{shipping_details}}", formattedShippingDetails)
                 .Replace("{{support_email}}", _emailSettings.FromEmail);
 
@@ -291,6 +292,28 @@ public class EmailService : IEmailService
 </html>";
 
         await SendEmailAsync(toEmail, subject, htmlBody);
+    }
+
+    public async Task SendCustomerWelcomeEmailAsync(string toEmail, string fullName, string setupPasswordUrl)
+    {
+        try
+        {
+            var templatePath = GetLocalizedTemplatePath("customer-welcome.html");
+            _logger.LogInformation("Looking for customer welcome template at: {TemplatePath}", templatePath);
+            var template = await File.ReadAllTextAsync(templatePath);
+            
+            var emailBody = template
+                .Replace("{{full_name}}", fullName)
+                .Replace("{{setup_url}}", setupPasswordUrl);
+
+            var subject = _translationService.Translate("CustomerWelcomeEmail", "SUBJECT");
+            await SendEmailAsync(toEmail, subject, emailBody);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error sending customer welcome email to {Email}", toEmail);
+            throw;
+        }
     }
 }
 

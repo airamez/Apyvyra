@@ -14,6 +14,22 @@ export interface OrderItem {
   lineTotal: number;
 }
 
+export interface AddressResponse {
+  id: number;
+  addressLine: string;
+  formattedAddress?: string;
+  googlePlaceId?: string;
+  country?: string;
+  countryCode?: string;
+  state?: string;
+  stateCode?: string;
+  city?: string;
+  postalCode?: string;
+  streetNumber?: string;
+  route?: string;
+  isValidated: boolean;
+}
+
 export interface Order {
   id: number;
   orderNumber: string;
@@ -24,7 +40,7 @@ export interface Order {
   statusName: string;
   paymentStatus: number;
   paymentStatusName: string;
-  shippingAddress: string;
+  shippingAddress?: AddressResponse;
   subtotal: number;
   taxAmount: number;
   totalAmount: number;
@@ -45,9 +61,10 @@ export interface CreateOrderItem {
 
 export interface CreateOrderRequest {
   items: CreateOrderItem[];
-  shippingAddress: string;
+  shippingAddress?: string;
   notes?: string;
   googlePlaceId?: string;
+  useCustomerAddress?: boolean;
 }
 
 export interface OrderStats {

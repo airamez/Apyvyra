@@ -20,6 +20,7 @@ import {
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { cartService, type CartSummary } from '../../services/cartService';
 import { orderService, type CreateOrderRequest, type Order } from '../../services/orderService';
+import { userService } from '../../services/userService';
 import Payment from './Payment';
 import { getErrorMessages } from '../../utils/apiErrorHandler';
 import { validateAddress, type AddressValidationResult } from '../../utils/addressValidation';
@@ -45,6 +46,9 @@ export default function Checkout({ onBackToCart, onOrderComplete }: CheckoutProp
   const [addressValidation, setAddressValidation] = useState<AddressValidationResult | null>(null);
   const [isValidatingAddress, setIsValidatingAddress] = useState(false);
   const [bypassValidation, setBypassValidation] = useState(false);
+  const [useCustomerAddress, setUseCustomerAddress] = useState(false);
+  const [customerAddress, setCustomerAddress] = useState<string | null>(null);
+  const [loadingCustomerAddress, setLoadingCustomerAddress] = useState(true);
 
   useEffect(() => {
     const summary = cartService.getCartSummary();
@@ -54,6 +58,22 @@ export default function Checkout({ onBackToCart, onOrderComplete }: CheckoutProp
       onBackToCart();
     }
   }, [onBackToCart, showPayment]);
+
+  useEffect(() => {
+    const loadCustomerAddress = async () => {
+      try {
+        const user = await userService.getCurrentUser();
+        if (user.address) {
+          setCustomerAddress(user.address);
+        }
+      } catch (err) {
+        console.error('Failed to load customer address:', err);
+      } finally {
+        setLoadingCustomerAddress(false);
+      }
+    };
+    loadCustomerAddress();
+  }, []);
 
   const handleValidateAddress = async () => {
     if (!shippingAddress.trim()) {
@@ -94,20 +114,28 @@ export default function Checkout({ onBackToCart, onOrderComplete }: CheckoutProp
   };
 
   const handleProceedToPayment = async () => {
-    if (!shippingAddress.trim()) {
-      setError(t('ENTER_SHIPPING_ADDRESS'));
-      return;
-    }
+    // If using customer address, validate that customer has an address
+    if (useCustomerAddress) {
+      if (!customerAddress) {
+        setError(t('NO_SAVED_ADDRESS'));
+        return;
+      }
+    } else {
+      if (!shippingAddress.trim()) {
+        setError(t('ENTER_SHIPPING_ADDRESS'));
+        return;
+      }
 
-    // Check address validation unless bypassed
-    if (!bypassValidation && addressValidation && !addressValidation.isValid) {
-      setError(addressValidation.errorMessage || t('ENTER_VALID_ADDRESS'));
-      return;
-    }
+      // Check address validation unless bypassed
+      if (!bypassValidation && addressValidation && !addressValidation.isValid) {
+        setError(addressValidation.errorMessage || t('ENTER_VALID_ADDRESS'));
+        return;
+      }
 
-    if (!bypassValidation && !addressValidation) {
-      setError(t('WAIT_FOR_VALIDATION'));
-      return;
+      if (!bypassValidation && !addressValidation) {
+        setError(t('WAIT_FOR_VALIDATION'));
+        return;
+      }
     }
 
     setLoading(true);
@@ -119,11 +147,15 @@ export default function Checkout({ onBackToCart, onOrderComplete }: CheckoutProp
           productId: item.productId,
           quantity: item.quantity,
         })),
-        shippingAddress: shippingAddress.trim(),
         notes: notes.trim() || undefined,
-        // Add Google Place ID if available
-        googlePlaceId: addressValidation?.address?.place_id,
+        useCustomerAddress: useCustomerAddress,
       };
+
+      // Only include shippingAddress if not using customer address
+      if (!useCustomerAddress) {
+        request.shippingAddress = shippingAddress.trim();
+        request.googlePlaceId = addressValidation?.address?.place_id;
+      }
 
       const order = await orderService.create(request);
       
@@ -189,64 +221,106 @@ export default function Checkout({ onBackToCart, onOrderComplete }: CheckoutProp
             <Typography variant="h6" gutterBottom>
               {t('SHIPPING_ADDRESS')}
             </Typography>
-            <TextField
-              fullWidth
-              placeholder={t('SHIPPING_ADDRESS_PLACEHOLDER')}
-              value={shippingAddress}
-              onChange={(e) => {
-                setShippingAddress(e.target.value);
-                // Clear validation when address changes
-                if (addressValidation) {
-                  setAddressValidation(null);
-                }
-              }}
-              required
-              disabled={addressValidation?.isValid === true}
-              error={addressValidation ? !addressValidation.isValid && !bypassValidation : false}
-              helperText={
-                isValidatingAddress 
-                  ? t('VALIDATING_ADDRESS')
-                  : addressValidation && !bypassValidation
-                    ? addressValidation.isValid 
-                      ? `${t('ADDRESS_VALIDATED')}${addressValidation.isMockValidation ? ` ${t('ADDRESS_VALIDATED_MOCK')}` : ''}` 
-                      : addressValidation.errorMessage
-                    : ''
-              }
-            />
             
-            <Box sx={{ mt: 2, display: 'flex', gap: 2, alignItems: 'center', flexWrap: 'wrap' }}>
-              <Button
-                variant="outlined"
-                onClick={handleValidateAddress}
-                disabled={isValidatingAddress || !shippingAddress.trim()}
-                startIcon={isValidatingAddress ? <CircularProgress size={16} /> : null}
-              >
-                {isValidatingAddress ? t('VALIDATING_ADDRESS') : t('VALIDATE_ADDRESS')}
-              </Button>
-              
-              {addressValidation?.isValid && (
-                <Button
-                  variant="text"
-                  onClick={handleChangeAddress}
-                  color="secondary"
-                  size="small"
-                >
-                  {t('CHANGE_ADDRESS')}
-                </Button>
-              )}
-              
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    checked={bypassValidation}
-                    onChange={(e) => setBypassValidation(e.target.checked)}
-                    color="primary"
-                    disabled={addressValidation?.isValid === true}
+            {/* Use My Current Address checkbox */}
+            {!loadingCustomerAddress && customerAddress && (
+              <Box sx={{ mb: 2 }}>
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      checked={useCustomerAddress}
+                      onChange={(e) => {
+                        setUseCustomerAddress(e.target.checked);
+                        if (e.target.checked) {
+                          setShippingAddress('');
+                          setAddressValidation(null);
+                          setBypassValidation(false);
+                        }
+                      }}
+                      color="primary"
+                    />
+                  }
+                  label={
+                    <Box>
+                      <Typography component="span">{t('USE_MY_CURRENT_ADDRESS')}: </Typography>
+                      <Typography component="span" color="text.secondary">{customerAddress}</Typography>
+                    </Box>
+                  }
+                />
+              </Box>
+            )}
+            
+            {loadingCustomerAddress && (
+              <Box sx={{ mb: 2, display: 'flex', alignItems: 'center', gap: 1 }}>
+                <CircularProgress size={16} />
+                <Typography variant="body2" color="text.secondary">
+                  {t('LOADING_ADDRESS')}
+                </Typography>
+              </Box>
+            )}
+            
+            {!useCustomerAddress && (
+              <>
+                <TextField
+                  fullWidth
+                  placeholder={t('SHIPPING_ADDRESS_PLACEHOLDER')}
+                  value={shippingAddress}
+                  onChange={(e) => {
+                    setShippingAddress(e.target.value);
+                    // Clear validation when address changes
+                    if (addressValidation) {
+                      setAddressValidation(null);
+                    }
+                  }}
+                  required
+                  disabled={addressValidation?.isValid === true}
+                  error={addressValidation ? !addressValidation.isValid && !bypassValidation : false}
+                  helperText={
+                    isValidatingAddress 
+                      ? t('VALIDATING_ADDRESS')
+                      : addressValidation && !bypassValidation
+                        ? addressValidation.isValid 
+                          ? `${t('ADDRESS_VALIDATED')}${addressValidation.isMockValidation ? ` ${t('ADDRESS_VALIDATED_MOCK')}` : ''}` 
+                          : addressValidation.errorMessage
+                        : ''
+                  }
+                />
+                
+                <Box sx={{ mt: 2, display: 'flex', gap: 2, alignItems: 'center', flexWrap: 'wrap' }}>
+                  <Button
+                    variant="outlined"
+                    onClick={handleValidateAddress}
+                    disabled={isValidatingAddress || !shippingAddress.trim()}
+                    startIcon={isValidatingAddress ? <CircularProgress size={16} /> : null}
+                  >
+                    {isValidatingAddress ? t('VALIDATING_ADDRESS') : t('VALIDATE_ADDRESS')}
+                  </Button>
+                  
+                  {addressValidation?.isValid && (
+                    <Button
+                      variant="text"
+                      onClick={handleChangeAddress}
+                      color="secondary"
+                      size="small"
+                    >
+                      {t('CHANGE_ADDRESS')}
+                    </Button>
+                  )}
+                  
+                  <FormControlLabel
+                    control={
+                      <Checkbox
+                        checked={bypassValidation}
+                        onChange={(e) => setBypassValidation(e.target.checked)}
+                        color="primary"
+                        disabled={addressValidation?.isValid === true}
+                      />
+                    }
+                    label={`${t('BYPASS_VALIDATION')}${addressValidation?.isMockValidation ? ` ${t('BYPASS_VALIDATION_MOCK')}` : ` ${t('BYPASS_VALIDATION_HELP')}`}`}
                   />
-                }
-                label={`${t('BYPASS_VALIDATION')}${addressValidation?.isMockValidation ? ` ${t('BYPASS_VALIDATION_MOCK')}` : ` ${t('BYPASS_VALIDATION_HELP')}`}`}
-              />
-            </Box>
+                </Box>
+              </>
+            )}
           </Paper>
 
           {/* Order Notes */}
@@ -336,8 +410,11 @@ export default function Checkout({ onBackToCart, onOrderComplete }: CheckoutProp
             onClick={handleProceedToPayment}
             disabled={
               loading || 
-              !shippingAddress.trim() || 
-              (!bypassValidation && (!addressValidation || isValidatingAddress || !addressValidation.isValid))
+              loadingCustomerAddress ||
+              (useCustomerAddress ? !customerAddress : (
+                !shippingAddress.trim() || 
+                (!bypassValidation && (!addressValidation || isValidatingAddress || !addressValidation.isValid))
+              ))
             }
           >
             {loading ? (

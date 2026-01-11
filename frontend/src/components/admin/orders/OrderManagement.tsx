@@ -357,7 +357,19 @@ export default function OrderManagement() {
 
               <Box sx={{ mb: 3 }}>
                 <Typography variant="subtitle2" color="text.secondary">{t('SHIPPING_ADDRESS')}</Typography>
-                <Typography style={{ whiteSpace: 'pre-line' }}>{selectedOrder.shippingAddress}</Typography>
+                <Typography style={{ whiteSpace: 'pre-line' }}>
+                  {selectedOrder.shippingAddress?.formattedAddress || selectedOrder.shippingAddress?.addressLine || 'N/A'}
+                </Typography>
+                {selectedOrder.shippingAddress && (
+                  <Typography variant="body2" color="text.secondary">
+                    {[
+                      selectedOrder.shippingAddress.city,
+                      selectedOrder.shippingAddress.state,
+                      selectedOrder.shippingAddress.postalCode,
+                      selectedOrder.shippingAddress.country
+                    ].filter(Boolean).join(', ')}
+                  </Typography>
+                )}
               </Box>
 
               <Box sx={{ mb: 3 }}>

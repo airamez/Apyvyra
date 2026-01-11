@@ -11,6 +11,8 @@ import {
   Menu,
   MenuItem,
   Alert,
+  FormControlLabel,
+  Checkbox,
 } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import LockIcon from '@mui/icons-material/Lock';
@@ -19,6 +21,7 @@ import { userService } from '../../services/userService';
 import { useTranslation } from '../../hooks/useTranslation';
 import { API_ENDPOINTS } from '../../config/api';
 import { useAuth } from '../../contexts/AuthContext';
+import { validateAddress, type AddressValidationResult } from '../../utils/addressValidation';
 
 interface UserProfileProps {
   onProfileUpdate?: () => void;
@@ -35,6 +38,11 @@ function UserProfile({ onProfileUpdate }: UserProfileProps) {
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [changePasswordDialogOpen, setChangePasswordDialogOpen] = useState(false);
   const [fullName, setFullName] = useState('');
+  const [phone, setPhone] = useState('');
+  const [address, setAddress] = useState('');
+  const [bypassAddressValidation, setBypassAddressValidation] = useState(false);
+  const [addressValidation, setAddressValidation] = useState<AddressValidationResult | null>(null);
+  const [isValidatingAddress, setIsValidatingAddress] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [changePasswordLoading, setChangePasswordLoading] = useState(false);
@@ -52,6 +60,8 @@ function UserProfile({ onProfileUpdate }: UserProfileProps) {
         const user = await userService.getCurrentUser();
         setCurrentUser(user);
         setFullName(user.fullName || '');
+        setPhone(user.phone || '');
+        setAddress(user.address || '');
       } catch (err) {
         console.error('Error loading current user:', err);
       }
@@ -124,6 +134,22 @@ function UserProfile({ onProfileUpdate }: UserProfileProps) {
   const handleDialogClose = () => {
     setEditDialogOpen(false);
     setError('');
+    setAddressValidation(null);
+    setBypassAddressValidation(false);
+  };
+
+  const handleValidateAddress = async () => {
+    if (!address.trim()) return;
+    
+    setIsValidatingAddress(true);
+    try {
+      const result = await validateAddress(address);
+      setAddressValidation(result);
+    } catch (err) {
+      setAddressValidation({ isValid: false, errorMessage: 'Validation failed', address: null });
+    } finally {
+      setIsValidatingAddress(false);
+    }
   };
 
   const handleSaveProfile = async () => {
@@ -131,14 +157,29 @@ function UserProfile({ onProfileUpdate }: UserProfileProps) {
     setError('');
 
     try {
+      // Build update data
+      const updateData: { fullName?: string; phone?: string; address?: string; bypassAddressValidation?: boolean } = { fullName };
+      
+      // Only include customer fields if user is a customer
+      if (currentUser?.userType === 2) {
+        updateData.phone = phone;
+        updateData.address = address;
+        updateData.bypassAddressValidation = bypassAddressValidation;
+      }
+      
       // Update user profile
-      await userService.updateProfile({ fullName });
+      await userService.updateProfile(updateData);
       
       // Reload current user data
       const user = await userService.getCurrentUser();
       setCurrentUser(user);
+      setFullName(user.fullName || '');
+      setPhone(user.phone || '');
+      setAddress(user.address || '');
       
       setEditDialogOpen(false);
+      setAddressValidation(null);
+      setBypassAddressValidation(false);
       onProfileUpdate?.();
     } catch (err: any) {
       setError(err.message || t('FAILED_UPDATE_PROFILE'));
@@ -210,7 +251,7 @@ function UserProfile({ onProfileUpdate }: UserProfileProps) {
           </MenuItem>
           <MenuItem onClick={handleChangePassword}>
             <LockIcon sx={{ mr: 1, fontSize: 20 }} />
-            Change Password
+            {t('CHANGE_PASSWORD')}
           </MenuItem>
         </Menu>
       </Box>
@@ -218,22 +259,73 @@ function UserProfile({ onProfileUpdate }: UserProfileProps) {
       <Dialog open={editDialogOpen} onClose={handleDialogClose} maxWidth="sm" fullWidth>
         <DialogTitle>{t('EDIT_PROFILE')}</DialogTitle>
         <DialogContent>
-          <TextField
-            autoFocus
-            margin="dense"
-            label={t('FULL_NAME')}
-            type="text"
-            fullWidth
-            variant="outlined"
-            value={fullName}
-            onChange={(e) => setFullName(e.target.value)}
-            placeholder={t('FULL_NAME_PLACEHOLDER')}
-          />
-          {error && (
-            <Typography color="error" variant="body2" sx={{ mt: 1 }}>
-              {error}
-            </Typography>
-          )}
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 1 }}>
+            <TextField
+              autoFocus
+              label={t('FULL_NAME')}
+              type="text"
+              fullWidth
+              variant="outlined"
+              value={fullName}
+              onChange={(e) => setFullName(e.target.value)}
+              InputLabelProps={{ shrink: true }}
+            />
+            
+            {/* Show customer-specific fields only for customers (userType === 2) */}
+            {currentUser?.userType === 2 && (
+              <>
+                <TextField
+                  label={t('PHONE')}
+                  type="tel"
+                  fullWidth
+                  variant="outlined"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  InputLabelProps={{ shrink: true }}
+                />
+                <TextField
+                  label={t('ADDRESS')}
+                  fullWidth
+                  variant="outlined"
+                  value={address}
+                  onChange={(e) => {
+                    setAddress(e.target.value);
+                    setAddressValidation(null);
+                  }}
+                  multiline
+                  rows={2}
+                  InputLabelProps={{ shrink: true }}
+                  helperText={
+                    isValidatingAddress ? t('VALIDATING_ADDRESS') :
+                    addressValidation ? (addressValidation.isValid ? t('ADDRESS_VALID') : addressValidation.errorMessage) : ''
+                  }
+                  error={addressValidation ? !addressValidation.isValid && !bypassAddressValidation : false}
+                />
+                <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
+                  <Button
+                    variant="outlined"
+                    onClick={handleValidateAddress}
+                    disabled={isValidatingAddress || !address.trim()}
+                  >
+                    {isValidatingAddress ? t('VALIDATING_ADDRESS') : t('VALIDATE_ADDRESS')}
+                  </Button>
+                  <FormControlLabel
+                    control={
+                      <Checkbox
+                        checked={bypassAddressValidation}
+                        onChange={(e) => setBypassAddressValidation(e.target.checked)}
+                      />
+                    }
+                    label={t('BYPASS_ADDRESS_VALIDATION')}
+                  />
+                </Box>
+              </>
+            )}
+            
+            {error && (
+              <Alert severity="error">{error}</Alert>
+            )}
+          </Box>
         </DialogContent>
         <DialogActions>
           <Button onClick={handleDialogClose}>{tCommon('CANCEL')}</Button>

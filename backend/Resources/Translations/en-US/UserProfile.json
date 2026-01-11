@@ -10,5 +10,19 @@
   "LOGOUT": "Logout",
   "ADMIN": "Admin",
   "STAFF": "Staff",
-  "CUSTOMER": "Customer"
+  "CUSTOMER": "Customer",
+  "FULL_NAME": "Full Name",
+  "FULL_NAME_PLACEHOLDER": "Enter your full name",
+  "PHONE": "Phone",
+  "PHONE_PLACEHOLDER": "Enter your phone number",
+  "ADDRESS": "Address",
+  "ADDRESS_PLACEHOLDER": "Enter your address",
+  "VALIDATE_ADDRESS": "Validate Address",
+  "VALIDATING_ADDRESS": "Validating...",
+  "ADDRESS_VALID": "Address validated",
+  "BYPASS_ADDRESS_VALIDATION": "Bypass address validation",
+  "SAVING": "Saving...",
+  "SAVE": "Save",
+  "LOADING": "Loading...",
+  "FAILED_UPDATE_PROFILE": "Failed to update profile"
 }

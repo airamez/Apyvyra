@@ -7,6 +7,10 @@ export interface User {
   id: number;
   email: string;
   fullName?: string;
+  userType?: number;
+  phone?: string;
+  address?: string;
+  addressValidated?: boolean;
 }
 
 export interface UserList {
@@ -75,7 +79,7 @@ export const userService = {
   },
 
   // Update current user profile
-  async updateProfile(data: { fullName?: string }): Promise<User> {
+  async updateProfile(data: { fullName?: string; phone?: string; address?: string; bypassAddressValidation?: boolean }): Promise<User> {
     return apiFetch<User>(API_ENDPOINTS.APP_USER.ME, {
       method: 'PUT',
       headers: {

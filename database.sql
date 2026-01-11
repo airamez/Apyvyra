@@ -3,8 +3,11 @@
 -- Enable citext extension for case-insensitive text (most reliable approach)
 CREATE EXTENSION IF NOT EXISTS citext;
 
+DROP TABLE IF EXISTS customer_phone_call CASCADE;
 DROP TABLE IF EXISTS order_item CASCADE;
 DROP TABLE IF EXISTS customer_order CASCADE;
+DROP TABLE IF EXISTS customer CASCADE;
+DROP TABLE IF EXISTS address CASCADE;
 DROP TABLE IF EXISTS product_url CASCADE;
 DROP TABLE IF EXISTS product_image CASCADE;
 DROP TABLE IF EXISTS product CASCADE;
@@ -30,6 +33,65 @@ CREATE TABLE app_user (
 CREATE INDEX idx_app_user_email ON app_user(email);
 CREATE INDEX idx_app_user_full_name ON app_user(full_name);
 CREATE INDEX idx_app_user_user_type ON app_user(user_type);
+
+-- Address table - stores validated addresses with Google Maps metadata
+CREATE TABLE address (
+    id SERIAL PRIMARY KEY,
+    address_line TEXT NOT NULL,
+    google_place_id VARCHAR(255),
+    formatted_address TEXT,
+    country VARCHAR(100),
+    country_code VARCHAR(10),
+    state VARCHAR(100),
+    state_code VARCHAR(10),
+    city VARCHAR(100),
+    postal_code VARCHAR(20),
+    street_number VARCHAR(50),
+    route VARCHAR(255),
+    is_validated BOOLEAN DEFAULT false,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    created_by INTEGER NOT NULL REFERENCES app_user(id),
+    updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    updated_by INTEGER REFERENCES app_user(id)
+);
+CREATE INDEX idx_address_google_place_id ON address(google_place_id) WHERE google_place_id IS NOT NULL;
+CREATE INDEX idx_address_country ON address(country);
+CREATE INDEX idx_address_state ON address(state);
+CREATE INDEX idx_address_city ON address(city);
+CREATE INDEX idx_address_postal_code ON address(postal_code);
+
+-- Customer table - extends app_user with customer-specific fields
+-- All customers have user_type = 2 in app_user
+CREATE TABLE customer (
+    id SERIAL PRIMARY KEY,
+    app_user_id INTEGER NOT NULL UNIQUE REFERENCES app_user(id) ON DELETE CASCADE,
+    phone VARCHAR(50),
+    address_id INTEGER REFERENCES address(id) ON DELETE SET NULL,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    created_by INTEGER NOT NULL REFERENCES app_user(id),
+    updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    updated_by INTEGER REFERENCES app_user(id)
+);
+CREATE INDEX idx_customer_app_user ON customer(app_user_id);
+CREATE INDEX idx_customer_phone ON customer(phone);
+CREATE INDEX idx_customer_address ON customer(address_id) WHERE address_id IS NOT NULL;
+
+-- Customer Phone Call Events table - tracks phone interactions with customers
+CREATE TABLE customer_phone_call (
+    id SERIAL PRIMARY KEY,
+    customer_id INTEGER NOT NULL REFERENCES customer(id) ON DELETE CASCADE,
+    call_date TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    call_type INTEGER NOT NULL DEFAULT 0 CHECK (call_type IN (0, 1, 2)), -- 0: inbound, 1: outbound, 2: missed
+    duration_minutes INTEGER,
+    notes TEXT,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    created_by INTEGER NOT NULL REFERENCES app_user(id),
+    updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    updated_by INTEGER REFERENCES app_user(id)
+);
+CREATE INDEX idx_customer_phone_call_customer ON customer_phone_call(customer_id);
+CREATE INDEX idx_customer_phone_call_date ON customer_phone_call(call_date);
+CREATE INDEX idx_customer_phone_call_type ON customer_phone_call(call_type);
 
 -- Product Category table with auditing
 CREATE TABLE product_category (
@@ -97,17 +159,16 @@ CREATE INDEX idx_product_url_primary ON product_url(is_primary);
 CREATE TABLE customer_order (
     id SERIAL PRIMARY KEY,
     order_number VARCHAR(50) NOT NULL UNIQUE,
-    customer_id INTEGER NOT NULL REFERENCES app_user(id),
+    customer_id INTEGER NOT NULL REFERENCES customer(id),
     status INTEGER NOT NULL DEFAULT 0 CHECK (status IN (0, 1, 2, 3, 4, 5, 6, 7)),
     payment_status INTEGER NOT NULL DEFAULT 0 CHECK (payment_status IN (0, 1, 2, 3)),
-    shipping_address TEXT NOT NULL,
+    shipping_address_id INTEGER NOT NULL REFERENCES address(id),
     subtotal DECIMAL(19, 4) NOT NULL,
     tax_amount DECIMAL(19, 4) NOT NULL,
     total_amount DECIMAL(19, 4) NOT NULL,
     notes TEXT,
     stripe_payment_intent_id VARCHAR(255),
     stripe_client_secret VARCHAR(255),
-    google_place_id VARCHAR(255),
     paid_at TIMESTAMPTZ,
     order_date TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     confirmed_at TIMESTAMPTZ,
@@ -125,7 +186,7 @@ CREATE INDEX idx_customer_order_status ON customer_order(status);
 CREATE INDEX idx_customer_order_payment_status ON customer_order(payment_status);
 CREATE INDEX idx_customer_order_date ON customer_order(order_date);
 CREATE INDEX idx_customer_order_stripe_payment_intent ON customer_order(stripe_payment_intent_id);
-CREATE INDEX idx_customer_order_google_place_id ON customer_order(google_place_id) WHERE google_place_id IS NOT NULL;
+CREATE INDEX idx_customer_order_shipping_address ON customer_order(shipping_address_id);
 
 -- Order Item table
 CREATE TABLE order_item (

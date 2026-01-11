@@ -21,8 +21,9 @@ public class AppUserController : BaseApiController
     private readonly IEmailService _emailService;
     private readonly IPasswordValidationService _passwordValidationService;
     private readonly ITranslationService _translationService;
+    private readonly IGoogleMapsService _googleMapsService;
 
-    public AppUserController(AppDbContext context, ILogger<AppUserController> logger, IConfiguration configuration, IEmailService emailService, IPasswordValidationService passwordValidationService, ITranslationService translationService)
+    public AppUserController(AppDbContext context, ILogger<AppUserController> logger, IConfiguration configuration, IEmailService emailService, IPasswordValidationService passwordValidationService, ITranslationService translationService, IGoogleMapsService googleMapsService)
     {
         _context = context;
         _logger = logger;
@@ -30,6 +31,7 @@ public class AppUserController : BaseApiController
         _emailService = emailService;
         _passwordValidationService = passwordValidationService;
         _translationService = translationService;
+        _googleMapsService = googleMapsService;
     }
 
     // POST: api/app_user
@@ -75,6 +77,21 @@ public class AppUserController : BaseApiController
             user.UpdatedAt = DateTime.UtcNow;
             _context.AppUsers.Update(user);
             await _context.SaveChangesAsync();
+
+            // If this is a customer registration (userType = 2), create a customer record
+            if (request.UserType == 2)
+            {
+                var customer = new Customer
+                {
+                    AppUserId = user.Id,
+                    CreatedAt = DateTime.UtcNow,
+                    CreatedBy = user.Id,
+                    UpdatedAt = DateTime.UtcNow,
+                    UpdatedBy = user.Id
+                };
+                _context.Customers.Add(customer);
+                await _context.SaveChangesAsync();
+            }
 
             // Send confirmation email
             try
@@ -204,7 +221,7 @@ public class AppUserController : BaseApiController
     // GET: api/users/me (Protected endpoint example)
     [HttpGet("me")]
     [Authorize]
-    public async Task<ActionResult<UserResponse>> GetCurrentUser()
+    public async Task<ActionResult<UserProfileResponse>> GetCurrentUser()
     {
         try
         {
@@ -223,11 +240,24 @@ public class AppUserController : BaseApiController
                 return NotFoundWithError(_translationService.Translate("Common", "USER_NOT_FOUND"));
             }
 
-            return new UserResponse
+            // Get customer data if user is a customer
+            Customer? customer = null;
+            if (user.UserType == 2)
+            {
+                customer = await _context.Customers
+                    .Include(c => c.Address)
+                    .FirstOrDefaultAsync(c => c.AppUserId == userId);
+            }
+
+            return new UserProfileResponse
             {
                 Id = user.Id,
                 Email = user.Email,
-                FullName = user.FullName
+                FullName = user.FullName,
+                UserType = user.UserType,
+                Phone = customer?.Phone,
+                Address = customer?.Address?.AddressLine,
+                AddressValidated = customer?.Address?.IsValidated ?? false
             };
         }
         catch (Exception ex)
@@ -240,7 +270,7 @@ public class AppUserController : BaseApiController
     // PUT: api/users/me
     [HttpPut("me")]
     [Authorize]
-    public async Task<ActionResult<UserResponse>> UpdateCurrentUser(UpdateProfileRequest request)
+    public async Task<ActionResult<UserProfileResponse>> UpdateCurrentUser(UpdateProfileRequest request)
     {
         try
         {
@@ -267,13 +297,92 @@ public class AppUserController : BaseApiController
                 user.UpdatedBy = userId;
             }
 
+            // If user is a customer (type 2), handle address updates
+            Customer? customer = null;
+            if (user.UserType == 2)
+            {
+                customer = await _context.Customers
+                    .Include(c => c.Address)
+                    .FirstOrDefaultAsync(c => c.AppUserId == userId);
+                
+                if (customer != null && request.Address != null)
+                {
+                    var currentAddressLine = customer.Address?.AddressLine;
+                    if (request.Address != currentAddressLine)
+                    {
+                        if (!string.IsNullOrWhiteSpace(request.Address))
+                        {
+                            // Create new address
+                            var newAddress = new Address
+                            {
+                                AddressLine = request.Address,
+                                CreatedBy = userId
+                            };
+
+                            if (!request.BypassAddressValidation)
+                            {
+                                var validationResult = await _googleMapsService.ValidateAddressAsync(request.Address);
+                                if (validationResult.IsValid)
+                                {
+                                    newAddress.GooglePlaceId = validationResult.PlaceId;
+                                    newAddress.FormattedAddress = validationResult.FormattedAddress;
+                                    newAddress.IsValidated = true;
+                                    newAddress.Country = GetAddressComponent(validationResult.AddressComponents, "country");
+                                    newAddress.CountryCode = GetAddressComponentShort(validationResult.AddressComponents, "country");
+                                    newAddress.State = GetAddressComponent(validationResult.AddressComponents, "administrative_area_level_1");
+                                    newAddress.StateCode = GetAddressComponentShort(validationResult.AddressComponents, "administrative_area_level_1");
+                                    newAddress.City = GetAddressComponent(validationResult.AddressComponents, "locality");
+                                    newAddress.PostalCode = GetAddressComponent(validationResult.AddressComponents, "postal_code");
+                                    newAddress.StreetNumber = GetAddressComponent(validationResult.AddressComponents, "street_number");
+                                    newAddress.Route = GetAddressComponent(validationResult.AddressComponents, "route");
+                                }
+                                else
+                                {
+                                    return BadRequestWithErrors(validationResult.ErrorMessage ?? _translationService.Translate("Customers", "ADDRESS_VALIDATION_FAILED"));
+                                }
+                            }
+
+                            _context.Addresses.Add(newAddress);
+                            await _context.SaveChangesAsync();
+                            customer.AddressId = newAddress.Id;
+                        }
+                        else
+                        {
+                            // Clear address
+                            customer.AddressId = null;
+                        }
+                        
+                        customer.UpdatedAt = DateTime.UtcNow;
+                        customer.UpdatedBy = userId;
+                    }
+                }
+
+                // Handle phone update for customers
+                if (customer != null && request.Phone != null)
+                {
+                    customer.Phone = string.IsNullOrWhiteSpace(request.Phone) ? null : request.Phone;
+                    customer.UpdatedAt = DateTime.UtcNow;
+                    customer.UpdatedBy = userId;
+                }
+            }
+
             await _context.SaveChangesAsync();
 
-            return new UserResponse
+            // Reload customer address
+            if (customer != null)
+            {
+                await _context.Entry(customer).Reference(c => c.Address).LoadAsync();
+            }
+
+            return new UserProfileResponse
             {
                 Id = user.Id,
                 Email = user.Email,
-                FullName = user.FullName
+                FullName = user.FullName,
+                UserType = user.UserType,
+                Phone = customer?.Phone,
+                Address = customer?.Address?.AddressLine,
+                AddressValidated = customer?.Address?.IsValidated ?? false
             };
         }
         catch (Exception ex)
@@ -281,6 +390,64 @@ public class AppUserController : BaseApiController
             _logger.LogError(ex, "Error updating current user");
             return InternalServerErrorWithError(_translationService.Translate("Common", "AN_ERROR_OCCURRED"));
         }
+    }
+
+    private static string? GetAddressComponent(Dictionary<string, object>? components, string type)
+    {
+        if (components == null) return null;
+        if (components.TryGetValue(type, out var value))
+        {
+            if (value is string strValue)
+            {
+                return strValue;
+            }
+            if (value is System.Text.Json.JsonElement jsonElement)
+            {
+                if (jsonElement.ValueKind == System.Text.Json.JsonValueKind.String)
+                {
+                    return jsonElement.GetString();
+                }
+                if (jsonElement.ValueKind == System.Text.Json.JsonValueKind.Object)
+                {
+                    if (jsonElement.TryGetProperty("long_name", out var longName))
+                    {
+                        return longName.GetString();
+                    }
+                }
+            }
+            var valueType = value.GetType();
+            var longNameProp = valueType.GetProperty("long_name");
+            if (longNameProp != null)
+            {
+                return longNameProp.GetValue(value)?.ToString();
+            }
+        }
+        return null;
+    }
+
+    private static string? GetAddressComponentShort(Dictionary<string, object>? components, string type)
+    {
+        if (components == null) return null;
+        if (components.TryGetValue(type, out var value))
+        {
+            if (value is System.Text.Json.JsonElement jsonElement)
+            {
+                if (jsonElement.ValueKind == System.Text.Json.JsonValueKind.Object)
+                {
+                    if (jsonElement.TryGetProperty("short_name", out var shortName))
+                    {
+                        return shortName.GetString();
+                    }
+                }
+            }
+            var valueType = value.GetType();
+            var shortNameProp = valueType.GetProperty("short_name");
+            if (shortNameProp != null)
+            {
+                return shortNameProp.GetValue(value)?.ToString();
+            }
+        }
+        return null;
     }
 
     private string GenerateJwtToken(AppUser user)
@@ -484,13 +651,28 @@ public class AppUserController : BaseApiController
                 return BadRequestWithErrors(passwordValidation.Errors);
             }
 
+            _logger.LogInformation("Resetting password for user {Email}, current status: {Status}", user.Email, user.Status);
+            
             // Update password and clear token
             user.Password = BCrypt.Net.BCrypt.HashPassword(request.Password);
             user.ConfirmationToken = null;
             user.ConfirmationTokenExpiresAt = null;
             user.UpdatedAt = DateTime.UtcNow;
             
+            // Mark email as confirmed and activate account if pending
+            if (user.EmailConfirmedAt == null)
+            {
+                user.EmailConfirmedAt = DateTime.UtcNow;
+                _logger.LogInformation("Setting EmailConfirmedAt for user {Email}", user.Email);
+            }
+            if (user.Status == 0) // pending_confirmation
+            {
+                user.Status = 1; // active
+                _logger.LogInformation("Activating user {Email}, new status: 1", user.Email);
+            }
+            
             await _context.SaveChangesAsync();
+            _logger.LogInformation("Password reset complete for user {Email}, final status: {Status}", user.Email, user.Status);
 
             return Ok(new { message = _translationService.Translate("PasswordReset", "RESET_SUCCESS") });
         }
@@ -1097,6 +1279,20 @@ public record StaffSetupInfoResponse
 public record UpdateProfileRequest
 {
     public string? FullName { get; init; }
+    public string? Phone { get; init; }
+    public string? Address { get; init; }
+    public bool BypassAddressValidation { get; init; }
+}
+
+public record UserProfileResponse
+{
+    public int Id { get; init; }
+    public string Email { get; init; } = string.Empty;
+    public string? FullName { get; init; }
+    public int UserType { get; init; }
+    public string? Phone { get; init; }
+    public string? Address { get; init; }
+    public bool AddressValidated { get; init; }
 }
 
 public record ForgotPasswordRequest
