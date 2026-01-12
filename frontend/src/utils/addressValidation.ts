@@ -20,8 +20,11 @@ export interface GoogleAddress {
 
 export interface AddressValidationResult {
   isValid: boolean;
+  isExactMatch: boolean;
   address: GoogleAddress | null;
+  originalAddress?: string;
   errorMessage?: string;
+  suggestions?: string[];
   isMockValidation?: boolean;
 }
 
@@ -29,13 +32,14 @@ export const validateAddress = async (address: string): Promise<AddressValidatio
   if (!address.trim()) {
     return {
       isValid: false,
+      isExactMatch: false,
       address: null,
       errorMessage: 'Address is required'
     };
   }
 
   try {
-    const response = await apiFetch<{ isValid: boolean; placeId?: string; formattedAddress?: string; errorMessage?: string; addressComponents?: any; isMockValidation?: boolean }>(API_ENDPOINTS.ADDRESS.VALIDATE, {
+    const response = await apiFetch<{ isValid: boolean; isExactMatch: boolean; placeId?: string; formattedAddress?: string; originalAddress?: string; errorMessage?: string; suggestions?: string[]; addressComponents?: any; isMockValidation?: boolean }>(API_ENDPOINTS.ADDRESS.VALIDATE, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -58,13 +62,19 @@ export const validateAddress = async (address: string): Promise<AddressValidatio
 
       return {
         isValid: true,
+        isExactMatch: response.isExactMatch ?? true,
         address: googleAddress,
+        originalAddress: response.originalAddress,
+        suggestions: response.suggestions,
         isMockValidation: response.isMockValidation
       };
     } else {
       return {
         isValid: false,
+        isExactMatch: false,
         address: null,
+        originalAddress: response.originalAddress,
+        suggestions: response.suggestions,
         errorMessage: response.errorMessage,
         isMockValidation: response.isMockValidation
       };
@@ -76,6 +86,7 @@ export const validateAddress = async (address: string): Promise<AddressValidatio
     if (error?.statusCode === 401) {
       return {
         isValid: false,
+        isExactMatch: false,
         address: null,
         errorMessage: 'You must be logged in to validate addresses. Please log in and try again.'
       };
@@ -85,6 +96,7 @@ export const validateAddress = async (address: string): Promise<AddressValidatio
     if (error?.errors && error.errors.length > 0) {
       return {
         isValid: false,
+        isExactMatch: false,
         address: null,
         errorMessage: error.errors[0]
       };
@@ -92,6 +104,7 @@ export const validateAddress = async (address: string): Promise<AddressValidatio
     
     return {
       isValid: false,
+      isExactMatch: false,
       address: null,
       errorMessage: 'Failed to validate address. Please try again.'
     };

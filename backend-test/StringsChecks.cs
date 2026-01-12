@@ -418,8 +418,8 @@ public class StringsChecks
         if (str.StartsWith("http") || str.Contains("://"))
             return false;
 
-        // Skip CSS class names and IDs (no spaces, lowercase with dashes)
-        if (!str.Contains(" ") && Regex.IsMatch(str, @"^[a-z][a-z0-9-]*$"))
+        // Skip CSS class names and IDs (lowercase with dashes, may contain spaces for multi-class)
+        if (Regex.IsMatch(str, @"^[a-z][a-z0-9-]*(\s+[a-z][a-z0-9-]*)*$"))
             return false;
 
         // Skip color codes

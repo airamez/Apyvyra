@@ -295,10 +295,34 @@ For live applications with real payments.
 Real Google Maps integration for comprehensive address validation.
 
 **Setup Steps:**
-1. Go to [Google Cloud Console](https://console.cloud.google.com/)
-2. Enable **Places API** and **Geocoding API**
-3. Create an API key and restrict it to your domain
-4. Add the API key to your configuration
+1. **Create Google Cloud Project**
+   - Go to [Google Cloud Console](https://console.cloud.google.com/)
+   - Create a new project or select an existing one
+   - Enable billing (required for Maps APIs)
+
+2. **Enable Required APIs**
+   - In the navigation menu, go to **APIs & Services** → **Library**
+   - Search for and enable these APIs:
+     - **Geocoding API** (for address validation)
+
+3. **Create API Key**
+   - Go to **APIs & Services** → **Credentials**
+   - Click **+ CREATE CREDENTIALS** → **API key**
+   - Copy the generated API key
+
+4. **Restrict API Key (Important for Security)**
+   - Click on the created API key
+   - Under **Application restrictions**, select **HTTP referrers** (web) or **IP addresses** (server)
+   - For development: Add `localhost:*` and your development server IP
+   - For production: Add your domain (e.g., `*.yourdomain.com`)
+   - Under **API restrictions**, select **Restrict key** and choose:
+     - Places API
+     - Geocoding API
+     - Maps JavaScript API (if needed)
+
+5. **Update Configuration**
+   - Replace the placeholder API key in your backend configuration
+   - Set `MockAddressValidation` to `false`
 
 **Production Configuration:**
 ```json
@@ -309,6 +333,24 @@ Real Google Maps integration for comprehensive address validation.
   }
 }
 ```
+
+**Environment Variable Method (Recommended for Production):**
+```bash
+# Set environment variable instead of hardcoding in appsettings.json
+GoogleMaps__ApiKey="YOUR_ACTUAL_GOOGLE_MAPS_API_KEY"
+GoogleMaps__MockAddressValidation="false"
+```
+
+**Testing Your Configuration:**
+- Start the backend application
+- Check the console logs for any Google Maps warnings
+- Try validating an address through the API endpoint
+- Mock mode will automatically fallback if API key is invalid
+
+**Common Issues & Solutions:**
+- **"API key not authorized"**: Check API restrictions and enabled APIs
+- **"ZERO_RESULTS"**: Try with more specific address formats
+- **"REQUEST_DENIED"**: Verify API key is correctly set and not restricted too tightly
 
 ### Security Considerations
 

@@ -4,5 +4,7 @@
   "GOOGLE_MAPS_VALIDATION_FAILED": "Failed to validate address with Google Maps",
   "GOOGLE_API_ERROR": "Google API error occurred",
   "FAILED_GET_ADDRESS_DETAILS": "Failed to get address details",
-  "INCOMPLETE_ADDRESS": "Please enter a complete address with street, city, and state/zip code"
+  "INCOMPLETE_ADDRESS": "Please enter a complete address with street, city, and state/zip code",
+  "ADDRESS_MISMATCH_FOUND_SIMILAR": "Address format is incorrect. Did you mean one of these suggestions?",
+  "RECOMMENDED_ADDRESS": "Recommended address"
 }

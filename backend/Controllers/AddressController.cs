@@ -38,10 +38,13 @@ public class AddressController : BaseApiController
             var response = new AddressValidationResponse
             {
                 IsValid = result.IsValid,
+                IsExactMatch = result.IsExactMatch,
                 PlaceId = result.PlaceId,
                 FormattedAddress = result.FormattedAddress,
+                OriginalAddress = result.OriginalAddress,
                 ErrorMessage = result.ErrorMessage,
                 AddressComponents = result.AddressComponents,
+                Suggestions = result.Suggestions,
                 IsMockValidation = _googleMapsService.IsMockValidation
             };
 
@@ -67,9 +70,12 @@ public record ValidateAddressRequest
 public record AddressValidationResponse
 {
     public bool IsValid { get; init; }
+    public bool IsExactMatch { get; init; }
     public string? PlaceId { get; init; }
     public string? FormattedAddress { get; init; }
+    public string? OriginalAddress { get; init; }
     public string? ErrorMessage { get; init; }
     public Dictionary<string, object>? AddressComponents { get; init; }
+    public List<string>? Suggestions { get; init; }
     public bool IsMockValidation { get; init; }
 }

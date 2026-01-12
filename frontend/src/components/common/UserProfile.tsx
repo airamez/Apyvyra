@@ -22,6 +22,7 @@ import { useTranslation } from '../../hooks/useTranslation';
 import { API_ENDPOINTS } from '../../config/api';
 import { useAuth } from '../../contexts/AuthContext';
 import { validateAddress, type AddressValidationResult } from '../../utils/addressValidation';
+import AddressConfirmationDialog from './AddressConfirmationDialog';
 
 interface UserProfileProps {
   onProfileUpdate?: () => void;
@@ -42,6 +43,7 @@ function UserProfile({ onProfileUpdate }: UserProfileProps) {
   const [address, setAddress] = useState('');
   const [bypassAddressValidation, setBypassAddressValidation] = useState(false);
   const [addressValidation, setAddressValidation] = useState<AddressValidationResult | null>(null);
+  const [showAddressConfirmation, setShowAddressConfirmation] = useState(false);
   const [isValidatingAddress, setIsValidatingAddress] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -145,11 +147,43 @@ function UserProfile({ onProfileUpdate }: UserProfileProps) {
     try {
       const result = await validateAddress(address);
       setAddressValidation(result);
+      
+      // Show confirmation dialog if address is not an exact match
+      if (!result.isExactMatch && result.address) {
+        setShowAddressConfirmation(true);
+      }
     } catch (err) {
-      setAddressValidation({ isValid: false, errorMessage: t('VALIDATION_FAILED'), address: null });
+      setAddressValidation({ isValid: false, isExactMatch: false, errorMessage: t('VALIDATION_FAILED'), address: null });
     } finally {
       setIsValidatingAddress(false);
     }
+  };
+
+  const handleAddressConfirm = (confirmedAddress: string) => {
+    setAddress(confirmedAddress);
+    setShowAddressConfirmation(false);
+    setAddressValidation({ 
+      isValid: true, 
+      isExactMatch: true, 
+      address: null, // We don't need the full address object for confirmation
+      errorMessage: undefined 
+    });
+  };
+
+  const handleAddressReject = () => {
+    setShowAddressConfirmation(false);
+    // User can continue editing the original address
+  };
+
+  const handleSuggestionSelect = (suggestion: string) => {
+    setAddress(suggestion);
+    setShowAddressConfirmation(false);
+    setAddressValidation({ 
+      isValid: true, 
+      isExactMatch: true, 
+      address: null,
+      errorMessage: undefined 
+    });
   };
 
   const handleSaveProfile = async () => {
@@ -386,6 +420,17 @@ function UserProfile({ onProfileUpdate }: UserProfileProps) {
           )}
         </DialogActions>
       </Dialog>
+
+      {/* Address Confirmation Dialog */}
+      <AddressConfirmationDialog
+        open={showAddressConfirmation}
+        originalAddress={addressValidation?.originalAddress || ''}
+        suggestedAddress={addressValidation?.address?.formatted_address || ''}
+        suggestions={addressValidation?.suggestions}
+        onConfirm={handleAddressConfirm}
+        onReject={handleAddressReject}
+        onSuggestionSelect={handleSuggestionSelect}
+      />
     </>
   );
 }

@@ -27,6 +27,7 @@
   "FAILED_VALIDATE_ADDRESS": "Failed to validate address. Please try again.",
   "FAILED_CREATE_ORDER": "Failed to create order. Please try again.",
   "PLEASE_LOGIN_TO_VALIDATE": "Please log in to validate your address and proceed with checkout.",
+  "ADDRESS_REJECTED_PLEASE_EDIT": "Address validation cancelled. Please edit your address and try again.",
   "USE_MY_CURRENT_ADDRESS": "Use my current address",
   "DELIVERING_TO": "Delivering to",
   "LOADING_ADDRESS": "Loading your saved address...",

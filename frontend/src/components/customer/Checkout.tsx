@@ -24,6 +24,7 @@ import { userService } from '../../services/userService';
 import Payment from './Payment';
 import { getErrorMessages } from '../../utils/apiErrorHandler';
 import { validateAddress, type AddressValidationResult } from '../../utils/addressValidation';
+import AddressConfirmationDialog from '../common/AddressConfirmationDialog';
 import { useFormatting } from '../../hooks/useFormatting';
 import { useTranslation } from '../../hooks/useTranslation';
 
@@ -44,7 +45,9 @@ export default function Checkout({ onBackToCart, onOrderComplete }: CheckoutProp
   const [showPayment, setShowPayment] = useState(false);
   const [createdOrder, setCreatedOrder] = useState<Order | null>(null);
   const [addressValidation, setAddressValidation] = useState<AddressValidationResult | null>(null);
+  const [showAddressConfirmation, setShowAddressConfirmation] = useState(false);
   const [isValidatingAddress, setIsValidatingAddress] = useState(false);
+  const [addressValidated, setAddressValidated] = useState(false);
   const [bypassValidation, setBypassValidation] = useState(false);
   const [useCustomerAddress, setUseCustomerAddress] = useState(false);
   const [customerAddress, setCustomerAddress] = useState<string | null>(null);
@@ -89,13 +92,19 @@ export default function Checkout({ onBackToCart, onOrderComplete }: CheckoutProp
       const result = await validateAddress(shippingAddress);
       setAddressValidation(result);
       
-      if (!result.isValid) {
+      // Show confirmation dialog if address is not an exact match but we have a suggested address
+      if (!result.isExactMatch && (result.address || result.suggestions?.length)) {
+        setShowAddressConfirmation(true);
+        setError(null); // Clear any error since we're showing the modal
+      } else if (!result.isValid) {
         setError(result.errorMessage || t('ADDRESS_VALIDATION_FAILED'));
         
         // If authentication is required, show a more user-friendly message
         if (result.errorMessage?.includes('logged in')) {
           setError(t('PLEASE_LOGIN_TO_VALIDATE'));
         }
+      } else {
+        setAddressValidated(true); // Mark as validated for exact matches
       }
     } catch (error) {
       setError(t('FAILED_VALIDATE_ADDRESS'));
@@ -104,13 +113,43 @@ export default function Checkout({ onBackToCart, onOrderComplete }: CheckoutProp
     }
   };
 
+  const handleAddressConfirm = (confirmedAddress: string) => {
+    setShippingAddress(confirmedAddress);
+    setShowAddressConfirmation(false);
+    setAddressValidation({ 
+      isValid: true, 
+      isExactMatch: true, 
+      address: null,
+      errorMessage: undefined 
+    });
+    setAddressValidated(true); // Mark as validated
+    setError(null);
+  };
+
+  const handleAddressReject = () => {
+    setShowAddressConfirmation(false);
+    // User can continue editing the original address
+    setError(t('ADDRESS_REJECTED_PLEASE_EDIT'));
+  };
+
   const handleChangeAddress = () => {
-    // Reset everything to original state
-    setShippingAddress('');
+    // Reset validation state but keep the address content
     setAddressValidation(null);
     setBypassValidation(false);
     setError(null);
     setIsValidatingAddress(false);
+    setShowAddressConfirmation(false);
+    setAddressValidated(false); // Re-enable validation
+  };
+
+  const handleAddressChange = (newAddress: string) => {
+    setShippingAddress(newAddress);
+    // If user changes the address, re-enable validation
+    if (addressValidated) {
+      setAddressValidated(false);
+      setAddressValidation(null);
+      setError(null);
+    }
   };
 
   const handleProceedToPayment = async () => {
@@ -266,11 +305,7 @@ export default function Checkout({ onBackToCart, onOrderComplete }: CheckoutProp
                   placeholder={t('SHIPPING_ADDRESS_PLACEHOLDER')}
                   value={shippingAddress}
                   onChange={(e) => {
-                    setShippingAddress(e.target.value);
-                    // Clear validation when address changes
-                    if (addressValidation) {
-                      setAddressValidation(null);
-                    }
+                    handleAddressChange(e.target.value);
                   }}
                   required
                   disabled={addressValidation?.isValid === true}
@@ -290,7 +325,7 @@ export default function Checkout({ onBackToCart, onOrderComplete }: CheckoutProp
                   <Button
                     variant="outlined"
                     onClick={handleValidateAddress}
-                    disabled={isValidatingAddress || !shippingAddress.trim()}
+                    disabled={isValidatingAddress || !shippingAddress.trim() || addressValidated}
                     startIcon={isValidatingAddress ? <CircularProgress size={16} /> : null}
                   >
                     {isValidatingAddress ? t('VALIDATING_ADDRESS') : t('VALIDATE_ADDRESS')}
@@ -425,6 +460,16 @@ export default function Checkout({ onBackToCart, onOrderComplete }: CheckoutProp
           </Button>
         </Paper>
       </Box>
+      
+      {/* Address Confirmation Dialog */}
+      <AddressConfirmationDialog
+        open={showAddressConfirmation}
+        originalAddress={addressValidation?.originalAddress || ''}
+        suggestedAddress={addressValidation?.address?.formatted_address || addressValidation?.suggestions?.[0] || ''}
+        suggestions={addressValidation?.suggestions}
+        onConfirm={handleAddressConfirm}
+        onReject={handleAddressReject}
+      />
     </Box>
   );
 }
