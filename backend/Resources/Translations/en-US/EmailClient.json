@@ -20,6 +20,8 @@
   "REPLY_SENT_SUCCESS": "Reply sent successfully!",
   "EMAIL_SENT_SUCCESS": "Email sent successfully!",
   "FAILED_LOAD_EMAILS": "Failed to load emails",
+  "START_DATE": "Start Date",
+  "END_DATE": "End Date",
   "FROM_EMAIL": "From Email",
   "SEARCH_PLACEHOLDER": "Search in subject or body",
   "HAS_ATTACHMENTS": "Has Attachments",

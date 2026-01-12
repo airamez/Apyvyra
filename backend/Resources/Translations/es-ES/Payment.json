@@ -18,5 +18,8 @@
   "PAYMENT_FAILED": "El pago falló. Por favor intenta de nuevo.",
   "ORDER_NUMBER": "Pedido #",
   "AMOUNT": "Monto",
-  "PAYMENT_CONFIRMATION_FAILED": "Falló confirmar el pago. Por favor intenta de nuevo."
+  "PAYMENT_CONFIRMATION_FAILED": "Falló confirmar el pago. Por favor intenta de nuevo.",
+  "SECURE_PAYMENT": "Pago Seguro",
+  "PAY_AMOUNT": "Pagar {amount}",
+  "PAYMENT_SECURITY_MESSAGE": "Tu información de pago está encriptada y segura. Nunca almacenamos los detalles de tu tarjeta."
 }
