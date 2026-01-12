@@ -48,6 +48,9 @@
   "EMAILS_FOUND": "emails found",
   "NO_EMAILS": "No emails found",
   "NO_EMAILS_FOR_CUSTOMER": "No emails found for this customer",
-  "INBOUND": "Inbound",
-  "OUTBOUND": "Outbound"
+  "INBOUND": "Entrante",
+  "OUTBOUND": "Saliente",
+  "DATE_RANGE": "Rango de Fecha",
+  "NO_EMAILS_MATCH_FILTERS": "No hay correos que coincidan con los filtros actuales",
+  "TRY_ADJUSTING_FILTERS": "Intenta ajustar tu búsqueda o filtros de fecha"
 }

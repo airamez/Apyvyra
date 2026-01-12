@@ -246,7 +246,7 @@ public class EmailService : IEmailService
     {
         var template = _translationService.GetTranslations("PasswordResetEmail");
         
-        var subject = template.GetValueOrDefault("SUBJECT") ?? "Password Reset";
+        var subject = template.GetValueOrDefault("SUBJECT") ?? _translationService.Translate("PasswordResetEmail", "SUBJECT");
         var title = template.GetValueOrDefault("TITLE");
         var greeting = template.GetValueOrDefault("GREETING");
         var body = template.GetValueOrDefault("BODY");

@@ -48,6 +48,9 @@
   "EMAILS_FOUND": "emails found",
   "NO_EMAILS": "No emails found",
   "NO_EMAILS_FOR_CUSTOMER": "No emails found for this customer",
-  "INBOUND": "Inbound",
-  "OUTBOUND": "Outbound"
+  "INBOUND": "इनबाउंड",
+  "OUTBOUND": "आउटबाउंड",
+  "DATE_RANGE": "दिनांक रेंज",
+  "NO_EMAILS_MATCH_FILTERS": "वर्तमान फ़िल्टर से मेल खाते कोई ईमेल नहीं",
+  "TRY_ADJUSTING_FILTERS": "अपनी खोज या दिनांक फ़िल्टर समायोजित करने का प्रयास करें"
 }

@@ -20,6 +20,11 @@ import {
   InputAdornment,
   Divider,
   Snackbar,
+  Pagination,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
 } from '@mui/material';
 import EmailIcon from '@mui/icons-material/Email';
 import RefreshIcon from '@mui/icons-material/Refresh';
@@ -42,11 +47,21 @@ export default function CustomerEmails({ customerEmail, customerName }: Customer
   const { formatDate, formatTime } = useFormatting();
   
   const [emails, setEmails] = useState<EmailMessage[]>([]);
+  const [filteredEmails, setFilteredEmails] = useState<EmailMessage[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedEmail, setSelectedEmail] = useState<EmailMessage | null>(null);
   const [searchText, setSearchText] = useState('');
   const [showEmailDialog, setShowEmailDialog] = useState(false);
+  
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const [emailsPerPage] = useState(10);
+  
+  // Date filter state
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
+  const [dateRange, setDateRange] = useState('lastWeek');
   
   // Reply state
   const [showReplyDialog, setShowReplyDialog] = useState(false);
@@ -59,7 +74,7 @@ export default function CustomerEmails({ customerEmail, customerName }: Customer
   const [showSuccessSnackbar, setShowSuccessSnackbar] = useState(false);
   const [successMessage, setSuccessMessage] = useState('');
 
-  const loadEmails = useCallback(async (searchText?: string) => {
+  const loadEmails = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -67,14 +82,14 @@ export default function CustomerEmails({ customerEmail, customerName }: Customer
       const filter: EmailFilterRequest = {
         toEmail: customerEmail,
         fromEmail: customerEmail,
-        searchText: searchText || undefined,
-        limit: 50
+        limit: 1000 // Load all emails for client-side pagination
       };
 
       console.log('Loading customer emails with filter:', filter);
       const emailData = await emailClientService.getCustomerEmails(filter);
       console.log('Received emails:', emailData);
       setEmails(emailData);
+      setFilteredEmails(emailData);
     } catch (err) {
       setError(t('FAILED_FETCH_EMAILS'));
       console.error('Error loading customer emails:', err);
@@ -87,16 +102,86 @@ export default function CustomerEmails({ customerEmail, customerName }: Customer
     if (customerEmail) {
       console.log('CustomerEmails component mounted with email:', customerEmail);
       loadEmails();
+      // Set default date range to last week
+      setDefaultDateRange();
     }
   }, [customerEmail, loadEmails]);
 
-  const handleSearch = () => {
-    loadEmails(searchText);
+  // Set default date range to last week
+  const setDefaultDateRange = () => {
+    const now = new Date();
+    const lastWeek = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+    setStartDate(lastWeek.toISOString().split('T')[0]);
+    setEndDate(now.toISOString().split('T')[0]);
   };
+
+  // Filter emails based on search text and date range
+  useEffect(() => {
+    let filtered = emails;
+    
+    // Filter by search text
+    if (searchText) {
+      filtered = filtered.filter(email => 
+        email.subject.toLowerCase().includes(searchText.toLowerCase()) ||
+        email.body.toLowerCase().includes(searchText.toLowerCase())
+      );
+    }
+    
+    // Filter by date range
+    if (startDate || endDate) {
+      filtered = filtered.filter(email => {
+        const emailDate = new Date(email.date);
+        const start = startDate ? new Date(startDate) : new Date(0);
+        const end = endDate ? new Date(endDate + 'T23:59:59') : new Date();
+        return emailDate >= start && emailDate <= end;
+      });
+    }
+    
+    setFilteredEmails(filtered);
+    setCurrentPage(1); // Reset to first page when filters change
+  }, [emails, searchText, startDate, endDate]);
+
+  // Pagination
+  const totalPages = Math.ceil(filteredEmails.length / emailsPerPage);
+  const paginatedEmails = filteredEmails.slice(
+    (currentPage - 1) * emailsPerPage,
+    currentPage * emailsPerPage
+  );
 
   const handleRefresh = () => {
     setSearchText('');
+    setDefaultDateRange();
     loadEmails();
+  };
+
+  const handleDateRangeChange = (range: string) => {
+    setDateRange(range);
+    const now = new Date();
+    let start = new Date();
+    let end = new Date();
+    
+    switch (range) {
+      case 'today':
+        start = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        break;
+      case 'lastWeek':
+        start = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+        break;
+      case 'lastMonth':
+        start = new Date(now.getFullYear(), now.getMonth() - 1, now.getDate());
+        break;
+      case 'last3Months':
+        start = new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000);
+        break;
+      case 'custom':
+        // Don't change dates, let user select custom dates
+        return;
+      default:
+        start = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+    }
+    
+    setStartDate(start.toISOString().split('T')[0]);
+    setEndDate(end.toISOString().split('T')[0]);
   };
 
   const handleEmailClick = (email: EmailMessage) => {
@@ -190,15 +275,14 @@ export default function CustomerEmails({ customerEmail, customerName }: Customer
         </Typography>
       </Box>
 
-      {/* Search and Refresh */}
-      <Box sx={{ display: 'flex', gap: 2, mb: 2 }}>
+      {/* Search, Date Filter and Refresh */}
+      <Box sx={{ display: 'flex', gap: 2, mb: 2, flexWrap: 'wrap', alignItems: 'center' }}>
         <TextField
           placeholder={t('SEARCH_EMAILS')}
           value={searchText}
           onChange={(e) => setSearchText(e.target.value)}
-          onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
           size="small"
-          sx={{ flexGrow: 1 }}
+          sx={{ flexGrow: 1, minWidth: 200 }}
           InputProps={{
             startAdornment: (
               <InputAdornment position="start">
@@ -207,9 +291,43 @@ export default function CustomerEmails({ customerEmail, customerName }: Customer
             ),
           }}
         />
-        <Button variant="outlined" onClick={handleSearch}>
-          {t('SEARCH')}
-        </Button>
+        
+        <FormControl size="small" sx={{ minWidth: 120 }}>
+          <InputLabel>{t('DATE_RANGE')}</InputLabel>
+          <Select
+            value={dateRange}
+            label={t('DATE_RANGE')}
+            onChange={(e) => handleDateRangeChange(e.target.value)}
+          >
+            <MenuItem value="today">Today</MenuItem>
+            <MenuItem value="lastWeek">Last Week</MenuItem>
+            <MenuItem value="lastMonth">Last Month</MenuItem>
+            <MenuItem value="last3Months">Last 3 Months</MenuItem>
+            <MenuItem value="custom">Custom</MenuItem>
+          </Select>
+        </FormControl>
+        
+        {dateRange === 'custom' && (
+          <>
+            <TextField
+              type="date"
+              label={t('START_DATE')}
+              value={startDate}
+              onChange={(e) => setStartDate(e.target.value)}
+              size="small"
+              sx={{ minWidth: 150 }}
+            />
+            <TextField
+              type="date"
+              label={t('END_DATE')}
+              value={endDate}
+              onChange={(e) => setEndDate(e.target.value)}
+              size="small"
+              sx={{ minWidth: 150 }}
+            />
+          </>
+        )}
+        
         <Tooltip title={t('REFRESH')}>
           <IconButton onClick={handleRefresh}>
             <RefreshIcon />
@@ -219,79 +337,81 @@ export default function CustomerEmails({ customerEmail, customerName }: Customer
 
       {/* Email Count */}
       <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-        {emails.length} {t('EMAILS_FOUND')}
+        {filteredEmails.length} {t('EMAILS_FOUND')} {filteredEmails.length !== emails.length && `(of ${emails.length} total)`}
       </Typography>
 
-      {/* Email List */}
+      {/* Compact Email List */}
       <List sx={{ bgcolor: 'background.paper', borderRadius: 1 }}>
-        {emails.length === 0 ? (
+        {paginatedEmails.length === 0 ? (
           <ListItem>
             <ListItemText
-              primary={t('NO_EMAILS')}
-              secondary={t('NO_EMAILS_FOR_CUSTOMER')}
+              primary={filteredEmails.length === 0 ? t('NO_EMAILS') : t('NO_EMAILS_MATCH_FILTERS')}
+              secondary={filteredEmails.length === 0 ? t('NO_EMAILS_FOR_CUSTOMER') : t('TRY_ADJUSTING_FILTERS')}
             />
           </ListItem>
         ) : (
-          emails.map((email) => (
-            <Box
+          paginatedEmails.map((email) => (
+            <ListItem
               key={email.id}
               onClick={() => handleEmailClick(email)}
               sx={{
                 border: 1,
                 borderColor: 'divider',
                 borderRadius: 1,
-                mb: 1,
-                p: 2,
+                mb: 0.5,
                 cursor: 'pointer',
                 '&:hover': {
                   bgcolor: 'action.hover',
                 },
+                py: 1,
               }}
             >
-              <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
-                <Box sx={{ display: 'flex', alignItems: 'flex-start', flexGrow: 1 }}>
-                  <ListItemIcon sx={{ minWidth: 40 }}>
-                    <EmailIcon color={email.isRead ? 'disabled' : 'primary'} />
-                  </ListItemIcon>
-                  <ListItemText
-                    primary={
-                      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <Typography variant="subtitle2" noWrap sx={{ flexGrow: 1 }}>
-                          {email.subject}
-                        </Typography>
-                        <Typography variant="caption" color="text.secondary">
-                          {formatDate(email.date)}
-                        </Typography>
-                      </Box>
-                    }
-                    secondary={
-                      <Box sx={{ mt: 0.5 }}>
-                        <Typography variant="body2" color="text.secondary" noWrap>
-                          {t('FROM')}: {email.fromName || email.from}
-                        </Typography>
-                        <Typography variant="body2" color="text.secondary" noWrap>
-                          {t('TO')}: {email.to}
-                        </Typography>
-                        {email.hasAttachments && (
-                          <Chip size="small" label={t('HAS_ATTACHMENTS')} sx={{ mt: 0.5 }} />
-                        )}
-                      </Box>
-                    }
-                  />
-                </Box>
-                <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', ml: 1 }}>
-                  <Chip 
-                    size="small" 
-                    label={isEmailInbound(email) ? t('INBOUND') : t('OUTBOUND')}
-                    color={isEmailInbound(email) ? 'success' : 'info'}
-                    sx={{ mb: 1 }}
-                  />
-                </Box>
-              </Box>
-            </Box>
+              <ListItemIcon sx={{ minWidth: 40 }}>
+                <EmailIcon color={email.isRead ? 'disabled' : 'primary'} />
+              </ListItemIcon>
+              
+              <ListItemText
+                primary={
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <Typography variant="body2" noWrap sx={{ flexGrow: 1, fontWeight: email.isRead ? 'normal' : 'bold' }}>
+                      {formatDate(email.date)} {formatTime(email.date)} - {email.subject}
+                    </Typography>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                      <Chip 
+                        size="small" 
+                        label={isEmailInbound(email) ? t('INBOUND') : t('OUTBOUND')}
+                        color={isEmailInbound(email) ? 'success' : 'info'}
+                        variant="outlined"
+                      />
+                    </Box>
+                  </Box>
+                }
+                secondary={
+                  <Typography variant="caption" color="text.secondary" sx={{ mt: 0.5 }}>
+                    {email.hasAttachments && (
+                      <Chip size="small" label="📎" sx={{ height: 20 }} />
+                    )}
+                  </Typography>
+                }
+              />
+            </ListItem>
           ))
         )}
       </List>
+      
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
+          <Pagination
+            count={totalPages}
+            page={currentPage}
+            onChange={(_, value) => setCurrentPage(value)}
+            color="primary"
+            showFirstButton
+            showLastButton
+          />
+        </Box>
+      )}
 
       {/* Email Detail Dialog */}
       <Dialog open={showEmailDialog} onClose={handleCloseEmailDialog} maxWidth="md" fullWidth>

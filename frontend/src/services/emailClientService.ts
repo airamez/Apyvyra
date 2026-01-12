@@ -23,6 +23,7 @@ export interface EmailFilterRequest {
   searchText?: string;
   folder?: string;
   limit?: number;
+  offset?: number;
 }
 
 export interface SendEmailRequest {
@@ -56,6 +57,7 @@ export const emailClientService = {
       if (filter.searchText) params.append('searchText', filter.searchText);
       if (filter.folder) params.append('folder', filter.folder);
       if (filter.limit) params.append('limit', filter.limit.toString());
+      if (filter.offset) params.append('offset', filter.offset.toString());
     }
     
     const url = params.toString()
@@ -81,6 +83,7 @@ export const emailClientService = {
       if (filter.toEmail) params.append('toEmail', filter.toEmail);
       if (filter.searchText) params.append('searchText', filter.searchText);
       if (filter.limit) params.append('limit', filter.limit.toString());
+      if (filter.offset) params.append('offset', filter.offset.toString());
     }
     
     const url = params.toString()
