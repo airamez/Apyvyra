@@ -268,6 +268,93 @@ BEGIN
     FROM product p
     WHERE p.sku LIKE 'ELEC-%';
 
+    -- Additional images for Electronics (3-5 images per product)
+    -- Wireless Headphones Pro - 5 images
+    INSERT INTO product_url (product_id, url, url_type, alt_text, display_order, is_primary, created_by)
+    SELECT p.id, 'https://images.unsplash.com/photo-1484704849700-f032a568e944', 0, 'Headphones side view', 1, false, admin_user_id
+    FROM product p WHERE p.name = 'Wireless Headphones Pro';
+    INSERT INTO product_url (product_id, url, url_type, alt_text, display_order, is_primary, created_by)
+    SELECT p.id, 'https://images.unsplash.com/photo-1546435770-a3e426bf472b', 0, 'Headphones detail', 2, false, admin_user_id
+    FROM product p WHERE p.name = 'Wireless Headphones Pro';
+    INSERT INTO product_url (product_id, url, url_type, alt_text, display_order, is_primary, created_by)
+    SELECT p.id, 'https://images.unsplash.com/photo-1583394838336-acd977736f90', 0, 'Headphones in use', 3, false, admin_user_id
+    FROM product p WHERE p.name = 'Wireless Headphones Pro';
+    INSERT INTO product_url (product_id, url, url_type, alt_text, display_order, is_primary, created_by)
+    SELECT p.id, 'https://images.unsplash.com/photo-1487215078519-e21cc028cb29', 0, 'Headphones lifestyle', 4, false, admin_user_id
+    FROM product p WHERE p.name = 'Wireless Headphones Pro';
+    -- Video for Headphones
+    INSERT INTO product_url (product_id, url, url_type, alt_text, display_order, is_primary, created_by)
+    SELECT p.id, 'https://www.youtube.com/watch?v=dQw4w9WgXcQ', 1, 'Product Overview Video', 5, false, admin_user_id
+    FROM product p WHERE p.name = 'Wireless Headphones Pro';
+    -- Manual for Headphones
+    INSERT INTO product_url (product_id, url, url_type, alt_text, display_order, is_primary, created_by)
+    SELECT p.id, 'https://www.w3.org/WAI/WCAG21/Techniques/pdf/img/table-word.jpg', 2, 'User Manual PDF', 6, false, admin_user_id
+    FROM product p WHERE p.name = 'Wireless Headphones Pro';
+
+    -- Mechanical Keyboard RGB - 5 images
+    INSERT INTO product_url (product_id, url, url_type, alt_text, display_order, is_primary, created_by)
+    SELECT p.id, 'https://images.unsplash.com/photo-1595225476474-87563907a212', 0, 'Keyboard RGB lighting', 1, false, admin_user_id
+    FROM product p WHERE p.name = 'Mechanical Keyboard RGB';
+    INSERT INTO product_url (product_id, url, url_type, alt_text, display_order, is_primary, created_by)
+    SELECT p.id, 'https://images.unsplash.com/photo-1618384887929-16ec33fab9ef', 0, 'Keyboard close-up', 2, false, admin_user_id
+    FROM product p WHERE p.name = 'Mechanical Keyboard RGB';
+    INSERT INTO product_url (product_id, url, url_type, alt_text, display_order, is_primary, created_by)
+    SELECT p.id, 'https://images.unsplash.com/photo-1541140532154-b024d705b90a', 0, 'Keyboard side view', 3, false, admin_user_id
+    FROM product p WHERE p.name = 'Mechanical Keyboard RGB';
+    INSERT INTO product_url (product_id, url, url_type, alt_text, display_order, is_primary, created_by)
+    SELECT p.id, 'https://images.unsplash.com/photo-1511467687858-23d96c32e4ae', 0, 'Keyboard on desk', 4, false, admin_user_id
+    FROM product p WHERE p.name = 'Mechanical Keyboard RGB';
+    -- Video for Keyboard
+    INSERT INTO product_url (product_id, url, url_type, alt_text, display_order, is_primary, created_by)
+    SELECT p.id, 'https://www.youtube.com/watch?v=jNQXAC9IVRw', 1, 'Typing Demo Video', 5, false, admin_user_id
+    FROM product p WHERE p.name = 'Mechanical Keyboard RGB';
+    -- Manual for Keyboard
+    INSERT INTO product_url (product_id, url, url_type, alt_text, display_order, is_primary, created_by)
+    SELECT p.id, 'https://www.adobe.com/support/products/enterprise/knowledgecenter/media/c4611_sample_explain.pdf', 2, 'Setup Guide', 6, false, admin_user_id
+    FROM product p WHERE p.name = 'Mechanical Keyboard RGB';
+
+    -- Smart Watch Fitness - 5 images
+    INSERT INTO product_url (product_id, url, url_type, alt_text, display_order, is_primary, created_by)
+    SELECT p.id, 'https://images.unsplash.com/photo-1434493789847-2f02dc6ca35d', 0, 'Watch on wrist', 1, false, admin_user_id
+    FROM product p WHERE p.name = 'Smart Watch Fitness';
+    INSERT INTO product_url (product_id, url, url_type, alt_text, display_order, is_primary, created_by)
+    SELECT p.id, 'https://images.unsplash.com/photo-1508685096489-7aacd43bd3b1', 0, 'Watch face detail', 2, false, admin_user_id
+    FROM product p WHERE p.name = 'Smart Watch Fitness';
+    INSERT INTO product_url (product_id, url, url_type, alt_text, display_order, is_primary, created_by)
+    SELECT p.id, 'https://images.unsplash.com/photo-1579586337278-3befd40fd17a', 0, 'Watch band detail', 3, false, admin_user_id
+    FROM product p WHERE p.name = 'Smart Watch Fitness';
+    INSERT INTO product_url (product_id, url, url_type, alt_text, display_order, is_primary, created_by)
+    SELECT p.id, 'https://images.unsplash.com/photo-1617043786394-f977fa12eddf', 0, 'Watch charging', 4, false, admin_user_id
+    FROM product p WHERE p.name = 'Smart Watch Fitness';
+    -- Video for Watch
+    INSERT INTO product_url (product_id, url, url_type, alt_text, display_order, is_primary, created_by)
+    SELECT p.id, 'https://www.youtube.com/watch?v=9bZkp7q19f0', 1, 'Features Overview', 5, false, admin_user_id
+    FROM product p WHERE p.name = 'Smart Watch Fitness';
+
+    -- Wireless Earbuds Pro - 3 images
+    INSERT INTO product_url (product_id, url, url_type, alt_text, display_order, is_primary, created_by)
+    SELECT p.id, 'https://images.unsplash.com/photo-1606220588913-b3aacb4d2f46', 0, 'Earbuds in case', 1, false, admin_user_id
+    FROM product p WHERE p.name = 'Wireless Earbuds Pro';
+    INSERT INTO product_url (product_id, url, url_type, alt_text, display_order, is_primary, created_by)
+    SELECT p.id, 'https://images.unsplash.com/photo-1631867675167-90a456a90863', 0, 'Earbuds close-up', 2, false, admin_user_id
+    FROM product p WHERE p.name = 'Wireless Earbuds Pro';
+    -- Video for Earbuds
+    INSERT INTO product_url (product_id, url, url_type, alt_text, display_order, is_primary, created_by)
+    SELECT p.id, 'https://vimeo.com/148751763', 1, 'Sound Quality Demo', 3, false, admin_user_id
+    FROM product p WHERE p.name = 'Wireless Earbuds Pro';
+
+    -- External SSD 1TB - 3 images
+    INSERT INTO product_url (product_id, url, url_type, alt_text, display_order, is_primary, created_by)
+    SELECT p.id, 'https://images.unsplash.com/photo-1531492746076-161ca9bcad58', 0, 'SSD with laptop', 1, false, admin_user_id
+    FROM product p WHERE p.name = 'External SSD 1TB';
+    INSERT INTO product_url (product_id, url, url_type, alt_text, display_order, is_primary, created_by)
+    SELECT p.id, 'https://images.unsplash.com/photo-1628557044797-f21a177c37ec', 0, 'SSD ports detail', 2, false, admin_user_id
+    FROM product p WHERE p.name = 'External SSD 1TB';
+    -- Manual for SSD
+    INSERT INTO product_url (product_id, url, url_type, alt_text, display_order, is_primary, created_by)
+    SELECT p.id, 'https://www.w3.org/WAI/WCAG21/Techniques/pdf/img/table-word.jpg', 2, 'Quick Start Guide', 3, false, admin_user_id
+    FROM product p WHERE p.name = 'External SSD 1TB';
+
     -- Home & Kitchen URLs
     INSERT INTO product_url (product_id, url, url_type, alt_text, display_order, is_primary, created_by)
     SELECT 
@@ -302,6 +389,75 @@ BEGIN
         admin_user_id
     FROM product p
     WHERE p.sku LIKE 'HOME-%';
+
+    -- Additional images for Home & Kitchen (3-5 images per product)
+    -- Stainless Steel Cookware Set - 5 images
+    INSERT INTO product_url (product_id, url, url_type, alt_text, display_order, is_primary, created_by)
+    SELECT p.id, 'https://images.unsplash.com/photo-1584990347449-a2d4c2c044c9', 0, 'Cookware set overview', 1, false, admin_user_id
+    FROM product p WHERE p.name = 'Stainless Steel Cookware Set';
+    INSERT INTO product_url (product_id, url, url_type, alt_text, display_order, is_primary, created_by)
+    SELECT p.id, 'https://images.unsplash.com/photo-1590794056226-79ef3a8147e1', 0, 'Pots and pans detail', 2, false, admin_user_id
+    FROM product p WHERE p.name = 'Stainless Steel Cookware Set';
+    INSERT INTO product_url (product_id, url, url_type, alt_text, display_order, is_primary, created_by)
+    SELECT p.id, 'https://images.unsplash.com/photo-1556909114-f6e7ad7d3136', 0, 'Cookware in use', 3, false, admin_user_id
+    FROM product p WHERE p.name = 'Stainless Steel Cookware Set';
+    INSERT INTO product_url (product_id, url, url_type, alt_text, display_order, is_primary, created_by)
+    SELECT p.id, 'https://images.unsplash.com/photo-1466637574441-749b8f19452f', 0, 'Kitchen setting', 4, false, admin_user_id
+    FROM product p WHERE p.name = 'Stainless Steel Cookware Set';
+    -- Video for Cookware
+    INSERT INTO product_url (product_id, url, url_type, alt_text, display_order, is_primary, created_by)
+    SELECT p.id, 'https://www.youtube.com/watch?v=dQw4w9WgXcQ', 1, 'Cooking Demo Video', 5, false, admin_user_id
+    FROM product p WHERE p.name = 'Stainless Steel Cookware Set';
+    -- Manual for Cookware
+    INSERT INTO product_url (product_id, url, url_type, alt_text, display_order, is_primary, created_by)
+    SELECT p.id, 'https://www.w3.org/WAI/WCAG21/Techniques/pdf/img/table-word.jpg', 2, 'Care Instructions', 6, false, admin_user_id
+    FROM product p WHERE p.name = 'Stainless Steel Cookware Set';
+
+    -- Coffee Maker Programmable - 5 images
+    INSERT INTO product_url (product_id, url, url_type, alt_text, display_order, is_primary, created_by)
+    SELECT p.id, 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085', 0, 'Coffee maker front', 1, false, admin_user_id
+    FROM product p WHERE p.name = 'Coffee Maker Programmable';
+    INSERT INTO product_url (product_id, url, url_type, alt_text, display_order, is_primary, created_by)
+    SELECT p.id, 'https://images.unsplash.com/photo-1509042239860-f550ce710b93', 0, 'Coffee cup detail', 2, false, admin_user_id
+    FROM product p WHERE p.name = 'Coffee Maker Programmable';
+    INSERT INTO product_url (product_id, url, url_type, alt_text, display_order, is_primary, created_by)
+    SELECT p.id, 'https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd', 0, 'Coffee brewing', 3, false, admin_user_id
+    FROM product p WHERE p.name = 'Coffee Maker Programmable';
+    INSERT INTO product_url (product_id, url, url_type, alt_text, display_order, is_primary, created_by)
+    SELECT p.id, 'https://images.unsplash.com/photo-1498804103079-a6351b050096', 0, 'Kitchen counter setup', 4, false, admin_user_id
+    FROM product p WHERE p.name = 'Coffee Maker Programmable';
+    -- Video for Coffee Maker
+    INSERT INTO product_url (product_id, url, url_type, alt_text, display_order, is_primary, created_by)
+    SELECT p.id, 'https://vimeo.com/148751763', 1, 'How to Use Video', 5, false, admin_user_id
+    FROM product p WHERE p.name = 'Coffee Maker Programmable';
+    -- Manual for Coffee Maker
+    INSERT INTO product_url (product_id, url, url_type, alt_text, display_order, is_primary, created_by)
+    SELECT p.id, 'https://www.adobe.com/support/products/enterprise/knowledgecenter/media/c4611_sample_explain.pdf', 2, 'User Manual', 6, false, admin_user_id
+    FROM product p WHERE p.name = 'Coffee Maker Programmable';
+
+    -- Air Fryer 5.8 Quart - 3 images
+    INSERT INTO product_url (product_id, url, url_type, alt_text, display_order, is_primary, created_by)
+    SELECT p.id, 'https://images.unsplash.com/photo-1626082927389-6cd097cdc6ec', 0, 'Air fryer open', 1, false, admin_user_id
+    FROM product p WHERE p.name = 'Air Fryer 5.8 Quart';
+    INSERT INTO product_url (product_id, url, url_type, alt_text, display_order, is_primary, created_by)
+    SELECT p.id, 'https://images.unsplash.com/photo-1612103198005-b238154f4590', 0, 'Air fryer with food', 2, false, admin_user_id
+    FROM product p WHERE p.name = 'Air Fryer 5.8 Quart';
+    -- Video for Air Fryer
+    INSERT INTO product_url (product_id, url, url_type, alt_text, display_order, is_primary, created_by)
+    SELECT p.id, 'https://www.youtube.com/watch?v=jNQXAC9IVRw', 1, 'Recipe Demo', 3, false, admin_user_id
+    FROM product p WHERE p.name = 'Air Fryer 5.8 Quart';
+
+    -- Knife Set Professional 15-Piece - 3 images
+    INSERT INTO product_url (product_id, url, url_type, alt_text, display_order, is_primary, created_by)
+    SELECT p.id, 'https://images.unsplash.com/photo-1566454419290-57a64afe1e5b', 0, 'Knife set display', 1, false, admin_user_id
+    FROM product p WHERE p.name = 'Knife Set Professional 15-Piece';
+    INSERT INTO product_url (product_id, url, url_type, alt_text, display_order, is_primary, created_by)
+    SELECT p.id, 'https://images.unsplash.com/photo-1593618998160-e34014e67546', 0, 'Chef knife detail', 2, false, admin_user_id
+    FROM product p WHERE p.name = 'Knife Set Professional 15-Piece';
+    -- Manual for Knife Set
+    INSERT INTO product_url (product_id, url, url_type, alt_text, display_order, is_primary, created_by)
+    SELECT p.id, 'https://www.w3.org/WAI/WCAG21/Techniques/pdf/img/table-word.jpg', 2, 'Knife Care Guide', 3, false, admin_user_id
+    FROM product p WHERE p.name = 'Knife Set Professional 15-Piece';
 
     -- Sports & Outdoors URLs
     INSERT INTO product_url (product_id, url, url_type, alt_text, display_order, is_primary, created_by)
@@ -338,6 +494,71 @@ BEGIN
     FROM product p
     WHERE p.sku LIKE 'SPRT-%';
 
+    -- Additional images for Sports & Outdoors (3-5 images per product)
+    -- Yoga Mat Premium - 5 images
+    INSERT INTO product_url (product_id, url, url_type, alt_text, display_order, is_primary, created_by)
+    SELECT p.id, 'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b', 0, 'Yoga mat rolled', 1, false, admin_user_id
+    FROM product p WHERE p.name = 'Yoga Mat Premium';
+    INSERT INTO product_url (product_id, url, url_type, alt_text, display_order, is_primary, created_by)
+    SELECT p.id, 'https://images.unsplash.com/photo-1506126613408-eca07ce68773', 0, 'Yoga practice', 2, false, admin_user_id
+    FROM product p WHERE p.name = 'Yoga Mat Premium';
+    INSERT INTO product_url (product_id, url, url_type, alt_text, display_order, is_primary, created_by)
+    SELECT p.id, 'https://images.unsplash.com/photo-1518611012118-696072aa579a', 0, 'Mat texture detail', 3, false, admin_user_id
+    FROM product p WHERE p.name = 'Yoga Mat Premium';
+    INSERT INTO product_url (product_id, url, url_type, alt_text, display_order, is_primary, created_by)
+    SELECT p.id, 'https://images.unsplash.com/photo-1599901860904-17e6ed7083a0', 0, 'Yoga studio setup', 4, false, admin_user_id
+    FROM product p WHERE p.name = 'Yoga Mat Premium';
+    -- Video for Yoga Mat
+    INSERT INTO product_url (product_id, url, url_type, alt_text, display_order, is_primary, created_by)
+    SELECT p.id, 'https://www.youtube.com/watch?v=v7AYKMP6rOE', 1, 'Yoga Routine Video', 5, false, admin_user_id
+    FROM product p WHERE p.name = 'Yoga Mat Premium';
+
+    -- Camping Tent 4-Person - 5 images
+    INSERT INTO product_url (product_id, url, url_type, alt_text, display_order, is_primary, created_by)
+    SELECT p.id, 'https://images.unsplash.com/photo-1478131143081-80f7f84ca84d', 0, 'Tent at sunset', 1, false, admin_user_id
+    FROM product p WHERE p.name = 'Camping Tent 4-Person';
+    INSERT INTO product_url (product_id, url, url_type, alt_text, display_order, is_primary, created_by)
+    SELECT p.id, 'https://images.unsplash.com/photo-1537905569824-f89f14cceb68', 0, 'Tent interior', 2, false, admin_user_id
+    FROM product p WHERE p.name = 'Camping Tent 4-Person';
+    INSERT INTO product_url (product_id, url, url_type, alt_text, display_order, is_primary, created_by)
+    SELECT p.id, 'https://images.unsplash.com/photo-1510312305653-8ed496efae75', 0, 'Tent in forest', 3, false, admin_user_id
+    FROM product p WHERE p.name = 'Camping Tent 4-Person';
+    INSERT INTO product_url (product_id, url, url_type, alt_text, display_order, is_primary, created_by)
+    SELECT p.id, 'https://images.unsplash.com/photo-1445308394109-4ec2920981b1', 0, 'Camping scene', 4, false, admin_user_id
+    FROM product p WHERE p.name = 'Camping Tent 4-Person';
+    -- Video for Tent
+    INSERT INTO product_url (product_id, url, url_type, alt_text, display_order, is_primary, created_by)
+    SELECT p.id, 'https://www.youtube.com/watch?v=dQw4w9WgXcQ', 1, 'Setup Tutorial', 5, false, admin_user_id
+    FROM product p WHERE p.name = 'Camping Tent 4-Person';
+    -- Manual for Tent
+    INSERT INTO product_url (product_id, url, url_type, alt_text, display_order, is_primary, created_by)
+    SELECT p.id, 'https://www.w3.org/WAI/WCAG21/Techniques/pdf/img/table-word.jpg', 2, 'Assembly Instructions', 6, false, admin_user_id
+    FROM product p WHERE p.name = 'Camping Tent 4-Person';
+
+    -- Hiking Backpack 50L - 3 images
+    INSERT INTO product_url (product_id, url, url_type, alt_text, display_order, is_primary, created_by)
+    SELECT p.id, 'https://images.unsplash.com/photo-1622260614153-03223fb72052', 0, 'Backpack side view', 1, false, admin_user_id
+    FROM product p WHERE p.name = 'Hiking Backpack 50L';
+    INSERT INTO product_url (product_id, url, url_type, alt_text, display_order, is_primary, created_by)
+    SELECT p.id, 'https://images.unsplash.com/photo-1501554728187-ce583db33af7', 0, 'Backpack on trail', 2, false, admin_user_id
+    FROM product p WHERE p.name = 'Hiking Backpack 50L';
+    -- Video for Backpack
+    INSERT INTO product_url (product_id, url, url_type, alt_text, display_order, is_primary, created_by)
+    SELECT p.id, 'https://vimeo.com/148751763', 1, 'Packing Tips Video', 3, false, admin_user_id
+    FROM product p WHERE p.name = 'Hiking Backpack 50L';
+
+    -- Dumbbell Set Adjustable - 3 images
+    INSERT INTO product_url (product_id, url, url_type, alt_text, display_order, is_primary, created_by)
+    SELECT p.id, 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48', 0, 'Dumbbells in gym', 1, false, admin_user_id
+    FROM product p WHERE p.name = 'Dumbbell Set Adjustable';
+    INSERT INTO product_url (product_id, url, url_type, alt_text, display_order, is_primary, created_by)
+    SELECT p.id, 'https://images.unsplash.com/photo-1583454110551-21f2fa2afe61', 0, 'Dumbbell detail', 2, false, admin_user_id
+    FROM product p WHERE p.name = 'Dumbbell Set Adjustable';
+    -- Manual for Dumbbells
+    INSERT INTO product_url (product_id, url, url_type, alt_text, display_order, is_primary, created_by)
+    SELECT p.id, 'https://www.adobe.com/support/products/enterprise/knowledgecenter/media/c4611_sample_explain.pdf', 2, 'Workout Guide', 3, false, admin_user_id
+    FROM product p WHERE p.name = 'Dumbbell Set Adjustable';
+
     -- Books & Media URLs
     INSERT INTO product_url (product_id, url, url_type, alt_text, display_order, is_primary, created_by)
     SELECT 
@@ -373,6 +594,49 @@ BEGIN
     FROM product p
     WHERE p.sku LIKE 'BOOK-%';
 
+    -- Additional images for Books & Media (3-5 images per product)
+    -- The Art of Programming - 5 images
+    INSERT INTO product_url (product_id, url, url_type, alt_text, display_order, is_primary, created_by)
+    SELECT p.id, 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c', 0, 'Book cover detail', 1, false, admin_user_id
+    FROM product p WHERE p.name = 'The Art of Programming';
+    INSERT INTO product_url (product_id, url, url_type, alt_text, display_order, is_primary, created_by)
+    SELECT p.id, 'https://images.unsplash.com/photo-1497633762265-9d179a990aa6', 0, 'Book pages', 2, false, admin_user_id
+    FROM product p WHERE p.name = 'The Art of Programming';
+    INSERT INTO product_url (product_id, url, url_type, alt_text, display_order, is_primary, created_by)
+    SELECT p.id, 'https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8', 0, 'Book on desk', 3, false, admin_user_id
+    FROM product p WHERE p.name = 'The Art of Programming';
+    INSERT INTO product_url (product_id, url, url_type, alt_text, display_order, is_primary, created_by)
+    SELECT p.id, 'https://images.unsplash.com/photo-1519682337058-a94d519337bc', 0, 'Reading setup', 4, false, admin_user_id
+    FROM product p WHERE p.name = 'The Art of Programming';
+    -- Video for Book
+    INSERT INTO product_url (product_id, url, url_type, alt_text, display_order, is_primary, created_by)
+    SELECT p.id, 'https://www.youtube.com/watch?v=dQw4w9WgXcQ', 1, 'Author Interview', 5, false, admin_user_id
+    FROM product p WHERE p.name = 'The Art of Programming';
+
+    -- Data Science Handbook - 3 images
+    INSERT INTO product_url (product_id, url, url_type, alt_text, display_order, is_primary, created_by)
+    SELECT p.id, 'https://images.unsplash.com/photo-1551288049-bebda4e38f71', 0, 'Data visualization', 1, false, admin_user_id
+    FROM product p WHERE p.name = 'Data Science Handbook';
+    INSERT INTO product_url (product_id, url, url_type, alt_text, display_order, is_primary, created_by)
+    SELECT p.id, 'https://images.unsplash.com/photo-1460925895917-afdab827c52f', 0, 'Analytics dashboard', 2, false, admin_user_id
+    FROM product p WHERE p.name = 'Data Science Handbook';
+    -- Video for Data Science Book
+    INSERT INTO product_url (product_id, url, url_type, alt_text, display_order, is_primary, created_by)
+    SELECT p.id, 'https://vimeo.com/148751763', 1, 'Chapter Preview', 3, false, admin_user_id
+    FROM product p WHERE p.name = 'Data Science Handbook';
+
+    -- Photography Fundamentals - 3 images
+    INSERT INTO product_url (product_id, url, url_type, alt_text, display_order, is_primary, created_by)
+    SELECT p.id, 'https://images.unsplash.com/photo-1502920917128-1aa500764cbd', 0, 'Camera equipment', 1, false, admin_user_id
+    FROM product p WHERE p.name = 'Photography Fundamentals';
+    INSERT INTO product_url (product_id, url, url_type, alt_text, display_order, is_primary, created_by)
+    SELECT p.id, 'https://images.unsplash.com/photo-1471341971476-ae15ff5dd4ea', 0, 'Photo samples', 2, false, admin_user_id
+    FROM product p WHERE p.name = 'Photography Fundamentals';
+    -- Manual for Photography Book
+    INSERT INTO product_url (product_id, url, url_type, alt_text, display_order, is_primary, created_by)
+    SELECT p.id, 'https://www.w3.org/WAI/WCAG21/Techniques/pdf/img/table-word.jpg', 2, 'Quick Reference Card', 3, false, admin_user_id
+    FROM product p WHERE p.name = 'Photography Fundamentals';
+
     -- Clothing & Accessories URLs
     INSERT INTO product_url (product_id, url, url_type, alt_text, display_order, is_primary, created_by)
     SELECT 
@@ -407,5 +671,70 @@ BEGIN
         admin_user_id
     FROM product p
     WHERE p.sku LIKE 'CLTH-%';
+
+    -- Additional images for Clothing & Accessories (3-5 images per product)
+    -- Cotton T-Shirt Classic - 5 images
+    INSERT INTO product_url (product_id, url, url_type, alt_text, display_order, is_primary, created_by)
+    SELECT p.id, 'https://images.unsplash.com/photo-1562157873-818bc0726f68', 0, 'T-shirt back view', 1, false, admin_user_id
+    FROM product p WHERE p.name = 'Cotton T-Shirt Classic';
+    INSERT INTO product_url (product_id, url, url_type, alt_text, display_order, is_primary, created_by)
+    SELECT p.id, 'https://images.unsplash.com/photo-1583743814966-8936f5b7be1a', 0, 'T-shirt folded', 2, false, admin_user_id
+    FROM product p WHERE p.name = 'Cotton T-Shirt Classic';
+    INSERT INTO product_url (product_id, url, url_type, alt_text, display_order, is_primary, created_by)
+    SELECT p.id, 'https://images.unsplash.com/photo-1576566588028-4147f3842f27', 0, 'T-shirt on model', 3, false, admin_user_id
+    FROM product p WHERE p.name = 'Cotton T-Shirt Classic';
+    INSERT INTO product_url (product_id, url, url_type, alt_text, display_order, is_primary, created_by)
+    SELECT p.id, 'https://images.unsplash.com/photo-1618354691373-d851c5c3a990', 0, 'T-shirt detail', 4, false, admin_user_id
+    FROM product p WHERE p.name = 'Cotton T-Shirt Classic';
+    -- Video for T-Shirt
+    INSERT INTO product_url (product_id, url, url_type, alt_text, display_order, is_primary, created_by)
+    SELECT p.id, 'https://www.youtube.com/watch?v=dQw4w9WgXcQ', 1, 'Styling Tips Video', 5, false, admin_user_id
+    FROM product p WHERE p.name = 'Cotton T-Shirt Classic';
+    -- Manual for T-Shirt
+    INSERT INTO product_url (product_id, url, url_type, alt_text, display_order, is_primary, created_by)
+    SELECT p.id, 'https://www.w3.org/WAI/WCAG21/Techniques/pdf/img/table-word.jpg', 2, 'Care Instructions', 6, false, admin_user_id
+    FROM product p WHERE p.name = 'Cotton T-Shirt Classic';
+
+    -- Running Shoes Athletic - 5 images
+    INSERT INTO product_url (product_id, url, url_type, alt_text, display_order, is_primary, created_by)
+    SELECT p.id, 'https://images.unsplash.com/photo-1606107557195-0e29a4b5b4aa', 0, 'Shoes side view', 1, false, admin_user_id
+    FROM product p WHERE p.name = 'Running Shoes Athletic';
+    INSERT INTO product_url (product_id, url, url_type, alt_text, display_order, is_primary, created_by)
+    SELECT p.id, 'https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a', 0, 'Shoes top view', 2, false, admin_user_id
+    FROM product p WHERE p.name = 'Running Shoes Athletic';
+    INSERT INTO product_url (product_id, url, url_type, alt_text, display_order, is_primary, created_by)
+    SELECT p.id, 'https://images.unsplash.com/photo-1460353581641-37baddab0fa2', 0, 'Shoes in action', 3, false, admin_user_id
+    FROM product p WHERE p.name = 'Running Shoes Athletic';
+    INSERT INTO product_url (product_id, url, url_type, alt_text, display_order, is_primary, created_by)
+    SELECT p.id, 'https://images.unsplash.com/photo-1539185441755-769473a23570', 0, 'Shoes sole detail', 4, false, admin_user_id
+    FROM product p WHERE p.name = 'Running Shoes Athletic';
+    -- Video for Shoes
+    INSERT INTO product_url (product_id, url, url_type, alt_text, display_order, is_primary, created_by)
+    SELECT p.id, 'https://vimeo.com/148751763', 1, 'Running Demo', 5, false, admin_user_id
+    FROM product p WHERE p.name = 'Running Shoes Athletic';
+
+    -- Denim Jeans Slim Fit - 3 images
+    INSERT INTO product_url (product_id, url, url_type, alt_text, display_order, is_primary, created_by)
+    SELECT p.id, 'https://images.unsplash.com/photo-1541099649105-f69ad21f3246', 0, 'Jeans back view', 1, false, admin_user_id
+    FROM product p WHERE p.name = 'Denim Jeans Slim Fit';
+    INSERT INTO product_url (product_id, url, url_type, alt_text, display_order, is_primary, created_by)
+    SELECT p.id, 'https://images.unsplash.com/photo-1582552938357-32b906df40cb', 0, 'Jeans detail', 2, false, admin_user_id
+    FROM product p WHERE p.name = 'Denim Jeans Slim Fit';
+    -- Manual for Jeans
+    INSERT INTO product_url (product_id, url, url_type, alt_text, display_order, is_primary, created_by)
+    SELECT p.id, 'https://www.adobe.com/support/products/enterprise/knowledgecenter/media/c4611_sample_explain.pdf', 2, 'Size Guide', 3, false, admin_user_id
+    FROM product p WHERE p.name = 'Denim Jeans Slim Fit';
+
+    -- Watch Analog Casual - 3 images
+    INSERT INTO product_url (product_id, url, url_type, alt_text, display_order, is_primary, created_by)
+    SELECT p.id, 'https://images.unsplash.com/photo-1524592094714-0f0654e20314', 0, 'Watch on wrist', 1, false, admin_user_id
+    FROM product p WHERE p.name = 'Watch Analog Casual';
+    INSERT INTO product_url (product_id, url, url_type, alt_text, display_order, is_primary, created_by)
+    SELECT p.id, 'https://images.unsplash.com/photo-1533139502658-0198f920d8e8', 0, 'Watch face detail', 2, false, admin_user_id
+    FROM product p WHERE p.name = 'Watch Analog Casual';
+    -- Video for Watch
+    INSERT INTO product_url (product_id, url, url_type, alt_text, display_order, is_primary, created_by)
+    SELECT p.id, 'https://www.youtube.com/watch?v=jNQXAC9IVRw', 1, 'Watch Features', 3, false, admin_user_id
+    FROM product p WHERE p.name = 'Watch Analog Casual';
 
 END $$;

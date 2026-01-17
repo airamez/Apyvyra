@@ -16,5 +16,13 @@
   "IMAGE": "Imagen",
   "VIDEO": "Video",
   "MANUAL": "Manual",
-  "RESOURCE": "Recurso {index}"
+  "RESOURCE": "Recurso {index}",
+  "MORE_IMAGES": "Más Imágenes",
+  "ZOOM_IN": "Acercar",
+  "ZOOM_OUT": "Alejar",
+  "ZOOM_HINT": "Haz clic en la imagen para acercar/alejar. Arrastra para desplazar cuando esté ampliada.",
+  "BRAND": "Marca",
+  "MANUFACTURER": "Fabricante",
+  "DIMENSIONS": "Dimensiones",
+  "WEIGHT": "Peso"
 }

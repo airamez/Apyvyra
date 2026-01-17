@@ -16,5 +16,13 @@
   "IMAGE": "Image",
   "VIDEO": "Video",
   "MANUAL": "Manual",
-  "RESOURCE": "Resource {index}"
+  "RESOURCE": "Resource {index}",
+  "MORE_IMAGES": "More Images",
+  "ZOOM_IN": "Zoom In",
+  "ZOOM_OUT": "Zoom Out",
+  "ZOOM_HINT": "Click image to zoom in/out. Drag to pan when zoomed.",
+  "BRAND": "Brand",
+  "MANUFACTURER": "Manufacturer",
+  "DIMENSIONS": "Dimensions",
+  "WEIGHT": "Weight"
 }

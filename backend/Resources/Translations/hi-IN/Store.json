@@ -16,5 +16,13 @@
   "IMAGE": "चित्र",
   "VIDEO": "वीडियो",
   "MANUAL": "मैनुअल",
-  "RESOURCE": "संसाधन {index}"
+  "RESOURCE": "संसाधन {index}",
+  "MORE_IMAGES": "अधिक चित्र",
+  "ZOOM_IN": "ज़ूम इन",
+  "ZOOM_OUT": "ज़ूम आउट",
+  "ZOOM_HINT": "ज़ूम इन/आउट के लिए चित्र पर क्लिक करें। ज़ूम होने पर खींचें।",
+  "BRAND": "ब्रांड",
+  "MANUFACTURER": "निर्माता",
+  "DIMENSIONS": "आयाम",
+  "WEIGHT": "वज़न"
 }

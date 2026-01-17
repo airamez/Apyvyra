@@ -25,6 +25,8 @@ import ClearIcon from '@mui/icons-material/Clear';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import AddIcon from '@mui/icons-material/Add';
 import RemoveIcon from '@mui/icons-material/Remove';
+import CollectionsIcon from '@mui/icons-material/Collections';
+import ImageGalleryModal from './ImageGalleryModal';
 import { productService, type Product } from '../../services/productService';
 import { categoryService, type ProductCategory } from '../../services/categoryService';
 import { cartService } from '../../services/cartService';
@@ -49,6 +51,7 @@ export default function Store({ onViewCart }: StoreProps) {
   const [cartItemCount, setCartItemCount] = useState(0);
   const [quantities, setQuantities] = useState<Record<number, number>>({});
   const [snackbar, setSnackbar] = useState<{ open: boolean; message: string }>({ open: false, message: '' });
+  const [galleryProduct, setGalleryProduct] = useState<Product | null>(null);
 
   useEffect(() => {
     loadData();
@@ -154,18 +157,60 @@ export default function Store({ onViewCart }: StoreProps) {
     return primaryImage?.url || anyImage?.url || 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjE0MCIgdmlld0JveD0iMCAwIDIwMCAxNDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIyMDAiIGhlaWdodD0iMTQwIiBmaWxsPSIjRjVGNUY1Ii8+CjxwYXRoIGQ9Ik04NSA1MEgxMTVWOTBIOjVWNTBaIiBmaWxsPSIjOTk5OTk5Ii8+CjxjaXJjbGUgY3g9IjEwMCIgY3k9IjM1IiByPSIxNSIgZmlsbD0iIzk5OTk5OSIvPgo8L3N2Zz4K';
   }, []);
 
+  const getProductImages = useCallback((product: Product) => {
+    return product.productUrls?.filter(u => u.urlType === 0) || [];
+  }, []);
+
+  const getProductResources = useCallback((product: Product) => {
+    return product.productUrls?.filter(u => u.urlType === 1 || u.urlType === 2) || [];
+  }, []);
+
+  const handleOpenGallery = useCallback((product: Product) => {
+    setGalleryProduct(product);
+  }, []);
+
+  const handleCloseGallery = useCallback(() => {
+    setGalleryProduct(null);
+  }, []);
+
   // Memoized ProductCard component to prevent unnecessary re-renders
   const ProductCard = memo(({ product }: { product: Product }) => {
     const currentQuantity = quantities[product.id] || 1;
     return (
       <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-        <CardMedia
-          component="img"
-          height="140"
-          image={getProductImage(product)}
-          alt={product.name}
-          sx={{ objectFit: 'contain', bgcolor: '#f5f5f5', p: 1 }}
-        />
+        <Box sx={{ position: 'relative' }}>
+          <CardMedia
+            component="img"
+            height="140"
+            image={getProductImage(product)}
+            alt={product.name}
+            sx={{ objectFit: 'contain', bgcolor: '#f5f5f5', p: 1 }}
+          />
+          {/* More Images Button - only show if more than 1 image */}
+          {getProductImages(product).length > 1 && (
+            <Button
+              variant="contained"
+              size="small"
+              startIcon={<CollectionsIcon />}
+              onClick={() => handleOpenGallery(product)}
+              sx={{
+                position: 'absolute',
+                bottom: 8,
+                right: 8,
+                fontSize: '0.7rem',
+                py: 0.5,
+                px: 1,
+                minWidth: 'auto',
+                bgcolor: 'rgba(25, 118, 210, 0.9)',
+                '&:hover': {
+                  bgcolor: 'rgba(25, 118, 210, 1)',
+                },
+              }}
+            >
+              {t('MORE_IMAGES')} ({getProductImages(product).length})
+            </Button>
+          )}
+        </Box>
         <CardContent sx={{ flexGrow: 1, p: 1.5, '&:last-child': { pb: 1.5 } }}>
           <Typography variant="subtitle2" noWrap title={product.name}>
             {product.name}
@@ -246,16 +291,16 @@ export default function Store({ onViewCart }: StoreProps) {
           </Box>
         )}
 
-        {/* Resources Section */}
-        {product.productUrls && product.productUrls.length > 0 && (
+        {/* Resources Section - Only show videos (type 1) and manuals (type 2) */}
+        {getProductResources(product).length > 0 && (
           <Box sx={{ px: 1.5, pb: 1.5, pt: 1, borderTop: '1px solid #eee' }}>
             <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 'bold', display: 'block', mb: 0.5 }}>
               {t('RESOURCES')}:
             </Typography>
-            {product.productUrls.map((url, index) => (
+            {getProductResources(product).map((url, index) => (
               <Box key={url.id} sx={{ mb: 0.3 }}>
                 <Typography variant="caption" color="text.secondary" sx={{ display: 'block' }}>
-                  <strong>{url.urlType === 0 ? t('IMAGE') : url.urlType === 1 ? t('VIDEO') : t('MANUAL')}:</strong>{' '}
+                  <strong>{url.urlType === 1 ? t('VIDEO') : t('MANUAL')}:</strong>{' '}
                   <Link 
                     href={url.url} 
                     target="_blank" 
@@ -387,6 +432,17 @@ export default function Store({ onViewCart }: StoreProps) {
           {snackbar.message}
         </Alert>
       </Snackbar>
+
+      {/* Image Gallery Modal */}
+      {galleryProduct && (
+        <ImageGalleryModal
+          open={!!galleryProduct}
+          onClose={handleCloseGallery}
+          productName={galleryProduct.name}
+          productDescription={galleryProduct.description}
+          images={getProductImages(galleryProduct)}
+        />
+      )}
     </Box>
   );
 }
