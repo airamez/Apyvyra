@@ -136,6 +136,132 @@ Apyvyra/
    docker-compose down -v
    ```
 
+## Database Model
+
+```
+┌─────────────────────────────────────────────────────────────────────────────────────────┐
+│                              APYVYRA DATABASE SCHEMA                                    │
+└─────────────────────────────────────────────────────────────────────────────────────────┘
+
+                              ┌───────────────────┐
+                              │    app_user       │
+                              ├───────────────────┤
+                              │ id (PK)           │◄─────────────────────────────────────┐
+                              │ email (UNIQUE)    │                                      │
+                              │ password          │  (All tables reference app_user      │
+                              │ full_name         │   via created_by / updated_by)       │
+                              │ user_type         │                                      │
+                              │ status            │                                      │
+                              │ confirmation_token│                                      │
+                              │ created_at        │                                      │
+                              │ updated_at        │                                      │
+                              └───────────────────┘                                      │
+                                       ▲                                                 │
+                                       │ 1:1                                             │
+                                       │                                                 │
+┌───────────────────┐         ┌───────────────────┐         ┌───────────────────┐        │
+│     address       │◄────────│     customer      │         │  product_category │        │
+├───────────────────┤         ├───────────────────┤         ├───────────────────┤        │
+│ id (PK)           │         │ id (PK)           │         │ id (PK)           │◄──┐    │
+│ address_line      │         │ app_user_id (FK)──┼─────────│ name              │   │    │
+│ google_place_id   │         │ phone             │         │ description       │   │    │
+│ formatted_address │         │ notes             │         │ parent_category_id├───┘    │
+│ country           │         │ address_id (FK)───┼────┐    │ is_active         │        │
+│ state             │         │ created_at        │    │    │ created_at        │        │
+│ city              │         │ created_by (FK)───┼────┼────│ created_by (FK)───┼────────┤
+│ postal_code       │         │ updated_by (FK)───┼────┼────│ updated_by (FK)───┼────────┤
+│ is_validated      │◄────────┼───────────────────┼────┘    └───────────────────┘        │
+│ created_at        │         └───────────────────┘                  │                   │
+│ created_by (FK)───┼────────────────────┼───────────────────────────┼───────────────────┤
+│ updated_by (FK)───┼────────────────────┼───────────────────────────┼───────────────────┤
+└───────────────────┘                    │                           │                   │
+         ▲                               │                           ▼                   │
+         │                               ▼                  ┌───────────────────┐        │
+         │                      ┌───────────────────┐       │      product      │        │
+         │                      │customer_phone_call│       ├───────────────────┤        │
+         │                      ├───────────────────┤       │ id (PK)           │        │
+         │                      │ id (PK)           │       │ sku (UNIQUE)      │        │
+         │                      │ customer_id (FK)──┼───┐   │ name              │        │
+         │                      │ call_date         │   │   │ description       │        │
+         │                      │ call_type         │   │   │ category_id (FK)──┼────────┤
+         │                      │ duration_minutes  │   │   │ price             │        │
+         │                      │ notes             │   │   │ cost_price        │        │
+         │                      │ created_at        │   │   │ tax_rate          │        │
+         │                      │ created_by (FK)───┼───┼───│ stock_quantity    │        │
+         │                      │ updated_by (FK)───┼───┼───│ brand             │        │
+         │                      └───────────────────┘   │   │ manufacturer      │        │
+         │                               │              │   │ is_active         │        │
+         │                               │              │   │ created_by (FK)───┼────────┤
+         │                               │              │   │ updated_by (FK)───┼────────┤
+         │                               │              │   └───────────────────┘        │
+         │                               │              │            │                   │
+         │                               │              │            ▼                   │
+         │                               │              │   ┌───────────────────┐        │
+         │                               │              │   │    product_url    │        │
+         │                               │              │   ├───────────────────┤        │
+         │                               │              │   │ id (PK)           │        │
+         │                               │              │   │ product_id (FK)───┼────┐   │
+         │                               │              │   │ url               │    │   │
+         │                               │              │   │ url_type          │    │   │
+         │                               │              │   │ alt_text          │    │   │
+         │                               │              │   │ display_order     │    │   │
+         │                               │              │   │ is_primary        │    │   │
+         │                               │              │   │ created_at        │    │   │
+         │                               │              │   │ created_by (FK)───┼────┼───┤
+         │                               │              │   └───────────────────┘    │   │
+         │                               │              │                            │   │
+         │                               ▼              ▼                            │   │
+         │                      ┌───────────────────┐                                │   │
+         │                      │  customer_order   │◄───────────────────────────────┼───┤
+         │                      ├───────────────────┤                                │   │
+         │                      │ id (PK)           │◄───────────────────────┐       │   │
+         │                      │ order_number      │                        │       │   │
+         │                      │ customer_id (FK)──┼────────────────────────┼───────┤   │
+         │                      │ status            │                        │       │   │
+         │                      │ payment_status    │                        │       │   │
+         │◄─────────────────────┤ shipping_addr_id  │                        │       │   │
+         │                      │ subtotal          │                        │       │   │
+         │                      │ tax_amount        │                        │       │   │
+         │                      │ total_amount      │                        │       │   │
+         │                      │ notes             │                        │       │   │
+         │                      │ stripe_payment_id │                        │       │   │
+         │                      │ paid_at           │                        │       │   │
+         │                      │ order_date        │       ┌───────────────────┐    │   │
+         │                      │ created_by (FK)───┼───────│    order_item     │    │   │
+         │                      │ updated_by (FK)───┼───────├───────────────────┤    │   │
+         │                      └───────────────────┘       │ id (PK)           │    │   │
+         │                                                  │ order_id (FK)─────┼────┘   │
+         │                                                  │ product_id (FK)───┼────────┘
+         │                                                  │ product_name      │
+         │                                                  │ product_sku       │
+         │                                                  │ quantity          │
+         │                                                  │ unit_price        │
+         │                                                  │ tax_rate          │
+         │                                                  │ tax_amount        │
+         │                                                  │ line_total        │
+         │                                                  │ created_at        │
+         └──────────────────────────────────────────────────┴───────────────────┘
+
+LEGEND:
+  PK = Primary Key       FK = Foreign Key
+  ─► = References (Many-to-One)
+  ◄─ = Referenced by (One-to-Many)
+  ◄──┐/┘ = Self-Reference
+
+RELATIONSHIPS:
+  customer.app_user_id ──────────► app_user.id (1:1)
+  customer.address_id ───────────► address.id
+  customer_phone_call.customer_id► customer.id
+  customer_order.customer_id ────► customer.id
+  customer_order.shipping_addr_id► address.id
+  order_item.order_id ───────────► customer_order.id
+  order_item.product_id ─────────► product.id
+  product.category_id ───────────► product_category.id
+  product_category.parent_id ────► product_category.id (self-ref)
+  product_url.product_id ────────► product.id
+  All tables ────────────────────► app_user.id (created_by/updated_by)
+```
+
 ## Mock Mode Configuration
 
 The Apyvyra application runs in **mocking mode** by default for `email`, `Google Maps`, and `Stripe integration. This allows you to run demos and tests without requiring third-party service integration or API keys.

@@ -1,10 +1,10 @@
 {
-  "ADDRESS_REQUIRED": "Address is required",
-  "ADDRESS_NOT_FOUND": "Address not found. Please enter a valid US address.",
-  "GOOGLE_MAPS_VALIDATION_FAILED": "Failed to validate address with Google Maps",
-  "GOOGLE_API_ERROR": "Google API error occurred",
-  "FAILED_GET_ADDRESS_DETAILS": "Failed to get address details",
-  "INCOMPLETE_ADDRESS": "Please enter a complete address with street, city, and state/zip code",
-  "ADDRESS_MISMATCH_FOUND_SIMILAR": "Address format is incorrect. Did you mean one of these suggestions?",
-  "RECOMMENDED_ADDRESS": "Recommended address"
+  "ADDRESS_REQUIRED": "पता आवश्यक है",
+  "ADDRESS_NOT_FOUND": "पता नहीं मिला। कृपया एक वैध पता दर्ज करें।",
+  "GOOGLE_MAPS_VALIDATION_FAILED": "Google Maps से पता सत्यापित करने में विफल",
+  "GOOGLE_API_ERROR": "Google API त्रुटि हुई",
+  "FAILED_GET_ADDRESS_DETAILS": "पता विवरण प्राप्त करने में विफल",
+  "INCOMPLETE_ADDRESS": "कृपया सड़क, शहर और राज्य/पिन कोड के साथ पूरा पता दर्ज करें",
+  "ADDRESS_MISMATCH_FOUND_SIMILAR": "पता प्रारूप गलत है। क्या आपका मतलब इनमें से किसी सुझाव से था?",
+  "RECOMMENDED_ADDRESS": "अनुशंसित पता"
 }

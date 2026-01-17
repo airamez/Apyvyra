@@ -1,15 +1,15 @@
 {
-  "TITLE": "Add Product URL",
+  "TITLE": "Adicionar URL do Produto",
   "URL": "URL",
-  "URL_REQUIRED": "URL is required",
-  "URL_HELPER_TEXT": "Enter a valid URL starting with http:// or https://",
-  "INVALID_URL_FORMAT": "Please enter a valid URL (must start with http:// or https://)",
-  "FAILED_ADD_URL": "Failed to add URL. Please try again.",
-  "URL_TYPE": "URL Type",
-  "TYPE_IMAGE": "Image",
-  "TYPE_VIDEO": "Video",
+  "URL_REQUIRED": "URL é obrigatória",
+  "URL_HELPER_TEXT": "Digite uma URL válida começando com http:// ou https://",
+  "INVALID_URL_FORMAT": "Por favor, digite uma URL válida (deve começar com http:// ou https://)",
+  "FAILED_ADD_URL": "Falha ao adicionar URL. Por favor, tente novamente.",
+  "URL_TYPE": "Tipo de URL",
+  "TYPE_IMAGE": "Imagem",
+  "TYPE_VIDEO": "Vídeo",
   "TYPE_MANUAL": "Manual",
-  "ADD_URL": "Add URL",
-  "ADDING": "Adding...",
-  "CANCEL": "Cancel"
+  "ADD_URL": "Adicionar URL",
+  "ADDING": "Adicionando...",
+  "CANCEL": "Cancelar"
 }

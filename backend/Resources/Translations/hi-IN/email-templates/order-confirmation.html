@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="hi-IN">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Order Confirmation - Apyvyra</title>
+    <title>ऑर्डर पुष्टि - Apyvyra</title>
 </head>
 <body style="margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f3f4f6;">
     <table role="presentation" style="width: 100%; border-collapse: collapse;">
@@ -13,8 +13,8 @@
                     <!-- Header -->
                     <tr>
                         <td style="padding: 40px 40px 20px; text-align: center; background: linear-gradient(135deg, #10b981 0%, #059669 100%); border-radius: 12px 12px 0 0;">
-                            <h1 style="margin: 0; color: #ffffff; font-size: 28px; font-weight: 700;">Order Confirmed!</h1>
-                            <p style="margin: 10px 0 0; color: #d1fae5; font-size: 16px;">Thank you for your purchase</p>
+                            <h1 style="margin: 0; color: #ffffff; font-size: 28px; font-weight: 700;">ऑर्डर पुष्टि!</h1>
+                            <p style="margin: 10px 0 0; color: #d1fae5; font-size: 16px;">आपकी खरीदारी के लिए धन्यवाद</p>
                         </td>
                     </tr>
 
@@ -22,10 +22,10 @@
                     <tr>
                         <td style="padding: 40px;">
                             <p style="margin: 0 0 20px; color: #374151; font-size: 16px; line-height: 1.6;">
-                                Hello <strong>{{customer_name}}</strong>,
+                                नमस्ते <strong>{{customer_name}}</strong>,
                             </p>
                             <p style="margin: 0 0 30px; color: #374151; font-size: 16px; line-height: 1.6;">
-                                We've received your order and it's being processed. Here are your order details:
+                                हमें आपका ऑर्डर प्राप्त हो गया है और इसे प्रोसेस किया जा रहा है। यहां आपके ऑर्डर का विवरण है:
                             </p>
 
                             <!-- Order Info Box -->
@@ -35,13 +35,13 @@
                                         <table role="presentation" style="width: 100%; border-collapse: collapse;">
                                             <tr>
                                                 <td style="padding: 5px 0;">
-                                                    <span style="color: #6b7280; font-size: 14px;">Order Number:</span>
+                                                    <span style="color: #6b7280; font-size: 14px;">ऑर्डर नंबर:</span>
                                                     <strong style="color: #111827; font-size: 14px; float: right;">{{order_number}}</strong>
                                                 </td>
                                             </tr>
                                             <tr>
                                                 <td style="padding: 5px 0;">
-                                                    <span style="color: #6b7280; font-size: 14px;">Order Date:</span>
+                                                    <span style="color: #6b7280; font-size: 14px;">ऑर्डर तिथि:</span>
                                                     <span style="color: #111827; font-size: 14px; float: right;">{{order_date}}</span>
                                                 </td>
                                             </tr>
@@ -51,14 +51,14 @@
                             </table>
 
                             <!-- Order Items -->
-                            <h3 style="margin: 0 0 15px; color: #111827; font-size: 18px; font-weight: 600;">Order Items</h3>
+                            <h3 style="margin: 0 0 15px; color: #111827; font-size: 18px; font-weight: 600;">ऑर्डर आइटम</h3>
                             <table role="presentation" style="width: 100%; border-collapse: collapse; margin-bottom: 30px;">
                                 <thead>
                                     <tr style="background-color: #f3f4f6;">
-                                        <th style="padding: 12px; text-align: left; color: #374151; font-size: 14px; font-weight: 600; border-bottom: 2px solid #e5e7eb;">Product</th>
-                                        <th style="padding: 12px; text-align: center; color: #374151; font-size: 14px; font-weight: 600; border-bottom: 2px solid #e5e7eb;">Qty</th>
-                                        <th style="padding: 12px; text-align: right; color: #374151; font-size: 14px; font-weight: 600; border-bottom: 2px solid #e5e7eb;">Price</th>
-                                        <th style="padding: 12px; text-align: right; color: #374151; font-size: 14px; font-weight: 600; border-bottom: 2px solid #e5e7eb;">Total</th>
+                                        <th style="padding: 12px; text-align: left; color: #374151; font-size: 14px; font-weight: 600; border-bottom: 2px solid #e5e7eb;">उत्पाद</th>
+                                        <th style="padding: 12px; text-align: center; color: #374151; font-size: 14px; font-weight: 600; border-bottom: 2px solid #e5e7eb;">मात्रा</th>
+                                        <th style="padding: 12px; text-align: right; color: #374151; font-size: 14px; font-weight: 600; border-bottom: 2px solid #e5e7eb;">कीमत</th>
+                                        <th style="padding: 12px; text-align: right; color: #374151; font-size: 14px; font-weight: 600; border-bottom: 2px solid #e5e7eb;">कुल</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -69,21 +69,21 @@
                             <!-- Order Totals -->
                             <table role="presentation" style="width: 100%; border-collapse: collapse; margin-bottom: 30px;">
                                 <tr>
-                                    <td style="padding: 8px 0; color: #6b7280; font-size: 14px;">Subtotal:</td>
-                                    <td style="padding: 8px 0; text-align: right; color: #111827; font-size: 14px;">${{subtotal}}</td>
+                                    <td style="padding: 8px 0; color: #6b7280; font-size: 14px;">उप-कुल:</td>
+                                    <td style="padding: 8px 0; text-align: right; color: #111827; font-size: 14px;">₹{{subtotal}}</td>
                                 </tr>
                                 <tr>
-                                    <td style="padding: 8px 0; color: #6b7280; font-size: 14px;">Tax:</td>
-                                    <td style="padding: 8px 0; text-align: right; color: #111827; font-size: 14px;">${{tax_amount}}</td>
+                                    <td style="padding: 8px 0; color: #6b7280; font-size: 14px;">कर:</td>
+                                    <td style="padding: 8px 0; text-align: right; color: #111827; font-size: 14px;">₹{{tax_amount}}</td>
                                 </tr>
                                 <tr style="border-top: 2px solid #e5e7eb;">
-                                    <td style="padding: 12px 0; color: #111827; font-size: 18px; font-weight: 700;">Total:</td>
-                                    <td style="padding: 12px 0; text-align: right; color: #10b981; font-size: 18px; font-weight: 700;">${{total_amount}}</td>
+                                    <td style="padding: 12px 0; color: #111827; font-size: 18px; font-weight: 700;">कुल:</td>
+                                    <td style="padding: 12px 0; text-align: right; color: #10b981; font-size: 18px; font-weight: 700;">₹{{total_amount}}</td>
                                 </tr>
                             </table>
 
                             <!-- Shipping Address -->
-                            <h3 style="margin: 0 0 15px; color: #111827; font-size: 18px; font-weight: 600;">Shipping Address</h3>
+                            <h3 style="margin: 0 0 15px; color: #111827; font-size: 18px; font-weight: 600;">डिलीवरी पता</h3>
                             <div style="background-color: #f9fafb; border-radius: 8px; padding: 20px; margin-bottom: 30px;">
                                 <p style="margin: 0; color: #374151; font-size: 14px; line-height: 1.6;">
                                     {{shipping_address}}
@@ -93,8 +93,8 @@
                             <!-- Status Info -->
                             <div style="background-color: #fef3c7; border-radius: 8px; padding: 20px; margin-bottom: 20px;">
                                 <p style="margin: 0; color: #92400e; font-size: 14px; line-height: 1.6;">
-                                    <strong>What's Next?</strong><br>
-                                    We'll send you another email when your order ships. You can also check your order status anytime by logging into your account.
+                                    <strong>आगे क्या?</strong><br>
+                                    जब आपका ऑर्डर शिप होगा तब हम आपको एक और ईमेल भेजेंगे। आप अपने खाते में लॉगिन करके कभी भी अपने ऑर्डर की स्थिति जांच सकते हैं।
                                 </p>
                             </div>
                         </td>
@@ -104,10 +104,10 @@
                     <tr>
                         <td style="padding: 30px 40px; background-color: #f9fafb; border-radius: 0 0 12px 12px; text-align: center;">
                             <p style="margin: 0 0 10px; color: #6b7280; font-size: 14px;">
-                                Questions about your order? Contact us at {{support_email}}
+                                अपने ऑर्डर के बारे में प्रश्न? हमसे {{support_email}} पर संपर्क करें
                             </p>
                             <p style="margin: 0; color: #9ca3af; font-size: 12px;">
-                                &copy; 2025 Apyvyra. All rights reserved.
+                                &copy; 2025 Apyvyra. सर्वाधिकार सुरक्षित।
                             </p>
                         </td>
                     </tr>

@@ -1,10 +1,10 @@
 {
-  "ADDRESS_REQUIRED": "Address is required",
-  "ADDRESS_NOT_FOUND": "Address not found. Please enter a valid US address.",
-  "GOOGLE_MAPS_VALIDATION_FAILED": "Failed to validate address with Google Maps",
-  "GOOGLE_API_ERROR": "Google API error occurred",
-  "FAILED_GET_ADDRESS_DETAILS": "Failed to get address details",
-  "INCOMPLETE_ADDRESS": "Please enter a complete address with street, city, and state/zip code",
-  "ADDRESS_MISMATCH_FOUND_SIMILAR": "Address format is incorrect. Did you mean one of these suggestions?",
-  "RECOMMENDED_ADDRESS": "Recommended address"
+  "ADDRESS_REQUIRED": "Endereço é obrigatório",
+  "ADDRESS_NOT_FOUND": "Endereço não encontrado. Por favor, insira um endereço válido.",
+  "GOOGLE_MAPS_VALIDATION_FAILED": "Falha ao validar endereço com o Google Maps",
+  "GOOGLE_API_ERROR": "Ocorreu um erro na API do Google",
+  "FAILED_GET_ADDRESS_DETAILS": "Falha ao obter detalhes do endereço",
+  "INCOMPLETE_ADDRESS": "Por favor, insira um endereço completo com rua, cidade e estado/CEP",
+  "ADDRESS_MISMATCH_FOUND_SIMILAR": "O formato do endereço está incorreto. Você quis dizer uma destas sugestões?",
+  "RECOMMENDED_ADDRESS": "Endereço recomendado"
 }

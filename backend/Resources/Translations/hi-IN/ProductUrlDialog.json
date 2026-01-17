@@ -1,15 +1,15 @@
 {
-  "TITLE": "Add Product URL",
+  "TITLE": "उत्पाद URL जोड़ें",
   "URL": "URL",
-  "URL_REQUIRED": "URL is required",
-  "URL_HELPER_TEXT": "Enter a valid URL starting with http:// or https://",
-  "INVALID_URL_FORMAT": "Please enter a valid URL (must start with http:// or https://)",
-  "FAILED_ADD_URL": "Failed to add URL. Please try again.",
-  "URL_TYPE": "URL Type",
-  "TYPE_IMAGE": "Image",
-  "TYPE_VIDEO": "Video",
-  "TYPE_MANUAL": "Manual",
-  "ADD_URL": "Add URL",
-  "ADDING": "Adding...",
-  "CANCEL": "Cancel"
+  "URL_REQUIRED": "URL आवश्यक है",
+  "URL_HELPER_TEXT": "http:// या https:// से शुरू होने वाला वैध URL दर्ज करें",
+  "INVALID_URL_FORMAT": "कृपया एक वैध URL दर्ज करें (http:// या https:// से शुरू होना चाहिए)",
+  "FAILED_ADD_URL": "URL जोड़ने में विफल। कृपया पुनः प्रयास करें।",
+  "URL_TYPE": "URL प्रकार",
+  "TYPE_IMAGE": "छवि",
+  "TYPE_VIDEO": "वीडियो",
+  "TYPE_MANUAL": "मैनुअल",
+  "ADD_URL": "URL जोड़ें",
+  "ADDING": "जोड़ा जा रहा है...",
+  "CANCEL": "रद्द करें"
 }
