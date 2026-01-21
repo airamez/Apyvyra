@@ -136,3 +136,4 @@ Welcome and enjoy!!!
 * [#13: Trying Claude Code to improve Products](https://youtube.com/live/UDkrn0D2PkU)
 * [#14: Apyvyra MVP](https://youtu.be/cBv-CIOTnEs)
 * [#15: Apyvyra MVP - portuguese](https://youtu.be/4od5NBcwAgA)
+* [#16: Apyvyra Demo](https://youtu.be/nYk2nKJeGT8)
